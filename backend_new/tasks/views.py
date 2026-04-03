@@ -1,0 +1,94 @@
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from users.authentication import JWTAuthentication
+from users.permissions import IsAdmin
+from users.models import User
+from .models import Task
+from mongoengine.errors import DoesNotExist
+
+
+def serialize_task(t):
+    return {
+        'id': str(t.id),
+        'title': t.title,
+        'description': t.description or '',
+        'status': t.status,
+        'employee_id': str(t.employee.id),
+        'employee_name': t.employee.username,
+    }
+
+
+@api_view(['GET', 'POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def task_list_create(request):
+    if request.method == 'GET':
+        tasks = Task.objects.all() if request.user.role == 'ADMIN' else Task.objects(employee=request.user)
+        return Response([serialize_task(t) for t in tasks])
+
+    if request.method == 'POST':
+        title = request.data.get('title')
+        description = request.data.get('description', '')
+        employee_id = request.data.get('employee_id')
+
+        # Allow admins to assign to anyone; employees can only assign to themselves.
+        if request.user.role != 'ADMIN':
+            if not employee_id or str(request.user.id) != str(employee_id):
+                return Response({'error': 'You can only create tasks for yourself'}, status=403)
+        
+        if not title or not employee_id:
+            return Response({'error': 'title and employee_id are required'}, status=400)
+
+        try:
+            employee = User.objects.get(id=employee_id, role='EMPLOYEE')
+        except DoesNotExist:
+            return Response({'error': 'Employee not found'}, status=404)
+
+        task = Task(title=title, description=description, employee=employee)
+        task.save()
+        return Response(serialize_task(task), status=201)
+
+
+@api_view(['PATCH'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def update_task_status(request, pk):
+    try:
+        task = Task.objects.get(id=pk)
+    except DoesNotExist:
+        return Response({'error': 'Task not found'}, status=404)
+
+    if request.user.role == 'EMPLOYEE' and str(task.employee.id) != str(request.user.id):
+        return Response({'error': 'You can only update your own tasks'}, status=403)
+
+    status = request.data.get('status')
+    if status not in ('TODO', 'IN_PROGRESS', 'DONE'):
+        return Response({'error': 'Invalid status. Must be TODO, IN_PROGRESS, or DONE'}, status=400)
+
+    task.status = status
+    task.save()
+    return Response(serialize_task(task))
+
+
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdmin])
+def update_task(request, pk):
+    try:
+        task = Task.objects.get(id=pk)
+    except DoesNotExist:
+        return Response({'error': 'Task not found'}, status=404)
+
+    task.title = request.data.get('title', task.title)
+    task.description = request.data.get('description', task.description)
+    employee_id = request.data.get('employee_id')
+
+    if employee_id:
+        try:
+            task.employee = User.objects.get(id=employee_id, role='EMPLOYEE')
+        except DoesNotExist:
+            return Response({'error': 'Employee not found'}, status=404)
+
+    task.save()
+    return Response(serialize_task(task))

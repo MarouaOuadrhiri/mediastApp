@@ -1,0 +1,271 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../core/api.service';
+
+@Component({
+  selector: 'app-employee-dashboard-content',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="animate-fade-up max-w-6xl mx-auto space-y-8">
+      
+      <div *ngIf="errorMsg" class="p-4 bg-rose-500/15 border border-rose-500/25 text-rose-300 rounded-2xl flex items-center justify-between text-sm shadow-md">
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          {{errorMsg}}
+        </span>
+        <button (click)="errorMsg=''" class="text-rose-400 font-bold ml-4">✕</button>
+      </div>
+
+      <!-- Overview Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-[#1b2a3a] border border-[#547792]/30 p-6 rounded-3xl shadow-lg relative overflow-hidden group">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-[#547792]/10 rounded-full blur-xl group-hover:bg-[#94B4C1]/20 transition-all"></div>
+          <p class="text-xs uppercase tracking-widest text-[#94B4C1] font-bold mb-2">My Projects</p>
+          <p class="text-4xl font-black text-[#EAE0CF]">{{projects.length}}</p>
+        </div>
+        <div class="bg-[#1b2a3a] border border-[#547792]/30 p-6 rounded-3xl shadow-lg relative overflow-hidden group">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-[#94B4C1]/10 rounded-full blur-xl group-hover:bg-[#EAE0CF]/20 transition-all"></div>
+          <p class="text-xs uppercase tracking-widest text-[#94B4C1] font-bold mb-2">Total Active Tasks</p>
+          <p class="text-4xl font-black text-[#EAE0CF]">{{getTotalActiveTasks()}}</p>
+        </div>
+        <div class="bg-[#213448] border border-[#547792]/50 p-6 rounded-3xl shadow-lg relative overflow-hidden bg-gradient-to-br from-[#1b2a3a] to-[#213448]">
+          <p class="text-xs uppercase tracking-widest text-[#94B4C1] font-bold mb-2">Overall Progress</p>
+          <div class="mt-4">
+             <div class="h-2 bg-[#1b2a3a] rounded-full overflow-hidden border border-[#547792]/30">
+               <div class="h-full bg-gradient-to-r from-[#547792] to-[#94B4C1] rounded-full transition-all duration-1000"
+                 [style.width]="getOverallProgress() + '%'"></div>
+             </div>
+             <p class="text-right text-[10px] text-[#EAE0CF] mt-1.5 font-bold">{{getOverallProgress()}}% Completed</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-8">
+        <!-- Main: Projects Section -->
+        <div class="lg:col-span-8 space-y-6">
+          <h3 class="text-sm font-black text-[#EAE0CF] uppercase tracking-wider mb-4 flex items-center gap-2 px-1">
+            <svg class="w-4 h-4 text-[#94B4C1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            Assigned Projects
+          </h3>
+          
+          <div *ngFor="let p of projects" class="bg-[#1b2a3a] border border-[#547792]/30 rounded-3xl overflow-hidden shadow-lg">
+            <div class="p-6 border-b border-[#547792]/20 relative overflow-hidden">
+               <div class="absolute right-0 top-0 w-32 h-32 bg-gradient-to-bl from-[#547792]/10 to-transparent blur-2xl"></div>
+               <div class="relative z-10 flex justify-between items-start">
+                 <div>
+                   <h4 class="text-lg font-black text-[#EAE0CF]">{{p.name}}</h4>
+                   <p class="text-sm text-[#94B4C1] mt-1">{{p.description || 'No description available for this project.'}}</p>
+                 </div>
+                 <div class="text-right">
+                    <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-[#213448] text-[#94B4C1] border border-[#547792]/50">
+                      {{p.tasks?.length || 0}} Tasks
+                    </span>
+                    <p class="text-[10px] text-rose-400 font-bold mt-2" *ngIf="p.deadline">Due: {{p.deadline | date:'mediumDate'}}</p>
+                 </div>
+               </div>
+            </div>
+            
+            <div class="p-6 bg-[#213448]/30">
+               <div class="space-y-3">
+                 <div *ngFor="let t of p.tasks" class="bg-[#213448] border border-[#547792]/40 rounded-xl p-4 flex items-center justify-between shadow-sm hover:border-[#94B4C1]/50 transition-colors">
+                   <div class="flex-1">
+                     <p class="text-sm font-bold text-[#EAE0CF]" [class.line-through]="t.status === 'DONE'" [class.opacity-50]="t.status === 'DONE'">
+                        {{t.title}}
+                        <span *ngIf="t.deadline && t.status !== 'DONE'" class="ml-2 text-[10px] bg-rose-500/10 text-rose-400 px-1.5 py-0.5 rounded font-mono">Due {{t.deadline | date:'shortDate'}}</span>
+                     </p>
+                     <p class="text-xs text-[#94B4C1]/80 mt-1 line-clamp-1" [class.opacity-50]="t.status === 'DONE'">{{t.description}}</p>
+                   </div>
+                   
+                   <div class="flex items-center gap-3 ml-4 shrink-0">
+                      <select [(ngModel)]="t.status" (change)="updateProjectTaskStatus(p.id, t.id, t.status)"
+                        class="text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border appearance-none text-center cursor-pointer min-w-[120px] shadow-inner focus:outline-none"
+                        [ngClass]="{
+                          'bg-[#213448] text-[#547792] border-[#547792]': t.status==='TODO', 
+                          'bg-[#94B4C1]/20 text-[#94B4C1] border-[#94B4C1]/50': t.status==='IN_PROGRESS', 
+                          'bg-emerald-500/10 text-emerald-400 border-emerald-500/30': t.status==='DONE'
+                        }">
+                        <option value="TODO" class="bg-[#1b2a3a] text-[#EAE0CF]">TODO</option>
+                        <option value="IN_PROGRESS" class="bg-[#1b2a3a] text-[#EAE0CF]">IN PROGRESS</option>
+                        <option value="DONE" class="bg-[#1b2a3a] text-[#EAE0CF]">DONE</option>
+                      </select>
+                   </div>
+                 </div>
+               </div>
+               
+               <div *ngIf="!p.tasks || p.tasks.length === 0" class="text-center py-6 text-sm text-[#94B4C1]/60 italic border border-dashed border-[#547792]/30 rounded-xl">
+                 No tasks in this project yet.
+               </div>
+            </div>
+          </div>
+          
+          <div *ngIf="projects.length === 0" class="text-center py-16 bg-[#1b2a3a] border border-[#547792]/20 rounded-3xl transition-all">
+            <div class="w-16 h-16 mx-auto bg-[#213448] shadow-inner rounded-full flex items-center justify-center mb-4">
+               <svg class="w-8 h-8 text-[#547792]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+            </div>
+            <p class="text-[#EAE0CF] font-bold">You're all caught up!</p>
+            <p class="text-sm text-[#94B4C1] mt-1">No active projects assigned to you.</p>
+          </div>
+        </div>
+
+        <!-- Sidebar: Standalone Tasks -->
+        <div class="lg:col-span-4 space-y-6">
+          <div class="bg-[#1b2a3a] border border-[#547792]/30 rounded-3xl p-6 shadow-xl sticky top-0">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-xs font-black text-[#EAE0CF] uppercase tracking-widest flex items-center gap-2">
+                <svg class="w-4 h-4 text-[#94B4C1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                Individual Tasks
+              </h3>
+              <button (click)="isAddingTask = !isAddingTask" class="p-1 px-2.5 rounded-lg bg-[#547792]/20 text-[#EAE0CF] border border-[#547792]/40 hover:bg-[#547792]/40 transition-all text-[10px] font-bold">
+                {{ isAddingTask ? 'Cancel' : 'Add New' }}
+              </button>
+            </div>
+
+            <!-- Quick Add Task Form -->
+            <div *ngIf="isAddingTask" class="mb-6 animate-fade-up">
+              <div class="flex gap-2">
+                <input type="text" [(ngModel)]="newTaskTitle" (keyup.enter)="createStandaloneTask()"
+                       placeholder="What needs to be done?"
+                       class="flex-1 bg-[#213448]/50 border border-[#547792]/50 rounded-xl px-4 py-2 text-xs text-[#EAE0CF] focus:border-[#94B4C1] focus:outline-none transition-all placeholder:text-[#94B4C1]/40">
+                <button (click)="createStandaloneTask()" [disabled]="!newTaskTitle.trim()"
+                        class="bg-[#547792] hover:bg-[#94B4C1] text-[#EAE0CF] p-2 rounded-xl disabled:opacity-40 transition-all">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
+              <div *ngFor="let t of standaloneTasks" class="p-4 rounded-2xl bg-[#213448]/40 border border-[#547792]/20 group hover:border-[#94B4C1]/30 transition-all shadow-sm">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex-1">
+                    <p class="text-xs font-bold text-[#EAE0CF]" [class.line-through]="t.status === 'DONE'" [class.opacity-50]="t.status === 'DONE'">{{t.title}}</p>
+                  </div>
+                  <button (click)="updateStandaloneTaskStatus(t.id, t.status === 'DONE' ? 'TODO' : 'DONE')" 
+                          class="shrink-0 w-5 h-5 rounded-md border transition-all flex items-center justify-center"
+                          [class]="t.status === 'DONE' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'border-[#547792]/50 text-transparent hover:border-emerald-400/50 hover:text-emerald-400/30'">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                  </button>
+                </div>
+                <div class="mt-2 flex items-center justify-between">
+                  <span class="text-[8px] uppercase tracking-widest font-black"
+                        [class]="t.status === 'DONE' ? 'text-emerald-400/60' : 'text-[#94B4C1]/60'">
+                    {{t.status}}
+                  </span>
+                  <div *ngIf="t.status !== 'DONE'" class="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button (click)="updateStandaloneTaskStatus(t.id, 'IN_PROGRESS')" 
+                            class="text-[8px] bg-[#94B4C1]/10 text-[#94B4C1] px-1.5 py-0.5 rounded border border-[#94B4C1]/20 hover:bg-[#94B4C1]/20">
+                      IN_PROGRESS
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="standaloneTasks.length === 0" class="text-center py-10 border border-dashed border-[#547792]/20 rounded-2xl">
+                <p class="text-[10px] text-[#94B4C1]/40 italic">No individual tasks yet</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .animate-fade-up { animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  `]
+})
+export class DashboardComponent implements OnInit {
+  projects: any[] = [];
+  standaloneTasks: any[] = [];
+  errorMsg = '';
+  
+  newTaskTitle = '';
+  isAddingTask = false;
+  
+  user: any = null;
+
+  constructor(private api: ApiService) {}
+
+  ngOnInit() {
+    this.loadData();
+  }
+
+  loadData() {
+    this.api.getMe().subscribe({ next: (r: any) => { this.user = r; }, error: () => {} });
+    
+    this.api.getMyProjects().subscribe({
+      next: (r: any) => { this.projects = r; },
+      error: () => { this.errorMsg = 'Failed to load project data.'; }
+    });
+    
+    this.api.getTasks().subscribe({
+      next: (r: any) => { this.standaloneTasks = r; },
+      error: () => { this.errorMsg = 'Failed to load standalone tasks.'; }
+    });
+  }
+
+  createStandaloneTask() {
+    if (!this.newTaskTitle.trim()) return;
+    
+    const payload = {
+      title: this.newTaskTitle,
+      employee_id: this.user.id
+    };
+    
+    this.api.createTask(payload).subscribe({
+      next: () => {
+        this.newTaskTitle = '';
+        this.isAddingTask = false;
+        this.loadData();
+      },
+      error: (err: any) => {
+        this.errorMsg = err.error?.error || 'Failed to create task.';
+      }
+    });
+  }
+
+  updateStandaloneTaskStatus(taskId: string, status: string) {
+    this.api.updateTaskStatus(taskId, status).subscribe({
+      next: () => { this.loadData(); },
+      error: () => { this.errorMsg = 'Failed to update task status.'; }
+    });
+  }
+
+  getTotalActiveTasks(): number {
+    let count = 0;
+    this.projects.forEach(p => {
+      if (p.tasks) count += p.tasks.filter((t: any) => t.status !== 'DONE').length;
+    });
+    count += this.standaloneTasks.filter((t: any) => t.status !== 'DONE').length;
+    return count;
+  }
+
+  getOverallProgress(): number {
+    let total = 0;
+    let done = 0;
+    
+    this.projects.forEach(p => {
+      if (p.tasks) {
+        total += p.tasks.length;
+        done += p.tasks.filter((t: any) => t.status === 'DONE').length;
+      }
+    });
+
+    total += this.standaloneTasks.length;
+    done += this.standaloneTasks.filter((t: any) => t.status === 'DONE').length;
+    
+    if (total === 0) return 0;
+    return Math.round((done / total) * 100);
+  }
+
+  updateProjectTaskStatus(projectId: string, taskId: string, status: string) {
+    this.api.updateProjectTaskStatus(projectId, taskId, status).subscribe({
+      next: () => {},
+      error: (err: any) => { 
+        this.errorMsg = err.error?.error || 'Failed to update task status.';
+        this.loadData(); // Revert on failure
+      }
+    });
+  }
+}
