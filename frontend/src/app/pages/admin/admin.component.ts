@@ -1,6 +1,7 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, Inject, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { ApiService } from '../../core/api.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -9,17 +10,125 @@ import { RouterModule, Router } from '@angular/router';
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css']
 })
-export class AdminComponent implements OnInit {
+export class AdminComponent implements OnInit, OnDestroy {
   showSidebar = false;
+  user: any = null;
 
-  constructor(private router: Router, @Inject(PLATFORM_ID) private platformId: Object) {}
+  // Meetings notification state
+  meetings: any[] = [];
+  upcomingMeetings: any[] = [];
+  showNotifPanel = false;
+  newMeetingCount = 0;
+  // Popup toast for newly detected meetings
+  toastMeeting: any = null;
+  private toastTimer: any;
+  private meetingPollInterval: any;
+  private lastSeenMeetingIds: Set<string> = new Set();
 
-  ngOnInit() {}
+  constructor(
+    private api: ApiService,
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private cdr: ChangeDetectorRef,
+    private zone: NgZone
+  ) {}
+
+  ngOnInit() {
+    setTimeout(() => {
+      this.api.getMe().subscribe({
+        next: (r: any) => {
+          this.zone.run(() => { this.user = r; this.cdr.detectChanges(); });
+        },
+        error: () => {}
+      });
+      this.loadMeetings(true); // initial load — mark all existing as "seen"
+    }, 0);
+
+    if (isPlatformBrowser(this.platformId)) {
+      // Poll for new meetings every 30s
+      this.meetingPollInterval = setInterval(() => this.loadMeetings(false), 30000);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.meetingPollInterval) clearInterval(this.meetingPollInterval);
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+  }
+
+  loadMeetings(isInitial = false) {
+    this.api.getMeetings().subscribe({
+      next: (r: any) => {
+        this.zone.run(() => {
+          const raw: any[] = r || [];
+          const now = new Date();
+
+          this.meetings = raw;
+          this.upcomingMeetings = raw
+            .filter(m => new Date(m.date_time) >= now)
+            .sort((a, b) => new Date(a.date_time).getTime() - new Date(b.date_time).getTime());
+
+          const in24h = new Date(now.getTime() + 24 * 3600 * 1000);
+          this.newMeetingCount = this.upcomingMeetings.filter(m => new Date(m.date_time) <= in24h).length;
+
+          if (isInitial) {
+            // Seed seen IDs — don't toast on first load
+            raw.forEach(m => this.lastSeenMeetingIds.add(m.id));
+          } else {
+            // Detect brand-new meetings
+            const newOnes = raw.filter(m => !this.lastSeenMeetingIds.has(m.id));
+            raw.forEach(m => this.lastSeenMeetingIds.add(m.id));
+            if (newOnes.length > 0) {
+              this.showToast(newOnes[newOnes.length - 1]); // show the latest
+            }
+          }
+          this.cdr.detectChanges();
+        });
+      },
+      error: () => {}
+    });
+  }
+
+  showToast(meeting: any) {
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastMeeting = meeting;
+    this.toastTimer = setTimeout(() => {
+      this.zone.run(() => { this.toastMeeting = null; this.cdr.detectChanges(); });
+    }, 6000);
+  }
+
+  dismissToast() {
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastMeeting = null;
+  }
+
+  getMeetingTimeLabel(dateStr: string): string {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffMs = d.getTime() - now.getTime();
+    const diffH = Math.floor(diffMs / 3600000);
+    const diffM = Math.floor((diffMs % 3600000) / 60000);
+    if (diffMs < 0) return 'Passé';
+    if (diffH === 0) return `Dans ${diffM}min`;
+    if (diffH < 24) return `Dans ${diffH}h${diffM > 0 ? diffM + 'min' : ''}`;
+    return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
 
   logout() {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.clear();
+    const finalizeLogout = () => {
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.clear();
+        window.location.href = '/login';
+      } else {
+        localStorage.clear();
+        this.router.navigate(['/login']);
+      }
+    };
+
+    const isAdmin = localStorage.getItem('role') === 'admin';
+    if (isAdmin) {
+      finalizeLogout();
+    } else {
+      this.api.endAttendance().subscribe({ next: finalizeLogout, error: finalizeLogout });
     }
-    this.router.navigate(['/login']);
   }
 }

@@ -8,8 +8,11 @@ class ProjectTask(EmbeddedDocument):
     id = ObjectIdField(default=bson.ObjectId)
     title = StringField(required=True, max_length=200)
     description = StringField()
+    note = StringField()
     status = StringField(choices=('TODO', 'IN_PROGRESS', 'DONE'), default='TODO')
     deadline = DateTimeField()
+    completed_by = ReferenceField(User, null=True)
+    completed_at = DateTimeField()
 
 class Project(Document):
     meta = {'strict': False}

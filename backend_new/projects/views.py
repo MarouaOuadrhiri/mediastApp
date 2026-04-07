@@ -26,8 +26,11 @@ def serialize_project(p):
                 'id': str(t.id),
                 'title': t.title,
                 'description': t.description,
+                'note': getattr(t, 'note', ''),
                 'status': t.status,
                 'deadline': t.deadline.isoformat() if getattr(t, 'deadline', None) else None,
+                'completed_by_name': t.completed_by.username if (getattr(t, 'completed_by', None) and hasattr(t.completed_by, 'username')) else None,
+                'completed_at': t.completed_at.isoformat() if getattr(t, 'completed_at', None) else None,
             } for t in p.tasks
         ]
     }
@@ -98,6 +101,7 @@ def project_list_create(request):
             tasks.append(ProjectTask(
                 title=t.get('title', ''), 
                 description=t.get('description', ''),
+                note=t.get('note', ''),
                 deadline=task_deadline
             ))
 
@@ -184,6 +188,7 @@ def project_detail(request, pk):
             if existing:
                 existing.title = t.get('title')
                 existing.description = t.get('description', '')
+                existing.note = t.get('note', '')
                 existing.deadline = task_deadline
                 # Keep original status
                 new_tasks.append(existing)
@@ -191,6 +196,7 @@ def project_detail(request, pk):
                 new_tasks.append(ProjectTask(
                     title=t.get('title', ''),
                     description=t.get('description', ''),
+                    note=t.get('note', ''),
                     deadline=task_deadline
                 ))
 
@@ -236,6 +242,12 @@ def update_project_task_status(request, pk, task_id):
     for task in project.tasks:
         if str(task.id) == task_id:
             task.status = status
+            if status == 'DONE':
+                task.completed_by = request.user
+                task.completed_at = datetime.utcnow()
+            else:
+                task.completed_by = None
+                task.completed_at = None
             break
     else:
         return Response({'error': 'Task not found'}, status=404)

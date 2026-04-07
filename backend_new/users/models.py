@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 # users/models.py
-from mongoengine import Document, StringField, EmailField, ReferenceField
+from mongoengine import Document, StringField, EmailField, ReferenceField, DateTimeField
 from departments.models import Department
 
 class User(Document):
@@ -11,7 +11,14 @@ class User(Document):
     password = StringField(required=True)
     role = StringField(choices=('ADMIN', 'EMPLOYEE'), default='EMPLOYEE')
     department = ReferenceField(Department, null=True)
+    profile_photo = StringField()
 
     @property
     def is_authenticated(self):
         return True
+
+class AttendanceRecord(Document):
+    user = ReferenceField(User, required=True)
+    start_time = DateTimeField(required=True)
+    end_time = DateTimeField()
+    status = StringField(choices=('ACTIVE', 'COMPLETED'), default='ACTIVE')

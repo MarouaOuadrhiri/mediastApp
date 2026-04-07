@@ -23,12 +23,13 @@ export class ProjectsComponent implements OnInit {
   projectEmployeeIds: string[] = [];
   projectDeadline = '';
   
-  projectTasks: { id?: string, title: string, description?: string }[] = [];
+  projectTasks: { id?: string, title: string, description?: string, note?: string }[] = [];
   projectSuccess = false;
   
   filteredEmployees: any[] = [];
   isEditingMode = false;
   editingProjectId = '';
+  activeFilter: 'ALL' | 'ACTIVE' | 'COMPLETED' = 'ACTIVE';
 
   constructor(private api: ApiService) {}
 
@@ -60,6 +61,18 @@ export class ProjectsComponent implements OnInit {
     return Math.round((done / p.tasks.length) * 100);
   }
 
+  getFilteredProjects() {
+    if (this.activeFilter === 'ALL') return this.projects;
+    if (this.activeFilter === 'COMPLETED') {
+      return this.projects.filter(p => this.getProjectProgress(p) === 100 && p.tasks?.length > 0);
+    }
+    // ACTIVE means not completed (progress < 100 or no tasks)
+    return this.projects.filter(p => {
+      const prog = this.getProjectProgress(p);
+      return prog < 100 || !p.tasks || p.tasks.length === 0;
+    });
+  }
+
   addProjectTask() { this.projectTasks.push({ title: '' }); }
   removeProjectTask(i: number) { this.projectTasks.splice(i, 1); }
 
@@ -72,7 +85,7 @@ export class ProjectsComponent implements OnInit {
     this.filterEmployees();
     this.projectEmployeeIds = p.employees?.map((e: any) => e.id) || [];
     this.projectDeadline = p.deadline ? p.deadline.slice(0, 16) : '';
-    this.projectTasks = p.tasks?.map((t: any) => ({ id: t.id, title: t.title, description: t.description })) || [];
+    this.projectTasks = p.tasks?.map((t: any) => ({ id: t.id, title: t.title, description: t.description, note: t.note })) || [];
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 

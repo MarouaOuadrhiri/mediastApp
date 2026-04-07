@@ -21,9 +21,14 @@ export class EmployeesComponent implements OnInit {
   empPassword = '';
   empDepartmentId = '';
   empSuccess = '';
+  empPhoto = '';
 
   showHistoryModal = false;
   selectedHistory: any = null;
+
+  showAttendanceModal = false;
+  selectedAttendanceLogs: any[] = [];
+  selectedEmpName = '';
 
   constructor(private api: ApiService) {}
 
@@ -51,10 +56,16 @@ export class EmployeesComponent implements OnInit {
       this.errorMsg = 'Please fill all fields.'; return;
     }
     this.isSubmitting = true;
-    this.api.createEmployee({ username: this.empUsername, email: this.empEmail, password: this.empPassword, department_id: this.empDepartmentId }).subscribe({
+    this.api.createEmployee({ 
+      username: this.empUsername, 
+      email: this.empEmail, 
+      password: this.empPassword, 
+      department_id: this.empDepartmentId,
+      profile_photo: this.empPhoto
+    }).subscribe({
       next: (res: any) => { 
         this.empSuccess = res.id; 
-        this.empUsername = ''; this.empEmail = ''; this.empPassword = ''; this.empDepartmentId = ''; 
+        this.empUsername = ''; this.empEmail = ''; this.empPassword = ''; this.empDepartmentId = ''; this.empPhoto = '';
         this.isSubmitting = false; 
         this.loadData(); 
         setTimeout(() => this.empSuccess = '', 3000);
@@ -83,5 +94,35 @@ export class EmployeesComponent implements OnInit {
   closeHistory() {
     this.showHistoryModal = false;
     this.selectedHistory = null;
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.empPhoto = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  openAttendance(emp: any) {
+    this.selectedEmpName = emp.username;
+    this.selectedAttendanceLogs = [];
+    this.showAttendanceModal = true;
+    this.api.getEmployeeAttendance(emp.id).subscribe({
+      next: (res: any) => {
+        this.selectedAttendanceLogs = res;
+      },
+      error: () => {
+        this.errorMsg = 'Failed to load attendance logs.';
+      }
+    });
+  }
+
+  closeAttendance() {
+    this.showAttendanceModal = false;
+    this.selectedAttendanceLogs = [];
   }
 }

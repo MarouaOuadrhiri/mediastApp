@@ -1,0 +1,345 @@
+<div class="animate-fade-up space-y-6 max-w-[1600px] mx-auto pb-10 px-4 pt-4">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="bg-[#161616] border border-white/5 rounded-3xl p-6 hover:border-white/10 transition-all group">
+      <p class="text-[10px] uppercase tracking-widest text-white/30 font-black mb-4">Total Projects</p>
+      <div class="flex items-end justify-between">
+        <p class="text-4xl font-black text-white leading-none tracking-tighter">{{ stats.projects }}</p>
+        <span class="text-[9px] text-green-400 font-bold bg-green-500/10 px-2 py-1 rounded-lg border border-green-500/20 group-hover:scale-110 transition-all">+12% from last month</span>
+      </div>
+    </div>
+    
+    <div class="bg-[#e53935] rounded-3xl p-6 relative overflow-hidden shadow-2xl shadow-red-900/40 group">
+      <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
+      <p class="text-[10px] uppercase tracking-widest text-white/70 font-black mb-4">Completed Projects</p>
+      <div class="flex items-end justify-between relative z-10">
+        <p class="text-4xl font-black text-white leading-none tracking-tighter">{{ stats.completedProjects }}</p>
+        <span class="text-[9px] text-white/60 font-bold uppercase tracking-widest">Velocity: High</span>
+      </div>
+    </div>
+    
+    <div class="bg-[#161616] border border-white/5 rounded-3xl p-6 hover:border-white/10 transition-all">
+      <p class="text-[10px] uppercase tracking-widest text-white/30 font-black mb-4">Active Projects</p>
+      <div class="flex items-end justify-between">
+        <p class="text-4xl font-black text-white leading-none tracking-tighter">{{ stats.activeProjects }}</p>
+        <span class="text-[9px] text-[#e53935] font-bold uppercase tracking-widest px-2 py-1 bg-[#e53935]/10 rounded-lg border border-[#e53935]/20">4 due this week</span>
+      </div>
+    </div>
+    
+    <div class="bg-[#161616] border border-white/5 rounded-3xl p-6 hover:border-white/10 transition-all group">
+      <p class="text-[10px] uppercase tracking-widest text-white/30 font-black mb-4">Pending Tasks</p>
+      <div class="flex items-end justify-between">
+        <p class="text-4xl font-black text-white leading-none tracking-tighter">{{ stats.tasks }}</p>
+        <div class="flex flex-col items-end">
+          <span class="text-[10px] text-[#e53935] font-bold uppercase animate-pulse">Action required</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- LEFT COLUMN -->
+    <div class="lg:col-span-8 space-y-8">
+      
+      <!-- Chart Card -->
+      <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-[#e53935]/5 blur-[100px] rounded-full -mr-20 -mt-20"></div>
+        
+        <div class="flex items-center justify-between mb-10 relative z-10">
+          <div>
+            <h2 class="text-2xl font-black text-white tracking-tight">Weekly Project Activity</h2>
+            <p class="text-[10px] text-white/20 mt-1 uppercase tracking-[0.2em] font-black">Data tracking based on task completion velocity</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-2.5 h-2.5 bg-[#e53935] rounded-sm shadow-[0_0_10px_rgba(229,57,53,0.5)]"></div>
+            <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Output</span>
+            <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 ml-2">
+              <span class="w-1 h-1 bg-[#e53935] rounded-full animate-pulse"></span>
+              <span class="text-[8px] font-black text-[#e53935] uppercase tracking-widest">Live</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="chart-bar-container relative z-10 h-[220px]">
+          <div *ngFor="let item of weeklyActivity" class="chart-bar-wrapper">
+            <div class="chart-bar group relative" [style.height]="item.value + '%'">
+              <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-black px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100 whitespace-nowrap shadow-2xl z-20">
+                {{ item.value }} pts
+              </div>
+            </div>
+            <p class="chart-label mt-4">{{ item.day }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Projects Card -->
+      <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-2xl font-black text-white tracking-tight">Current Projects</h2>
+          <button routerLink="../projects" class="text-[10px] text-white/30 font-black uppercase tracking-widest hover:text-[#e53935] transition-all flex items-center gap-2 group">
+            View All
+            <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div *ngFor="let p of projects.slice(0, 3)" class="flex items-center justify-between p-6 rounded-[1.5rem] bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all group">
+            <div class="flex items-center gap-6">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110"
+                   [ngClass]="{
+                     'bg-green-500/10 text-green-500': getProjectProgress(p) === 100,
+                     'bg-[#e53935]/10 text-[#e53935]': getProjectProgress(p) < 100 && getProjectProgress(p) > 0,
+                     'bg-amber-500/10 text-amber-500': getProjectProgress(p) === 0
+                   }">
+                <svg *ngIf="getProjectProgress(p) === 100" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+                <svg *ngIf="getProjectProgress(p) < 100 && getProjectProgress(p) > 0" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <svg *ngIf="getProjectProgress(p) === 0" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+              </div>
+              <div>
+                <h3 class="text-base font-black text-white tracking-tight group-hover:text-[#e53935] transition-colors">{{ p.name }}</h3>
+                <p class="text-[10px] text-white/20 mt-1 font-bold uppercase tracking-widest">{{ p.department_name || 'Organization Wide' }}</p>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+              <div class="px-5 py-2 rounded-full text-[9px] font-black tracking-[0.1em] uppercase border"
+                   [ngClass]="{
+                     'bg-green-500/5 text-green-500 border-green-500/20': getProjectProgress(p) === 100,
+                     'bg-[#e53935]/5 text-[#e53935] border-[#e53935]/20': getProjectProgress(p) < 100 && getProjectProgress(p) > 0,
+                     'bg-amber-500/5 text-amber-500 border-amber-500/20': getProjectProgress(p) === 0
+                   }">
+                {{ getProjectProgress(p) === 100 ? 'DONE' : getProjectProgress(p) > 0 ? 'IN PROGRESS' : 'PENDING' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Performance -->
+      <div class="space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-black text-white tracking-tight">Team Performance</h2>
+          <button routerLink="/admin/employees" class="text-[10px] text-white/20 font-black uppercase tracking-widest hover:text-white transition-all">View All</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div *ngFor="let member of teamPerformance" class="bg-[#161616] border border-white/5 rounded-[1.5rem] p-8 hover:border-white/10 transition-all group">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="relative">
+                <img *ngIf="member.photo" [src]="member.photo" class="w-12 h-12 rounded-2xl object-cover ring-2 ring-white/5">
+                <div *ngIf="!member.photo" class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-xs font-black text-white/40 border border-white/10 uppercase tracking-tighter">
+                  {{ member.name.slice(0,2) }}
+                </div>
+
+              </div>
+              <div>
+                <h4 class="text-sm font-black text-white tracking-tight">{{ member.name }}</h4>
+                <p class="text-[10px] text-white/20 font-bold uppercase">{{ member.role }}</p>
+              </div>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="text-xs font-black text-white font-mono">{{ member.elapsed }}</span>
+              <span class="text-[8px] font-bold tracking-widest uppercase" 
+                    [class]="member.isOnline ? 'text-[#e53935] animate-pulse' : 'text-white/20'">
+                {{ member.isOnline ? 'En ligne' : 'Work Today' }}
+              </span>
+            </div>
+            <p class="text-xs text-white/40 leading-relaxed min-h-[40px]">Working on projects</p>
+            <div class="flex items-center justify-between mt-8">
+              <span class="text-[9px] font-black text-white/20 uppercase tracking-widest">
+                {{ member.isOnline ? 'Active for: ' + member.elapsed : 'Offline' }}
+              </span>
+              <div [class]="member.isOnline ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-white/5 border-white/5 text-white/20'"
+                   class="px-4 py-1.5 rounded-lg border text-[9px] font-black tracking-widest uppercase">
+                {{ member.status }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="lg:col-span-4 space-y-8">
+      
+      <!-- Global Progress -->
+      <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl flex flex-col items-center">
+        <h2 class="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mb-12 align-self-start w-full">Global Progress</h2>
+        
+        <div class="relative w-full flex justify-center py-4">
+          <div class="progress-gauge-container">
+            <svg viewBox="0 0 100 100" class="progress-gauge-svg w-full h-full transform -rotate-90">
+              <circle cx="50" cy="50" r="42" class="fill-none stroke-white/5 stroke-[12]"></circle>
+              <circle cx="50" cy="50" r="42" class="fill-none stroke-[#e53935] stroke-[12] transition-all duration-1000" 
+                [style.stroke-dasharray]="(overallVelocity * 2.64) + ', 264'" stroke-linecap="round"></circle>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <p class="text-5xl font-black text-white tracking-tighter">{{ overallVelocity }}%</p>
+              <p class="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mt-2">Overall Velocity</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full space-y-6 mt-12 bg-white/2 p-6 rounded-3xl border border-white/5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full bg-[#e53935]"></div>
+              <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Completed</span>
+            </div>
+            <span class="text-xs font-black text-white">{{ globalStats.completed }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full bg-[#e53935]/30"></div>
+              <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">In Progress</span>
+            </div>
+            <span class="text-xs font-black text-white/50">{{ globalStats.inProgress }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full bg-white/5"></div>
+              <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Pending</span>
+            </div>
+            <span class="text-xs font-black text-white/20">{{ globalStats.pending }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Priority Meeting Widget -->
+      <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl">
+        <div class="flex items-start justify-between mb-8">
+          <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-[#e53935] border border-white/5">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          </div>
+          <span class="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] pt-2">Priority Meeting</span>
+        </div>
+        <h3 class="text-xl font-black text-white tracking-tight mb-3">Product Launch Sync: Q3 Velocity</h3>
+
+        <button (click)="openMeetingModal()" class="w-full bg-[#161616] hover:bg-[#e53935] text-white/40 hover:text-white border border-white/5 hover:border-[#e53935] py-4 rounded-2xl text-xs font-black tracking-widest transition-all">
+          Start Meeting
+        </button>
+      </div>
+
+      <!-- Session Tracking Widget -->
+      <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl text-center relative overflow-hidden group">
+        <div class="absolute top-0 left-0 w-full h-1 bg-[#e53935]/20 overflow-hidden">
+           <div class="h-full bg-[#e53935] w-2/3 animate-pulse"></div>
+        </div>
+        <h4 class="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mb-6">Your Session Tracking</h4>
+        <div class="text-5xl font-black text-white tracking-tighter mb-8 font-mono">{{ timerValue }}</div>
+        <div class="grid grid-cols-1 gap-4">
+          <!-- Admin can manual start/stop if they participate in pointage -->
+          <button (click)="toggleTimer()" class="bg-[#e53935] hover:bg-[#c62828] text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-red-900/30">
+            {{ timerRunning ? 'Pause Session' : 'Resume Session' }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Meeting Modal -->
+<div *ngIf="showMeetingModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto">
+  <div class="fixed inset-0 bg-black/60 backdrop-blur-md" (click)="closeMeetingModal()"></div>
+  
+  <div class="relative w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300 my-auto">
+    <!-- Header -->
+    <div class="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-red-600/10 to-transparent">
+      <div>
+        <h2 class="text-xl font-black text-white tracking-tight uppercase">Schedule New Meeting</h2>
+        <p class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mt-1">Select participants and set time</p>
+      </div>
+      <button (click)="closeMeetingModal()" class="p-2 hover:bg-white/5 rounded-full transition-colors text-white/40 hover:text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-8 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar text-left">
+      <!-- Title & Description -->
+      <div class="grid grid-cols-1 gap-4">
+        <div class="space-y-2">
+          <label class="text-[10px] text-white/30 uppercase tracking-widest font-bold ml-1">Meeting Title *</label>
+          <input type="text" [(ngModel)]="meetingForm.title" placeholder="Weekly Sync or Project Kickoff..." 
+                 class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#e53935]/50 transition-all">
+        </div>
+        <div class="space-y-2">
+          <label class="text-[10px] text-white/30 uppercase tracking-widest font-bold ml-1">Description (optional)</label>
+          <textarea [(ngModel)]="meetingForm.description" rows="2" placeholder="Agenda, context, or key points..."
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#e53935]/50 transition-all resize-none"></textarea>
+        </div>
+      </div>
+
+      <!-- Date & Time -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="text-[10px] text-white/30 uppercase tracking-widest font-bold ml-1">Date</label>
+          <input type="date" [(ngModel)]="meetingForm.date" 
+                 class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#e53935]/50 transition-all">
+        </div>
+        <div class="space-y-2">
+          <label class="text-[10px] text-white/30 uppercase tracking-widest font-bold ml-1">Time</label>
+          <input type="time" [(ngModel)]="meetingForm.time" 
+                 class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#e53935]/50 transition-all">
+        </div>
+      </div>
+
+      <!-- Departments -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <label class="text-[10px] text-white/30 uppercase tracking-widest font-bold ml-1 active:text-white">Select Departments</label>
+          <label class="flex items-center gap-2 cursor-pointer group">
+            <span class="text-[10px] text-white/40 uppercase font-black transition-colors group-hover:text-white">All Departments</span>
+            <input type="checkbox" [(ngModel)]="meetingForm.allDepartments" (change)="onDepartmentChange()"
+                   class="w-4 h-4 rounded border-white/10 bg-white/5 text-[#e53935] focus:ring-0">
+          </label>
+        </div>
+        
+        <div *ngIf="!meetingForm.allDepartments" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <button *ngFor="let dep of allDepartments" (click)="toggleDepartment(dep.id)"
+                  class="px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all"
+                  [ngClass]="meetingForm.selectedDepartments.includes(dep.id) ? 'bg-[#e53935] border-[#e53935] text-white shadow-[0_0_15px_rgba(229,57,53,0.3)]' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/20'">
+            {{dep.name}}
+          </button>
+        </div>
+      </div>
+
+      <!-- Participant hint when nothing selected -->
+      <p *ngIf="!meetingForm.allDepartments && meetingForm.selectedDepartments.length === 0"
+         class="text-[10px] text-white/20 italic ml-1">
+        Select at least one department above to target specific participants, or toggle "All Departments".
+      </p>
+
+      <!-- Employees -->
+      <div class="space-y-4" *ngIf="filteredEmployees.length > 0">
+        <label class="text-[10px] text-white/30 uppercase tracking-widest font-bold ml-1">Select Specific Employees (Optional)</label>
+        <div class="grid grid-cols-2 gap-2 pb-4">
+          <button *ngFor="let emp of filteredEmployees" (click)="toggleEmployee(emp.id)"
+                  class="px-4 py-3 rounded-xl border flex items-center gap-3 transition-all group"
+                  [ngClass]="meetingForm.selectedEmployees.includes(emp.id) ? 'bg-white/5 border-[#e53935]/50 text-white' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/10'">
+            <div class="w-2.5 h-2.5 rounded-full transition-all border" [ngClass]="meetingForm.selectedEmployees.includes(emp.id) ? 'bg-[#e53935] border-white/20 scale-110 shadow-[0_0_8px_rgba(229,57,53,0.6)]' : 'bg-white/5 border-white/10'"></div>
+            <span class="text-[11px] font-bold tracking-tight truncate">{{emp.username}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-8 py-6 bg-white/5 border-t border-white/5 flex items-center justify-end gap-3">
+      <button (click)="closeMeetingModal()" [disabled]="isSubmittingMeeting"
+              class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+        Cancel
+      </button>
+      <button (click)="submitMeeting()" [disabled]="isSubmittingMeeting"
+              class="px-10 py-3 bg-[#e53935] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 active:scale-95 transition-all shadow-[0_10px_20px_rgba(229,57,53,0.2)] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100 flex items-center gap-2">
+        <svg *ngIf="isSubmittingMeeting" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        {{ isSubmittingMeeting ? 'Scheduling…' : 'Schedule Meeting' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+

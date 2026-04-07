@@ -8,3 +8,4 @@ class Task(Document):
     description = StringField()
     status = StringField(choices=STATUS_CHOICES, default='TODO')
     employee = ReferenceField(User, required=True)
+    source_project_task_id = StringField()

@@ -41,7 +41,42 @@ def department_detail(request, pk):
         return Response({'error': 'Not found'}, status=404)
 
     if request.method == 'GET':
-        return Response({'id': str(dep.id), 'name': dep.name, 'description': dep.description})
+        from users.models import User
+        from projects.models import Project
+        
+        employees = User.objects(department=dep)
+        projects = Project.objects(department=dep)
+        
+        project_data = []
+        for p in projects:
+            total_tasks = len(p.tasks)
+            done_tasks = len([t for t in p.tasks if t.status == 'DONE'])
+            progress = (done_tasks / total_tasks * 100) if total_tasks > 0 else 0
+            
+            project_data.append({
+                'id': str(p.id),
+                'name': p.name,
+                'description': p.description,
+                'progress': round(progress, 1),
+                'tasks_count': total_tasks,
+                'done_tasks_count': done_tasks,
+                'status': 'DONE' if progress == 100 and total_tasks > 0 else 'IN_PROGRESS' if progress > 0 else 'TODO',
+                'tasks': [
+                    {
+                        'title': t.title,
+                        'status': t.status,
+                        'completed_by_name': t.completed_by.username if getattr(t, 'completed_by', None) else None
+                    } for t in p.tasks
+                ]
+            })
+
+        return Response({
+            'id': str(dep.id),
+            'name': dep.name,
+            'description': dep.description,
+            'employees': [{'id': str(e.id), 'username': e.username, 'email': e.email, 'role': e.role} for e in employees],
+            'projects': project_data
+        })
 
     # PUT and DELETE require ADMIN
     if request.user.role != 'ADMIN':

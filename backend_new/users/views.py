@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .authentication import JWTAuthentication
-from .models import User
+from .models import User, AttendanceRecord
 from django.contrib.auth.hashers import make_password, check_password
 import jwt
 import datetime
@@ -17,6 +17,34 @@ from .permissions import IsAdmin
 
 def serialize_user(u, include_department=True):
     """Consistent user serialization across all endpoints."""
+    is_online = False
+    current_session_start = None
+    total_seconds_today = 0
+    today_start = datetime.datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    records = AttendanceRecord.objects(user=u, start_time__gte=today_start)
+    for r in records:
+        if r.status == 'ACTIVE':
+            delta = datetime.datetime.utcnow() - r.start_time
+            total_seconds_today += delta.total_seconds()
+        elif r.end_time:
+            delta = r.end_time - r.start_time
+            total_seconds_today += delta.total_seconds()
+
+    def format_seconds(s):
+        h = int(s // 3600)
+        m = int((s % 3600) // 60)
+        s = int(s % 60)
+        return f"{h:02d}:{m:02d}:{s:02d}"
+
+    try:
+        active_session = AttendanceRecord.objects(user=u, status='ACTIVE').first()
+        if active_session:
+            is_online = True
+            current_session_start = active_session.start_time.isoformat() + 'Z'
+    except:
+        pass
+
     dep_name = None
     dep_id = None
     try:
@@ -31,6 +59,10 @@ def serialize_user(u, include_department=True):
         'username': u.username,
         'email': u.email,
         'role': u.role,
+        'profile_photo': getattr(u, 'profile_photo', ''),
+        'is_online': is_online,
+        'current_session_start': current_session_start,
+        'total_work_today': format_seconds(total_seconds_today)
     }
     if include_department:
         data['department_id'] = dep_id
@@ -51,7 +83,12 @@ def register(request):
         return Response({'error': 'Please provide username, email, and password'}, status=400)
 
     try:
-        user = User(username=username, email=email, password=make_password(password))
+        user = User(
+            username=username, 
+            email=email, 
+            password=make_password(password),
+            profile_photo=data.get('profile_photo', '')
+        )
         user.save()
         return Response({'message': 'User registered successfully', 'user': serialize_user(user)}, status=201)
     except NotUniqueError:
@@ -81,6 +118,19 @@ def login(request):
     token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
     if isinstance(token, bytes):
         token = token.decode('utf-8')
+
+    # Start attendance session for all users
+    # Close any lingering active sessions
+    AttendanceRecord.objects(user=user, status='ACTIVE').update(
+        set__end_time=datetime.datetime.utcnow(),
+        set__status='COMPLETED'
+    )
+    # Create new active session
+    AttendanceRecord(
+        user=user,
+        start_time=datetime.datetime.utcnow(),
+        status='ACTIVE'
+    ).save()
 
     return Response({
         'token': token,
@@ -135,6 +185,9 @@ def me_view(request):
                 return Response({'error': 'New password must be at least 6 characters.'}, status=400)
             user.password = make_password(new_password)
 
+        if 'profile_photo' in data:
+            user.profile_photo = data.get('profile_photo', '')
+
         try:
             user.save()
         except NotUniqueError:
@@ -172,7 +225,8 @@ def employee_list_create(request):
                 email=email,
                 password=make_password(password),
                 role='EMPLOYEE',
-                department=dep
+                department=dep,
+                profile_photo=data.get('profile_photo', '')
             )
             user.save()
             return Response({'message': 'Employee created successfully', 'user': serialize_user(user)}, status=201)
@@ -232,6 +286,9 @@ def employee_detail(request, pk):
                 return Response({'error': 'Password must be at least 6 characters.'}, status=400)
             employee.password = make_password(new_password)
 
+        if 'profile_photo' in data:
+            employee.profile_photo = data.get('profile_photo', '')
+
         # Only admin can change department
         if new_department_id and request.user.role == 'ADMIN':
             try:
@@ -252,3 +309,126 @@ def employee_detail(request, pk):
             return Response({'error': 'Only admins can delete accounts.'}, status=403)
         employee.delete()
         return Response({'message': 'User deleted.'}, status=204)
+
+
+from bson import ObjectId
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdmin])
+def get_employee_history(request, pk):
+    """
+    Returns history for an employee:
+    - Projects assigned to them (ordered by newest start_date).
+    - Progress of those projects.
+    - Status of tasks within those projects.
+    - Standalone tasks assigned to them.
+    """
+    try:
+        uid = ObjectId(pk)
+        user = User.objects.get(id=uid)
+    except:
+        return Response({'error': 'User not found'}, status=404)
+
+    from projects.models import Project
+    from tasks.models import Task
+    from mongoengine.queryset.visitor import Q
+
+    # Search for anything where the user is explicitly listed or part of the assigned department
+    # Query for the department or direct assignment
+    filters = [Q(employees=uid), Q(tasks__completed_by=uid)]
+    if user.department:
+        filters.append(Q(department=user.department.id))
+    
+    query = filters[0]
+    for q in filters[1:]:
+        query |= q
+
+    # Optimized fetch using standard filter() call
+    projects = Project.objects.filter(query).order_by('-start_date')
+
+    project_data = []
+    for p in projects:
+        total_tasks = len(p.tasks)
+        done_tasks = len([t for t in p.tasks if t.status == 'DONE'])
+        progress = (done_tasks / total_tasks * 100) if total_tasks > 0 else 0
+        
+        project_data.append({
+            'id': str(p.id),
+            'name': p.name,
+            'description': p.description,
+            'progress': round(progress, 1),
+            'status': 'DONE' if progress == 100 and total_tasks > 0 else 'IN_PROGRESS' if progress > 0 else 'TODO',
+            'start_date': p.start_date.isoformat() if p.start_date else None,
+            'deadline': p.deadline.isoformat() if p.deadline else None,
+            'tasks': [
+                {
+                    'id': str(t.id),
+                    'title': t.title,
+                    'status': t.status,
+                    'progress': 100 if t.status == 'DONE' else 50 if t.status == 'IN_PROGRESS' else 0,
+                    # Optimization: if completed by the same user, we already have their name in memory
+                    'completed_by_name': user.username if (getattr(t, 'completed_by', None) and str(t.completed_by.id) == str(uid)) else (t.completed_by.username if getattr(t, 'completed_by', None) else None)
+                } for t in p.tasks
+            ]
+        })
+
+    # Standalone Tasks
+    tasks = Task.objects(employee=user.id).order_by('-id')
+    task_data = [{
+        'id': str(t.id),
+        'title': t.title,
+        'status': t.status
+    } for t in tasks]
+
+    return Response({
+        'user': serialize_user(user),
+        'projects': project_data,
+        'standalone_tasks': task_data
+    })
+
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def end_attendance(request):
+    """End the current active session for the user."""
+    AttendanceRecord.objects(user=request.user, status='ACTIVE').update(
+        set__end_time=datetime.datetime.utcnow(),
+        set__status='COMPLETED'
+    )
+    return Response({'message': 'Attendance session ended.'})
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_current_attendance(request):
+    """Check if there is an active session and return it."""
+    session = AttendanceRecord.objects(user=request.user, status='ACTIVE').first()
+    if session:
+        return Response({
+            'start_time': session.start_time.isoformat() + 'Z',
+            'status': session.status
+        })
+    return Response(None)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdmin])
+def get_employee_attendance_logs(request, pk):
+    """Admin view for employee attendance history."""
+    try:
+        user = User.objects.get(id=pk)
+    except Exception:
+        return Response({'error': 'User not found'}, status=404)
+        
+    logs = AttendanceRecord.objects(user=user).order_by('-start_time')
+    return Response([{
+        'id': str(l.id),
+        'start_time': l.start_time.isoformat() + 'Z',
+        'end_time': (l.end_time.isoformat() + 'Z') if l.end_time else None,
+        'status': l.status,
+        'duration': str(l.end_time - l.start_time).split('.')[0] if l.end_time else 'Active'
+    } for l in logs])

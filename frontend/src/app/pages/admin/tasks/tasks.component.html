@@ -1,100 +1,97 @@
 <div class="animate-fade-up max-w-6xl mx-auto">
-      <div *ngIf="errorMsg" class="mb-4 p-4 bg-rose-500/15 border border-rose-500/25 text-rose-300 rounded-2xl flex items-center justify-between text-sm shadow-md">
-        <span class="flex items-center gap-2">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          {{errorMsg}}
-        </span>
-        <button (click)="errorMsg=''" class="text-rose-400 hover:text-rose-200 font-bold ml-4">✕</button>
-      </div>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-black text-white tracking-tight">Tasks</h1>
+      <p class="text-sm text-white/30 mt-0.5">Manage and dispatch individual tasks</p>
+    </div>
+    <span class="bg-[#161616] border border-white/10 text-white/40 text-xs px-3 py-1 rounded-lg font-black">{{tasks.length}} Total</span>
+  </div>
 
-      <div class="grid lg:grid-cols-12 gap-8">
-        <!-- Create task form -->
-        <div class="lg:col-span-4">
-          <div class="bg-[#1b2a3a] border border-[#547792]/30 rounded-3xl p-7 sticky top-0 shadow-lg">
-            <h3 class="text-xs font-bold text-[#EAE0CF] uppercase tracking-widest mb-6">Dispatch Task</h3>
-            <form (ngSubmit)="createTask()" class="space-y-4">
-              <div>
-                <label class="text-[11px] text-[#94B4C1] uppercase tracking-wider font-bold block mb-1.5">Title</label>
-                <input type="text" [(ngModel)]="taskTitle" name="taskTitle" placeholder="Task objective..." required
-                  class="w-full bg-[#213448]/50 border border-[#547792]/50 rounded-xl px-4 py-3 text-[#EAE0CF] placeholder-[#94B4C1]/50 focus:border-[#EAE0CF] focus:outline-none transition-all text-sm">
-              </div>
-              <div>
-                <label class="text-[11px] text-[#94B4C1] uppercase tracking-wider font-bold block mb-1.5">Description</label>
-                <textarea [(ngModel)]="taskDesc" name="taskDesc" rows="3" placeholder="Details..."
-                  class="w-full bg-[#213448]/50 border border-[#547792]/50 rounded-xl px-4 py-3 text-[#EAE0CF] placeholder-[#94B4C1]/50 focus:border-[#EAE0CF] focus:outline-none transition-all text-sm resize-none"></textarea>
-              </div>
-              <div>
-                <label class="text-[11px] text-[#94B4C1] uppercase tracking-wider font-bold block mb-1.5">Assign To</label>
-                <select [(ngModel)]="taskEmployeeId" name="taskEmployeeId" required
-                  class="w-full bg-[#213448]/50 border border-[#547792]/50 rounded-xl px-4 py-3 text-[#EAE0CF] focus:border-[#EAE0CF] focus:outline-none transition-all text-sm cursor-pointer">
-                  <option value="" disabled selected class="bg-[#1b2a3a]">Select employee...</option>
-                  <option *ngFor="let e of employees" [value]="e.id" class="bg-[#1b2a3a]">{{e.username}} — {{e.department_name || 'No Dept'}}</option>
-                </select>
-              </div>
-              <button type="submit" [disabled]="isSubmitting"
-                class="w-full bg-[#547792] hover:bg-[#94B4C1] hover:text-[#213448] text-[#EAE0CF] font-bold py-3 rounded-xl transition-all disabled:opacity-50 text-sm flex items-center justify-center gap-2 shadow-md">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                Dispatch Task
-              </button>
-            </form>
+  <div *ngIf="errorMsg" class="mb-4 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl flex items-center justify-between text-sm">
+    <span>{{errorMsg}}</span>
+    <button (click)="errorMsg=''" class="font-bold ml-4">✕</button>
+  </div>
+
+  <div class="grid lg:grid-cols-12 gap-6">
+    <!-- Create task form -->
+    <div class="lg:col-span-4">
+      <div class="bg-[#161616] border border-white/5 rounded-2xl p-6 sticky top-0 shadow-lg">
+        <h3 class="text-xs font-black text-white uppercase tracking-widest mb-5">Dispatch Task</h3>
+        <form (ngSubmit)="createTask()" class="space-y-4">
+          <div>
+            <label class="text-[10px] text-white/30 uppercase tracking-wider font-bold block mb-1.5">Title</label>
+            <input type="text" [(ngModel)]="taskTitle" name="taskTitle" placeholder="Task objective..." required
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 focus:border-[#e53935]/50 focus:outline-none transition-all text-sm">
           </div>
-        </div>
-
-        <!-- Tasks list -->
-        <div class="lg:col-span-8 space-y-4">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-xs font-bold text-[#94B4C1] uppercase tracking-wider">All Tasks</h3>
-            <span class="bg-[#547792] text-[#EAE0CF] text-[10px] px-2.5 py-1 rounded-full font-black">{{tasks.length}}</span>
+          <div>
+            <label class="text-[10px] text-white/30 uppercase tracking-wider font-bold block mb-1.5">Description</label>
+            <textarea [(ngModel)]="taskDesc" name="taskDesc" rows="3" placeholder="Details..."
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 focus:border-[#e53935]/50 focus:outline-none transition-all text-sm resize-none"></textarea>
           </div>
-
-
-
-          <div *ngFor="let t of tasks.slice().reverse()"
-            class="bg-[#1b2a3a] border border-[#547792]/30 rounded-2xl p-5 transition-all hover:border-[#94B4C1]/50 shadow-md border-l-4"
-            [ngClass]="{'border-l-[#547792]': t.status==='TODO', 'border-l-[#94B4C1]': t.status==='IN_PROGRESS', 'border-l-emerald-500': t.status==='DONE'}">
-            <div class="flex justify-between items-start gap-3">
-              <div class="flex-1 min-w-0">
-                <h4 class="font-bold text-[#EAE0CF] text-sm" *ngIf="editTaskId !== t.id">{{t.title}}</h4>
-                <input *ngIf="editTaskId === t.id" type="text" [(ngModel)]="t.editTitle"
-                  class="w-full bg-[#213448] border border-[#547792] text-[#EAE0CF] px-2 py-1 rounded text-sm font-bold mb-2">
-                
-                <p class="text-xs text-[#94B4C1]/80 mt-1.5 leading-relaxed" *ngIf="editTaskId !== t.id">{{t.description || 'No description.'}}</p>
-                <textarea *ngIf="editTaskId === t.id" [(ngModel)]="t.editDesc" rows="2"
-                  class="w-full bg-[#213448] border border-[#547792] text-[#EAE0CF] px-2 py-1 rounded text-xs mt-1"></textarea>
-                
-                <div class="flex items-center gap-3 mt-3">
-                  <div class="flex items-center gap-1.5" *ngIf="editTaskId !== t.id">
-                    <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-[#547792] to-[#94B4C1] flex items-center justify-center text-[8px] font-black text-[#213448]">
-                      {{t.employee_name?.charAt(0).toUpperCase()}}
-                    </div>
-                    <span class="text-xs text-[#94B4C1]">{{t.employee_name}}</span>
-                  </div>
-                  <select *ngIf="editTaskId === t.id" [(ngModel)]="t.editEmployeeId"
-                    class="bg-[#213448] border border-[#547792] text-[#EAE0CF] px-2 py-1.5 rounded text-xs mt-2 w-full max-w-[200px]">
-                    <option *ngFor="let e of employees" [value]="e.id">{{e.username}}</option>
-                  </select>
-                </div>
-              </div>
-              <div class="flex flex-col items-end gap-3 shrink-0">
-                <span class="text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border"
-                  [ngClass]="{'bg-[#213448] text-[#547792] border-[#547792]/50': t.status==='TODO', 'bg-[#94B4C1]/10 text-[#94B4C1] border-[#94B4C1]/30': t.status==='IN_PROGRESS', 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30': t.status==='DONE'}">
-                  <span *ngIf="t.status === 'DONE'">DONE by: {{t.employee_name}}</span>
-                  <span *ngIf="t.status !== 'DONE'">{{t.status?.replace('_', ' ')}}</span>
-                </span>
-                <div class="flex gap-2 mt-2">
-                  <button *ngIf="editTaskId !== t.id" (click)="startEditTask(t)" class="text-[11px] text-[#94B4C1] hover:text-[#EAE0CF] font-bold transition-colors">Edit</button>
-                  <button *ngIf="editTaskId === t.id" (click)="saveEditTask(t)" class="text-[11px] text-emerald-400 hover:text-emerald-300 font-bold transition-colors">Save</button>
-                  <button *ngIf="editTaskId === t.id" (click)="editTaskId = null" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold transition-colors">Cancel</button>
-                </div>
-              </div>
-            </div>
+          <div>
+            <label class="text-[10px] text-white/30 uppercase tracking-wider font-bold block mb-1.5">Assign To</label>
+            <select [(ngModel)]="taskEmployeeId" name="taskEmployeeId" required
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-[#e53935]/50 focus:outline-none transition-all text-sm cursor-pointer">
+              <option value="" disabled selected class="bg-[#161616]">Select employee...</option>
+              <option *ngFor="let e of employees" [value]="e.id" class="bg-[#161616]">{{e.username}} — {{e.department_name || 'No Dept'}}</option>
+            </select>
           </div>
-
-          <div *ngIf="tasks.length === 0"
-            class="p-12 text-center border-2 border-dashed border-[#547792]/50 rounded-2xl text-[#94B4C1] flex flex-col items-center gap-3">
-            <svg class="w-10 h-10 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-            No tasks yet.
-          </div>
-        </div>
+          <button type="submit" [disabled]="isSubmitting"
+            class="w-full bg-[#e53935] hover:bg-[#c62828] text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-900/30">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            Dispatch Task
+          </button>
+        </form>
       </div>
     </div>
+
+    <!-- Tasks list -->
+    <div class="lg:col-span-8 space-y-3">
+      <div *ngFor="let t of tasks.slice().reverse()"
+        class="bg-[#161616] border-l-2 border border-white/5 rounded-2xl p-5 transition-all hover:border-white/10"
+        [ngClass]="{'border-l-white/10': t.status==='TODO', 'border-l-orange-500/60': t.status==='IN_PROGRESS', 'border-l-green-500/60': t.status==='DONE'}">
+        <div class="flex justify-between items-start gap-3">
+          <div class="flex-1 min-w-0">
+            <h4 class="font-black text-white text-sm" *ngIf="editTaskId !== t.id">{{t.title}}</h4>
+            <input *ngIf="editTaskId === t.id" type="text" [(ngModel)]="t.editTitle"
+              class="w-full bg-white/5 border border-white/10 text-white px-3 py-1.5 rounded-lg text-sm font-bold mb-2 focus:outline-none focus:border-[#e53935]/50">
+            
+            <p class="text-xs text-white/30 mt-1.5 leading-relaxed" *ngIf="editTaskId !== t.id">{{t.description || 'No description.'}}</p>
+            <textarea *ngIf="editTaskId === t.id" [(ngModel)]="t.editDesc" rows="2"
+              class="w-full bg-white/5 border border-white/10 text-white px-3 py-1.5 rounded-lg text-xs mt-1 focus:outline-none resize-none"></textarea>
+            
+            <div class="flex items-center gap-3 mt-3">
+              <div class="flex items-center gap-1.5" *ngIf="editTaskId !== t.id">
+                <div class="w-5 h-5 rounded-full bg-gradient-to-br from-[#e53935] to-[#b71c1c] flex items-center justify-center text-[8px] font-black text-white">
+                  {{t.employee_name?.charAt(0).toUpperCase()}}
+                </div>
+                <span class="text-xs text-white/40">{{t.employee_name}}</span>
+              </div>
+              <select *ngIf="editTaskId === t.id" [(ngModel)]="t.editEmployeeId"
+                class="bg-white/5 border border-white/10 text-white px-2 py-1.5 rounded-lg text-xs mt-2 w-full max-w-xs focus:outline-none">
+                <option *ngFor="let e of employees" [value]="e.id" class="bg-[#161616]">{{e.username}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex flex-col items-end gap-3 shrink-0">
+            <span class="text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border"
+              [ngClass]="{'bg-white/5 text-white/20 border-white/10': t.status==='TODO', 'bg-orange-500/10 text-orange-400 border-orange-500/20': t.status==='IN_PROGRESS', 'bg-green-500/10 text-green-400 border-green-500/20': t.status==='DONE'}">
+              {{t.status?.replace('_', ' ')}}
+            </span>
+            <div class="flex gap-2 mt-1">
+              <button *ngIf="editTaskId !== t.id" (click)="startEditTask(t)" class="text-[10px] text-white/30 hover:text-white font-bold transition-colors">Edit</button>
+              <button *ngIf="editTaskId === t.id" (click)="saveEditTask(t)" class="text-[10px] text-green-400 hover:text-green-300 font-bold transition-colors">Save</button>
+              <button *ngIf="editTaskId === t.id" (click)="editTaskId = null" class="text-[10px] text-red-400 hover:text-red-300 font-bold transition-colors">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="tasks.length === 0"
+        class="p-12 text-center border-2 border-dashed border-white/5 rounded-2xl text-white/20 flex flex-col items-center gap-3">
+        <svg class="w-8 h-8 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+        No tasks yet.
+      </div>
+    </div>
+  </div>
+</div>

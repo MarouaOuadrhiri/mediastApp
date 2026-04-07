@@ -4,67 +4,91 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 
 @Component({
-  selector: 'app-user-profile',
+  selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
-
 export class ProfileComponent implements OnInit {
   user: any = null;
-  updUsername = '';
-  updEmail = '';
-  updPassword = '';
-  currentPass = '';
+  username = '';
+  email = '';
+  password = '';
+  currentPassword = '';
+  profilePhoto = '';
   
-  successMsg = '';
-  errorMsg = '';
   isSubmitting = false;
+  errorMsg = '';
+  successMsg = '';
 
   constructor(private api: ApiService) {}
 
   ngOnInit() {
+    this.loadProfile();
+  }
+
+  loadProfile() {
     this.api.getMe().subscribe({
-      next: (r: any) => {
-        this.user = r;
-        this.updUsername = r.username;
-        this.updEmail = r.email;
+      next: (u) => {
+        this.user = u;
+        this.username = u.username;
+        this.email = u.email;
+        this.profilePhoto = u.profile_photo || '';
       },
-      error: () => { this.errorMsg = 'Failed to load profile data.'; }
+      error: () => {
+        this.errorMsg = 'Failed to load profile data.';
+      }
     });
   }
 
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 1024 * 1024) {
+        this.errorMsg = 'File size must be less than 1MB.';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.profilePhoto = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   updateProfile() {
-    this.errorMsg = '';
-    this.successMsg = '';
-    
-    if (!this.currentPass) {
+    if (!this.currentPassword) {
       this.errorMsg = 'Current password is required to save changes.';
       return;
     }
 
     this.isSubmitting = true;
+    this.errorMsg = '';
+    this.successMsg = '';
+
     const payload: any = {
-      username: this.updUsername,
-      email: this.updEmail,
-      current_password: this.currentPass
+      current_password: this.currentPassword,
+      username: this.username,
+      email: this.email,
+      profile_photo: this.profilePhoto
     };
-    
-    if (this.updPassword) {
-      payload.password = this.updPassword;
+
+    if (this.password) {
+      payload.password = this.password;
     }
 
     this.api.updateMe(payload).subscribe({
-      next: (r: any) => {
+      next: (res) => {
+        this.user = res.user;
         this.successMsg = 'Profile updated successfully!';
-        this.user = r.user;
-        this.currentPass = '';
-        this.updPassword = '';
+        this.password = '';
+        this.currentPassword = '';
         this.isSubmitting = false;
-        setTimeout(() => this.successMsg = '', 5000);
+        // Optionally refresh page or notify parent layouts
+        window.location.reload(); // Simple way to refresh layouts with new photo
       },
-      error: (err: any) => {
+      error: (err) => {
         this.errorMsg = err.error?.error || 'Failed to update profile.';
         this.isSubmitting = false;
       }

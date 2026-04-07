@@ -41,4 +41,13 @@ export class ApiService {
   updateProjectTaskStatus(projectId: string, taskId: string, status: string): Observable<any> {
     return this.http.patch(`${this.baseUrl}/projects/${projectId}/tasks/${taskId}/status/`, { status });
   }
+
+  // Attendance
+  getCurrentAttendance(): Observable<any> { return this.http.get(`${this.baseUrl}/users/attendance/current/`); }
+  endAttendance(): Observable<any> { return this.http.post(`${this.baseUrl}/users/attendance/end/`, {}); }
+  getEmployeeAttendance(userId: string): Observable<any> { return this.http.get(`${this.baseUrl}/users/employees/${userId}/attendance/`); }
+
+  // Meetings
+  getMeetings(): Observable<any> { return this.http.get(`${this.baseUrl}/meetings/`); }
+  createMeeting(data: any): Observable<any> { return this.http.post(`${this.baseUrl}/meetings/create/`, data); }
 }

@@ -1,5 +1,15 @@
-@keyframes slow-pulse { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.05)} }
-.animate-slow-pulse { animation: slow-pulse 6s ease-in-out infinite; }
-.delay-3000 { animation-delay: 3s; }
-.animate-fade-in { animation: fadeIn 0.3s ease forwards; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&display=swap");
+
+* { font-family: "Barlow", sans-serif; }
+
+:host {
+  display: block;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset;
+  -webkit-text-fill-color: #ffffff;
+  transition: background-color 5000s ease-in-out 0s;
+}

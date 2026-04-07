@@ -1,275 +1,159 @@
 <div class="animate-fade-up max-w-6xl mx-auto pb-20">
-      <!-- Error toast -->
-      <div *ngIf="errorMsg" class="mb-4 p-4 bg-rose-500/15 border border-rose-500/25 text-rose-300 rounded-2xl flex items-center justify-between text-sm shadow-md">
-        <span class="flex items-center gap-2">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          {{errorMsg}}
-        </span>
-        <button (click)="errorMsg=''" class="text-rose-400 hover:text-rose-200 font-bold ml-4">✕</button>
-      </div>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-black text-white tracking-tight">Departments</h1>
+      <p class="text-sm text-white/30 mt-0.5">Organize your teams into departments</p>
+    </div>
+  </div>
 
-      <div class="grid lg:grid-cols-3 gap-8" *ngIf="!selectedDep">
-        <!-- Create form -->
-        <div class="lg:col-span-1">
-          <div class="bg-[#1b2a3a] border border-[#547792]/30 rounded-3xl p-7 sticky top-8 shadow-lg">
-            <h3 class="text-xs font-bold text-[#94B4C1] uppercase tracking-widest mb-6">Create Department</h3>
-            <form (ngSubmit)="createDepartment()" class="space-y-4">
-              <div>
-                <label class="text-[11px] text-[#94B4C1] uppercase tracking-wider font-bold block mb-1.5">Name</label>
-                <input type="text" [(ngModel)]="depName" name="depName" placeholder="e.g. Engineering" required
-                  class="w-full bg-[#213448]/50 border border-[#547792]/50 rounded-xl px-4 py-3 text-[#EAE0CF] placeholder-[#94B4C1]/50 focus:border-[#94B4C1] focus:outline-none transition-all text-sm">
-              </div>
-              <div>
-                <label class="text-[11px] text-[#94B4C1] uppercase tracking-wider font-bold block mb-1.5">Description</label>
-                <textarea [(ngModel)]="depDesc" name="depDesc" rows="3" placeholder="Brief description..."
-                  class="w-full bg-[#213448]/50 border border-[#547792]/50 rounded-xl px-4 py-3 text-[#EAE0CF] placeholder-[#94B4C1]/50 focus:border-[#94B4C1] focus:outline-none transition-all text-sm resize-none"></textarea>
-              </div>
-              <button type="submit" [disabled]="isSubmitting"
-                class="w-full bg-[#547792] hover:bg-[#94B4C1] hover:text-[#213448] text-[#EAE0CF] font-bold py-3 rounded-xl transition-all disabled:opacity-50 text-sm shadow-md">
-                + Add Department
-              </button>
-            </form>
-          </div>
-        </div>
+  <div *ngIf="errorMsg" class="mb-4 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl flex items-center justify-between text-sm">
+    <span>{{errorMsg}}</span>
+    <button (click)="errorMsg=''" class="font-bold ml-4">✕</button>
+  </div>
 
-        <!-- List -->
-        <div class="lg:col-span-2">
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div *ngFor="let d of departments"
-              (click)="viewDetail(d)"
-              class="bg-[#1b2a3a] border border-[#547792]/30 rounded-2xl p-6 hover:border-[#94B4C1]/50 transition-all group shadow-md hover:shadow-lg cursor-pointer">
-              <div class="flex justify-between items-start mb-3">
-                <div class="w-10 h-10 rounded-xl bg-[#547792]/20 border border-[#547792]/40 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-[#94B4C1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                </div>
-                <span class="text-[9px] bg-[#213448] text-[#94B4C1] border border-[#547792]/50 px-2 py-1 rounded-lg font-mono">#{{(d.id || '').slice(-4)}}</span>
-              </div>
-              <h4 class="font-bold text-[#EAE0CF] text-base mb-1" *ngIf="editDepId !== d.id">{{d.name}}</h4>
-              <input *ngIf="editDepId === d.id" type="text" [(ngModel)]="d.editName" (click)="$event.stopPropagation()"
-                class="w-full bg-[#213448] border border-[#547792] text-[#EAE0CF] px-2 py-1 rounded text-sm mb-1">
-              <p class="text-xs text-[#94B4C1] leading-relaxed" *ngIf="editDepId !== d.id">{{d.description || 'No description.'}}</p>
-              <textarea *ngIf="editDepId === d.id" [(ngModel)]="d.editDesc" rows="2" (click)="$event.stopPropagation()"
-                class="w-full bg-[#213448] border border-[#547792] text-[#EAE0CF] px-2 py-1 rounded text-xs mt-1"></textarea>
-              
-              <div class="flex gap-2 mt-4 justify-between items-center">
-                <div class="text-[10px] text-[#94B4C1] flex items-center gap-1">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                  Click for details
-                </div>
-                <div class="flex gap-2">
-                  <button *ngIf="editDepId !== d.id" (click)="$event.stopPropagation(); startEditDep(d)" class="text-xs text-[#94B4C1] hover:text-[#EAE0CF] font-bold">Edit</button>
-                  <button *ngIf="editDepId === d.id" (click)="$event.stopPropagation(); saveEditDep(d)" class="text-xs text-green-400 hover:text-green-300 font-bold">Save</button>
-                  <button *ngIf="editDepId === d.id" (click)="$event.stopPropagation(); editDepId = null" class="text-xs text-[#94B4C1] hover:text-[#EAE0CF] font-bold">Cancel</button>
-                </div>
-              </div>
-            </div>
-
-            <div *ngIf="departments.length === 0"
-              class="col-span-2 p-12 text-center border-2 border-dashed border-[#547792]/50 rounded-2xl text-[#94B4C1]">
-              No departments yet. Create your first one.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Detailed View -->
-      <div *ngIf="selectedDep" class="animate-fade-up">
-        <div class="flex items-center gap-4 mb-8">
-          <button (click)="selectedDep = null" 
-            class="w-10 h-10 rounded-full bg-[#1b2a3a] border border-[#547792]/30 flex items-center justify-center text-[#94B4C1] hover:bg-[#547792] hover:text-[#EAE0CF] transition-all">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-          </button>
+  <div class="grid lg:grid-cols-3 gap-6" *ngIf="!selectedDep">
+    <!-- Create form -->
+    <div class="lg:col-span-1">
+      <div class="bg-[#161616] border border-white/5 rounded-2xl p-6 sticky top-8 shadow-lg">
+        <h3 class="text-xs font-black text-white uppercase tracking-widest mb-5">Create Department</h3>
+        <form (ngSubmit)="createDepartment()" class="space-y-4">
           <div>
-            <h2 class="text-2xl font-bold text-[#EAE0CF] tracking-tight">{{selectedDep.name}}</h2>
-            <p class="text-xs text-[#94B4C1]">{{selectedDep.description || 'No description details available.'}}</p>
+            <label class="text-[10px] text-white/30 uppercase tracking-wider font-bold block mb-1.5">Name</label>
+            <input type="text" [(ngModel)]="depName" name="depName" placeholder="e.g. Engineering" required
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 focus:border-[#e53935]/50 focus:outline-none transition-all text-sm">
           </div>
-        </div>
-
-        <div class="grid lg:grid-cols-2 gap-8">
-          <!-- Employees List -->
-          <div class="bg-[#1b2a3a] border border-[#547792]/30 rounded-3xl p-7 shadow-lg">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-xs font-bold text-[#94B4C1] uppercase tracking-widest flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                Employees ({{selectedDep.employees?.length || 0}})
-              </h3>
-            </div>
-            
-            <div class="space-y-3">
-              <div *ngFor="let emp of selectedDep.employees" (click)="openEmployeeHistory(emp)"
-                class="flex items-center gap-4 p-4 bg-[#213448]/50 border border-[#547792]/20 rounded-2xl hover:border-[#94B4C1]/30 hover:bg-[#213448] transition-all cursor-pointer group">
-                <div class="w-10 h-10 rounded-full bg-[#547792] flex items-center justify-center font-bold text-[#213448]">
-                  {{emp.username.slice(0,2).toUpperCase()}}
-                </div>
-                <div>
-                  <div class="font-bold text-[#EAE0CF] text-sm">{{emp.username}}</div>
-                  <div class="text-[10px] text-[#94B4C1]">{{emp.email}}</div>
-                </div>
-                <div class="ml-auto">
-                   <span class="text-[8px] px-2 py-0.5 rounded-full border" 
-                     [ngClass]="emp.role === 'ADMIN' ? 'bg-amber-500/10 border-amber-500/30 text-amber-500' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'">
-                     {{emp.role}}
-                   </span>
-                </div>
-              </div>
-              <div *ngIf="!selectedDep.employees?.length" class="text-center py-10 text-[#94B4C1] text-sm border-2 border-dashed border-[#547792]/25 rounded-2xl">
-                No employees assigned to this department.
-              </div>
-            </div>
+          <div>
+            <label class="text-[10px] text-white/30 uppercase tracking-wider font-bold block mb-1.5">Description</label>
+            <textarea [(ngModel)]="depDesc" name="depDesc" rows="3" placeholder="Brief description..."
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 focus:border-[#e53935]/50 focus:outline-none transition-all text-sm resize-none"></textarea>
           </div>
-
-          <!-- Projects & Progress -->
-          <div class="bg-[#1b2a3a] border border-[#547792]/30 rounded-3xl p-7 shadow-lg">
-            <h3 class="text-xs font-bold text-[#94B4C1] uppercase tracking-widest flex items-center gap-2 mb-6">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-              Projects Progress ({{selectedDep.projects?.length || 0}})
-            </h3>
-
-            <div class="space-y-6">
-              <div *ngFor="let proj of selectedDep.projects" class="bg-[#213448]/30 border border-[#547792]/20 rounded-2xl p-4 space-y-3">
-                <div class="space-y-2">
-                  <div class="flex justify-between items-end">
-                    <div>
-                      <h4 class="font-bold text-[#EAE0CF] text-sm">{{proj.name}}</h4>
-                      <span class="text-[9px] text-[#94B4C1]">{{proj.done_tasks_count}}/{{proj.tasks_count}} Tasks Complete</span>
-                    </div>
-                    <span class="text-[10px] font-mono text-[#94B4C1]">{{proj.progress}}%</span>
-                  </div>
-                  <div class="h-2 w-full bg-[#213448] rounded-full overflow-hidden border border-[#547792]/20 shadow-inner">
-                    <div class="h-full transition-all duration-1000 ease-out" 
-                      [style.width.%]="proj.progress"
-                      [ngClass]="proj.progress === 100 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-[#547792]'">
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Completed Tasks Detail -->
-                <div *ngIf="proj.tasks && proj.tasks.length > 0" class="pt-2 border-t border-[#547792]/20 mt-3">
-                   <p class="text-[8px] uppercase tracking-wider text-[#94B4C1]/60 font-bold mb-2">Detailed Task Activities</p>
-                   <div class="space-y-1.5">
-                      <div *ngFor="let t of proj.tasks" class="flex items-center justify-between gap-2 p-2 rounded-lg"
-                           [ngClass]="t.status === 'DONE' ? 'bg-emerald-500/5' : 'bg-[#213448]/40'">
-                         <div class="flex items-center gap-2 overflow-hidden">
-                            <div class="w-1.5 h-1.5 rounded-full" 
-                                 [ngClass]="t.status === 'DONE' ? 'bg-emerald-400' : 'bg-[#547792]'"></div>
-                            <span class="text-[10px] text-[#EAE0CF] truncate" [class.line-through]="t.status === 'DONE'" [class.opacity-50]="t.status === 'DONE'">{{t.title}}</span>
-                         </div>
-                         <div class="flex items-center gap-2 shrink-0">
-                            <span *ngIf="t.status === 'DONE'" 
-                                  class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1.5">
-                               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                               Done by: {{t.completed_by_name || 'Staff Member'}}
-                            </span>
-                            <span *ngIf="t.status !== 'DONE'" class="text-[8px] uppercase px-1.5 py-0.5 rounded border border-[#547792]/30 text-[#94B4C1]">
-                               {{t.status}}
-                            </span>
-                         </div>
-                      </div>
-                   </div>
-                </div>
-              </div>
-              <div *ngIf="!selectedDep.projects?.length" class="text-center py-10 text-[#94B4C1] text-sm border-2 border-dashed border-[#547792]/25 rounded-2xl">
-                No active projects in this department.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- History Modal -->
-    <div *ngIf="showHistoryModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 animate-in fade-in duration-300">
-      <!-- Backdrop -->
-      <div class="absolute inset-0 bg-[#0f172a]/80 backdrop-blur-sm" (click)="closeHistory()"></div>
-      
-      <!-- Content -->
-      <div class="bg-[#1b2a3a] border border-[#547792]/40 rounded-[2.5rem] w-full max-w-2xl max-h-[85vh] overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-300 flex flex-col">
-        
-        <!-- Header -->
-        <div class="px-8 py-6 border-b border-[#547792]/20 flex items-center justify-between shrink-0 bg-[#1b2a3a]/50 backdrop-blur-md">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#547792] to-[#94B4C1] flex items-center justify-center text-[#213448] font-black text-xl shadow-lg">
-              {{selectedHistory?.user?.username?.charAt(0).toUpperCase()}}
-            </div>
-            <div>
-              <h3 class="text-xl font-bold text-[#EAE0CF] tracking-tight">{{selectedHistory?.user?.username}} History</h3>
-              <p class="text-xs text-[#94B4C1]">{{selectedHistory?.user?.email}} · {{selectedHistory?.user?.department_name}}</p>
-            </div>
-          </div>
-          <button (click)="closeHistory()" class="w-10 h-10 rounded-full bg-[#213448] hover:bg-[#547792] text-[#94B4C1] hover:text-[#EAE0CF] flex items-center justify-center transition-all">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <button type="submit" [disabled]="isSubmitting"
+            class="w-full bg-[#e53935] hover:bg-[#c62828] text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 text-sm shadow-lg shadow-red-900/30">
+            + Add Department
           </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div class="lg:col-span-2">
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div *ngFor="let d of departments"
+          (click)="viewDetail(d)"
+          class="bg-[#161616] border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-all group cursor-pointer">
+          <div class="flex justify-between items-start mb-4">
+            <div class="w-9 h-9 rounded-xl bg-[#e53935]/10 border border-[#e53935]/20 flex items-center justify-center">
+              <svg class="w-4 h-4 text-[#e53935]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            </div>
+            <span class="text-[9px] bg-white/5 text-white/20 border border-white/10 px-2 py-1 rounded-lg font-mono">#{{(d.id || '').slice(-4)}}</span>
+          </div>
+          <h4 class="font-black text-white text-sm mb-1" *ngIf="editDepId !== d.id">{{d.name}}</h4>
+          <input *ngIf="editDepId === d.id" type="text" [(ngModel)]="d.editName" (click)="$event.stopPropagation()"
+            class="w-full bg-white/5 border border-[#e53935]/50 text-white px-2 py-1 rounded-lg text-sm mb-1 focus:outline-none">
+          <p class="text-xs text-white/30 leading-relaxed" *ngIf="editDepId !== d.id">{{d.description || 'No description.'}}</p>
+          <textarea *ngIf="editDepId === d.id" [(ngModel)]="d.editDesc" rows="2" (click)="$event.stopPropagation()"
+            class="w-full bg-white/5 border border-white/10 text-white px-2 py-1 rounded-lg text-xs mt-1 focus:outline-none resize-none"></textarea>
+          
+          <div class="flex gap-2 mt-4 justify-between items-center">
+            <div class="text-[9px] text-white/20 flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+              Click for details
+            </div>
+            <div class="flex gap-2">
+              <button *ngIf="editDepId !== d.id" (click)="$event.stopPropagation(); startEditDep(d)" class="text-xs text-white/30 hover:text-white font-bold transition-all">Edit</button>
+              <button *ngIf="editDepId === d.id" (click)="$event.stopPropagation(); saveEditDep(d)" class="text-xs text-green-400 hover:text-green-300 font-bold">Save</button>
+              <button *ngIf="editDepId === d.id" (click)="$event.stopPropagation(); editDepId = null" class="text-xs text-white/30 hover:text-white font-bold">Cancel</button>
+            </div>
+          </div>
         </div>
 
-        <!-- Body -->
-        <div class="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
-          <ng-container *ngIf="selectedHistory">
-            <!-- Projects History -->
-            <section>
-              <h4 class="text-[10px] font-bold text-[#94B4C1] uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                Project Involvements
-              </h4>
-              <div class="space-y-4">
-                <div *ngFor="let p of selectedHistory.projects" class="bg-[#213448]/30 border border-[#547792]/20 rounded-2xl p-5 hover:border-[#547792]/40 transition-all">
-                  <div class="flex justify-between items-start mb-3">
-                    <div>
-                      <h5 class="font-bold text-[#EAE0CF]">{{p.name}}</h5>
-                      <p class="text-[10px] text-[#94B4C1] mt-0.5">Started {{p.start_date | date:'mediumDate'}}</p>
-                    </div>
-                    <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-emerald-500/30 text-emerald-400 bg-emerald-500/10" *ngIf="p.status === 'DONE'">Completed</span>
-                    <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-[#547792]/30 text-[#94B4C1] bg-[#1b2a3a]" *ngIf="p.status !== 'DONE'">{{p.status}}</span>
-                  </div>
-                  
-                  <!-- Progress Bar -->
-                  <div class="space-y-1.5 mb-4">
-                    <div class="flex justify-between text-[9px] text-[#94B4C1] font-mono">
-                      <span>Execution Progress</span>
-                      <span>{{p.progress}}%</span>
-                    </div>
-                    <div class="h-1.5 bg-[#1b2a3a] rounded-full overflow-hidden">
-                      <div class="h-full bg-gradient-to-r from-[#547792] to-[#94B4C1] transition-all duration-700" [style.width.%]="p.progress"></div>
-                    </div>
-                  </div>
-
-                  <!-- Tasks in Project -->
-                  <div class="space-y-2 pl-2 border-l-2 border-[#547792]/20">
-                     <div *ngFor="let t of p.tasks.slice(0, 5)" class="flex items-center gap-3 text-[11px] py-1">
-                        <div class="flex-1 flex items-center gap-2 overflow-hidden">
-                           <div class="w-1.5 h-1.5 rounded-full" [ngClass]="t.status === 'DONE' ? 'bg-emerald-400' : t.status === 'IN_PROGRESS' ? 'bg-[#94B4C1]' : 'bg-[#547792]'"></div>
-                           <span class="text-[#EAE0CF]/80 truncate">{{t.title}}</span>
-                        </div>
-                        <div class="flex items-center gap-3 shrink-0">
-                           <div class="w-16 h-1 bg-[#1b2a3a] rounded-full overflow-hidden">
-                              <div class="h-full bg-[#94B4C1] transition-all" [style.width.%]="t.progress || 0"></div>
-                           </div>
-                           <span class="text-[8px] text-[#94B4C1] font-bold w-6 text-right">{{t.progress || 0}}%</span>
-                        </div>
-                     </div>
-                     <p *ngIf="p.tasks.length > 5" class="text-[9px] text-[#94B4C1]/60 italic pl-3">+ {{p.tasks.length - 5}} more tasks</p>
-                  </div>
-                </div>
-
-                <div *ngIf="selectedHistory.projects.length === 0" class="text-center py-12 border-2 border-dashed border-[#547792]/10 rounded-3xl text-[#94B4C1]/50">
-                  No project records found.
-                </div>
-              </div>
-            </section>
-
-            <!-- Standalone Tasks -->
-            <section *ngIf="selectedHistory.standalone_tasks.length > 0">
-              <h4 class="text-[10px] font-bold text-[#94B4C1] uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Direct Task Assignments
-              </h4>
-              <div class="grid grid-cols-2 gap-3">
-                <div *ngFor="let t of selectedHistory.standalone_tasks" class="bg-[#213448]/20 border border-[#547792]/20 p-3 rounded-xl flex items-center justify-between gap-2 overflow-hidden">
-                  <span class="text-[10px] text-[#EAE0CF] truncate">{{t.title}}</span>
-                  <div class="w-2 h-2 rounded-full shrink-0" [ngClass]="t.status === 'DONE' ? 'bg-emerald-400' : 'bg-[#547792]'"></div>
-                </div>
-              </div>
-            </section>
-          </ng-container>
+        <div *ngIf="departments.length === 0"
+          class="col-span-2 p-12 text-center border-2 border-dashed border-white/5 rounded-2xl text-white/20">
+          No departments yet.
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Detailed View -->
+  <div *ngIf="selectedDep" class="animate-fade-up">
+    <div class="flex items-center gap-4 mb-6">
+      <button (click)="selectedDep = null" 
+        class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:bg-[#e53935] hover:text-white hover:border-[#e53935] transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      </button>
+      <div>
+        <h2 class="text-xl font-black text-white">{{selectedDep.name}}</h2>
+        <p class="text-sm text-white/30 mt-0.5">{{selectedDep.description || 'No description'}}</p>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-4">
+      <div *ngFor="let emp of selectedDep.employees"
+        (click)="openEmployeeHistory(emp)"
+        class="bg-[#161616] border border-white/5 rounded-2xl p-4 flex items-center gap-4 hover:border-white/10 transition-all cursor-pointer group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e53935] to-[#b71c1c] flex items-center justify-center text-white font-black shrink-0 overflow-hidden border border-[#e53935]/20">
+          <img *ngIf="emp.profile_photo" [src]="emp.profile_photo" class="w-full h-full object-cover">
+          <span *ngIf="!emp.profile_photo">{{emp.username.charAt(0).toUpperCase()}}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-white text-sm">{{emp.username}}</p>
+          <p class="text-xs text-white/30 truncate">{{emp.email}}</p>
+        </div>
+        <svg class="w-4 h-4 text-white/20 opacity-0 group-hover:opacity-100 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+      </div>
+
+      <div *ngIf="!selectedDep.employees?.length" class="col-span-2 p-12 text-center border-2 border-dashed border-white/5 rounded-2xl text-white/20">
+        No employees in this department.
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div *ngIf="showHistoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" (click)="closeHistory()">
+    <div class="bg-[#161616] border border-white/10 rounded-2xl p-7 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl custom-scrollbar" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-[#e53935]/10 border border-[#e53935]/20 flex items-center justify-center text-white font-black overflow-hidden">
+            <img *ngIf="selectedHistory?.user?.profile_photo" [src]="selectedHistory.user.profile_photo" class="w-full h-full object-cover">
+            <span *ngIf="!selectedHistory?.user?.profile_photo">{{(selectedHistory?.user?.username || 'U').charAt(0).toUpperCase()}}</span>
+          </div>
+          <div>
+            <h3 class="font-black text-white">{{selectedHistory?.user?.username}}</h3>
+            <p class="text-xs text-white/30">Work History</p>
+          </div>
+        </div>
+        <button (click)="closeHistory()" class="text-white/30 hover:text-white transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div *ngIf="selectedHistory" class="space-y-5">
+        <div *ngIf="selectedHistory.projects?.length > 0">
+          <h4 class="text-xs font-black text-white/30 uppercase tracking-widest mb-3">Projects</h4>
+          <div class="space-y-2">
+            <div *ngFor="let p of selectedHistory.projects" class="p-3 bg-white/3 border border-white/5 rounded-xl">
+              <p class="text-sm font-bold text-white">{{p.name}}</p>
+              <p class="text-xs text-white/30 mt-0.5">{{p.tasks?.length || 0}} tasks</p>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="selectedHistory.standalone_tasks?.length > 0">
+          <h4 class="text-xs font-black text-white/30 uppercase tracking-widest mb-3">Tasks</h4>
+          <div class="space-y-2">
+            <div *ngFor="let t of selectedHistory.standalone_tasks" class="p-3 bg-white/3 border border-white/5 rounded-xl flex items-center gap-3">
+              <div class="w-1.5 h-1.5 rounded-full shrink-0" [class]="t.status === 'DONE' ? 'bg-green-400' : 'bg-white/20'"></div>
+              <span class="text-sm text-white/70 flex-1">{{t.title}}</span>
+              <span class="text-[9px] uppercase text-white/30 font-bold">{{t.status?.replace('_',' ')}}</span>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!selectedHistory.projects?.length && !selectedHistory.standalone_tasks?.length" class="text-center py-8 text-white/20 text-sm">No work history.</div>
+      </div>
+
+      <div *ngIf="!selectedHistory" class="flex items-center justify-center py-12">
+        <div class="w-6 h-6 border-2 border-[#e53935] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    </div>
+  </div>
+</div>

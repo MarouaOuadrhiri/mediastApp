@@ -1,0 +1,119 @@
+:host {
+  display: block;
+  background-color: #0d0d0d;
+  min-height: 100vh;
+}
+
+.animate-fade-up {
+  animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Weekly Project Activity Chart */
+.chart-bar-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-top: 20px;
+  background-image: linear-gradient(to top, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 50px;
+}
+
+.chart-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  height: 100%;
+}
+
+.chart-bar {
+  width: 14px;
+  border-radius: 8px;
+  background: linear-gradient(to bottom, #e53935, #991b1b);
+  box-shadow: 0 4px 20px rgba(229, 57, 53, 0.3);
+  transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin: 0 auto;
+  min-height: 8px;
+}
+
+.chart-bar:hover {
+  filter: brightness(1.2);
+  transform: scaleY(1.05);
+  box-shadow: 0 4px 30px rgba(229, 57, 53, 0.5);
+}
+
+.chart-bar.dimmed {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  box-shadow: none;
+}
+
+.chart-label {
+  font-size: 9px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.1);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-align: center;
+}
+
+/* Global Progress Gauge */
+.progress-gauge-container {
+  position: relative;
+  width: 240px;
+  height: 240px;
+}
+
+.progress-gauge-svg {
+  filter: drop-shadow(0 0 20px rgba(229, 57, 53, 0.2));
+}
+
+/* Custom Scrollbar for scrollable lists if needed */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+/* Project Pill Styles */
+.project-row {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-row:hover {
+  transform: translateX(8px);
+}
+
+/* Typography refinements */
+h2, h3, h4 {
+  letter-spacing: -0.02em;
+}
+
+/* Glow effects */
+.glow-red {
+  box-shadow: 0 0 30px rgba(229, 57, 53, 0.15);
+}
+
+.bg-white\/2 {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.bg-white\/3 {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}

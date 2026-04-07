@@ -1,7 +1,33 @@
-.fade-down {
-     animation: fadeDown 0.3s ease-out forwards; 
+@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap');
+
+:host {
+  font-family: 'Barlow', sans-serif;
 }
-@keyframes fadeDown {
-     from { opacity: 0; transform: translateY(-10px); } 
-     to { opacity: 1; transform: translateY(0); } 
+
+* {
+  font-family: 'Barlow', sans-serif;
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.4s ease-out forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(229, 57, 53, 0.3);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(229, 57, 53, 0.6);
 }

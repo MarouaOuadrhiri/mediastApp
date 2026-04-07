@@ -1,124 +1,73 @@
-<div class="min-h-screen w-full flex font-sans overflow-hidden bg-[#213448]">
+<div class="min-h-screen bg-[#0d0d0d] flex items-center justify-center p-4 relative overflow-hidden">
+  
+  <!-- Background grid -->
+  <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;"></div>
 
-    <!-- LEFT PANEL -->
-    <div class="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-14 overflow-hidden bg-[#213448]">
-        <div class="absolute inset-0 z-0">
-          <div class="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] bg-[#547792]/30 rounded-full blur-[120px] animate-slow-pulse"></div>
-          <div class="absolute bottom-[-10%] right-[-5%] w-[60%] h-[60%] bg-[#94B4C1]/20 rounded-full blur-[100px] animate-slow-pulse delay-3000"></div>
-          <div class="absolute inset-0" style="background-image: linear-gradient(rgba(234,224,207,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(234,224,207,0.03) 1px, transparent 1px); background-size: 60px 60px;"></div>
-        </div>
+  <!-- Glow accents -->
+  <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-[#e53935] rounded-full opacity-[0.04] blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#e53935] rounded-full opacity-[0.03] blur-3xl pointer-events-none"></div>
 
-        <div class="relative z-10">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#547792] to-[#94B4C1] flex items-center justify-center shadow-xl shadow-[#547792]/30">
-              <span class="text-[#EAE0CF] font-black text-lg">M</span>
-            </div>
-            <span class="text-[#EAE0CF] font-black text-2xl tracking-tight">Mediast</span>
-          </div>
-        </div>
-
-        <div class="relative z-10 flex-1 flex flex-col justify-center py-16">
-          <div class="mb-8">
-            <span class="text-xs uppercase tracking-[0.25em] font-bold text-[#94B4C1] bg-[#547792]/20 border border-[#94B4C1]/30 px-4 py-1.5 rounded-full">Workspace Platform</span>
-          </div>
-          <h2 class="text-5xl xl:text-6xl font-black text-[#EAE0CF] leading-[1.1] mb-6">
-            Manage.<br>
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#94B4C1] to-[#EAE0CF]">Assign.</span><br>
-            Deliver.
-          </h2>
-          <p class="text-[#94B4C1] opacity-80 text-lg leading-relaxed max-w-sm">
-            Streamline your team operations with real-time project tracking, smart task assignment, and department management.
-          </p>
-          <div class="flex flex-wrap gap-3 mt-10">
-            <div class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
-              <div class="w-2 h-2 bg-[#94B4C1] rounded-full"></div>
-              <span class="text-sm text-[#EAE0CF] font-medium">Project Tracking</span>
-            </div>
-            <div class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
-              <div class="w-2 h-2 bg-[#EAE0CF] rounded-full"></div>
-              <span class="text-sm text-[#EAE0CF] font-medium">Task Assignment</span>
-            </div>
-            <div class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
-              <div class="w-2 h-2 bg-[#547792] rounded-full"></div>
-              <span class="text-sm text-[#EAE0CF] font-medium">Team Management</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="relative z-10 grid grid-cols-3 gap-6 pt-8 border-t border-[#547792]/30">
-          <div><p class="text-2xl font-black text-[#EAE0CF]">99%</p><p class="text-xs text-[#94B4C1] mt-1 font-medium">Uptime SLA</p></div>
-          <div><p class="text-2xl font-black text-[#EAE0CF]">10k+</p><p class="text-xs text-[#94B4C1] mt-1 font-medium">Tasks Completed</p></div>
-          <div><p class="text-2xl font-black text-[#EAE0CF]">500+</p><p class="text-xs text-[#94B4C1] mt-1 font-medium">Teams Onboarded</p></div>
-        </div>
+  <div class="w-full max-w-md relative z-10">
+    
+    <!-- Logo mark -->
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#e53935] shadow-2xl shadow-red-900/50 mb-5">
+        <span class="text-white font-black text-2xl">B</span>
+      </div>
+      <h1 class="text-3xl font-black text-white tracking-tight">BrandShift</h1>
+      <p class="text-sm text-white/30 mt-1.5 font-medium">Team Task Management</p>
     </div>
 
-    <!-- RIGHT PANEL -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center bg-[#182635] px-8 py-12 relative border-l border-[#547792]/20">
-        <div class="absolute top-1/4 right-1/4 w-80 h-80 bg-[#547792]/10 rounded-full blur-[100px] pointer-events-none"></div>
+    <!-- Card -->
+    <div class="bg-[#111111] border border-white/8 rounded-2xl p-8 shadow-2xl">
+      <!-- Force rebuild comment -->
+      <h2 class="text-lg font-black text-white mb-1">Sign in to your account</h2>
+      <p class="text-sm text-white/30 mb-7">Enter your credentials to access the platform</p>
 
-        <div class="w-full max-w-md relative z-10">
-          <div class="lg:hidden flex items-center gap-3 mb-10">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#547792] to-[#94B4C1] flex items-center justify-center shadow-lg shadow-[#547792]/30">
-              <span class="text-[#EAE0CF] font-black">M</span>
-            </div>
-            <span class="text-[#EAE0CF] font-black text-xl tracking-tight">Mediast</span>
-          </div>
+      <!-- Error -->
+      <div *ngIf="errorMsg" class="mb-5 p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-center gap-2">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        {{errorMsg}}
+      </div>
 
-          <div class="flex justify-center mb-8">
-            <div class="flex justify-center mb-8">
-              <img src="logo.png" alt="Mediast Logo" class="h-20 w-auto object-contain drop-shadow-2xl" />
-            </div>
-          </div>
-
-          <form (ngSubmit)="login()" class="space-y-5">
-            <div>
-              <label class="block text-xs font-bold text-[#94B4C1] uppercase tracking-wider mb-2">Username</label>
-              <div class="relative">
-                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-[#547792]">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                </div>
-                <input type="text" [(ngModel)]="username" name="username" required autocomplete="username"
-                  class="w-full bg-[#213448]/50 border border-[#547792]/50 rounded-2xl py-4 pl-11 pr-4 text-[#EAE0CF] placeholder-[#94B4C1]/50 focus:outline-none focus:border-[#94B4C1] focus:bg-[#213448] transition-all text-sm"
-                  placeholder="Enter your username">
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <label class="block text-xs font-bold text-[#94B4C1] uppercase tracking-wider">Password</label>
-                <a href="#" class="text-xs text-[#94B4C1] hover:text-[#EAE0CF] transition-colors font-semibold">Forgot password?</a>
-              </div>
-              <div class="relative">
-                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-[#547792]">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                </div>
-                <input type="password" [(ngModel)]="password" name="password" required autocomplete="current-password"
-                  class="w-full bg-[#213448]/50 border border-[#547792]/50 rounded-2xl py-4 pl-11 pr-4 text-[#EAE0CF] placeholder-[#94B4C1]/50 focus:outline-none focus:border-[#94B4C1] focus:bg-[#213448] transition-all text-sm"
-                  placeholder="••••••••••">
-              </div>
-            </div>
-
-            <div *ngIf="error" class="flex items-center gap-3 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-sm animate-fade-in">
-              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-              {{ error }}
-            </div>
-
-            <button type="submit" [disabled]="loading"
-              class="group w-full mt-2 flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-[#547792] py-4 font-bold text-[#EAE0CF] transition-all hover:bg-[#94B4C1] hover:text-[#213448] hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed">
-              <span *ngIf="!loading" class="flex items-center gap-2">
-                Sign In
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-              </span>
-              <span *ngIf="loading" class="flex items-center gap-2">
-                <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                Authenticating...
-              </span>
-            </button>
-          </form>
-
-          <p class="text-center text-[#547792] text-sm mt-10">
-            2025 Mediast. All rights reserved.
-          </p>
+      <form (ngSubmit)="login()" class="space-y-4">
+        <div>
+          <label class="text-[10px] text-white/30 uppercase tracking-widest font-bold block mb-1.5">Username</label>
+          <input
+            type="text"
+            [(ngModel)]="username"
+            name="username"
+            placeholder="your_username"
+            required
+            autocomplete="username"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:border-[#e53935]/50 focus:bg-white/8 focus:outline-none transition-all text-sm font-medium">
         </div>
+
+        <div>
+          <label class="text-[10px] text-white/30 uppercase tracking-widest font-bold block mb-1.5">Password</label>
+          <input
+            type="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:border-[#e53935]/50 focus:bg-white/8 focus:outline-none transition-all text-sm font-medium">
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="w-full bg-[#e53935] hover:bg-[#c62828] text-white font-black py-3.5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-900/30 mt-2">
+          <svg *ngIf="isLoading" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          <span>{{ isLoading ? 'Signing in...' : 'Sign In' }}</span>
+        </button>
+      </form>
     </div>
+
+    <!-- Footer note -->
+    <p class="text-center text-[10px] text-white/15 mt-6 font-medium">
+      BrandShift · Team Task Management Platform
+    </p>
+  </div>
 </div>

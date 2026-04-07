@@ -1,58 +1,77 @@
-<div class="flex h-screen bg-[#213448] text-[#EAE0CF] font-sans overflow-hidden">
+<div class="flex h-screen bg-[#0d0d0d] text-[#f0ece8] font-sans overflow-hidden">
     <!-- Sidebar -->
-    <aside [class]="showSidebar ? 'flex absolute md:relative w-72 h-full z-50' : 'hidden md:flex w-72'"
-             class="flex-col bg-[#1b2a3a] border-r border-[#547792]/30 shadow-2xl shrink-0 transition-all">
+    <aside [class]="showSidebar ? 'flex absolute md:relative w-64 h-full z-50' : 'hidden md:flex w-64'"
+             class="flex-col bg-[#111111] border-r border-white/5 shadow-2xl shrink-0 transition-all">
 
         <!-- Logo -->
-        <div class="px-7 py-8">
+        <div class="px-6 py-7 border-b border-white/5">
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#547792] to-[#94B4C1] flex items-center justify-center shadow-lg shadow-[#547792]/30 shrink-0">
-              <span class="text-[#213448] font-black">M</span>
+            <div class="w-8 h-8 rounded-lg bg-[#e53935] flex items-center justify-center shadow-lg shadow-red-900/40 shrink-0">
+              <span class="text-white font-black text-sm">B</span>
             </div>
             <div>
-              <p class="font-black text-[#EAE0CF] text-lg tracking-tight leading-none">Mediast</p>
-              <p class="text-[10px] uppercase tracking-[0.2em] text-[#94B4C1] font-bold mt-0.5">Admin</p>
+              <p class="font-black text-white text-base tracking-tight leading-none">BrandShift</p>
+              <p class="text-[9px] uppercase tracking-[0.25em] text-[#e53935] font-bold mt-0.5">Admin Portal</p>
             </div>
-            <button (click)="showSidebar = false" class="md:hidden p-2 text-[#94B4C1] hover:text-[#EAE0CF] ml-auto">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <button (click)="showSidebar = false" class="md:hidden p-2 text-white/40 hover:text-white ml-auto">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
           </div>
         </div>
 
         <!-- Nav -->
-        <nav class="flex-1 px-4 space-y-2 relative z-10">
-          <p class="text-[10px] uppercase tracking-[0.2em] text-[#94B4C1]/60 font-bold px-3 mb-3 mt-2">Navigation</p>
-          <a routerLink="departments" routerLinkActive="bg-[#547792]/20 text-[#EAE0CF] border-[#94B4C1]/50" 
-             class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-sm font-semibold transition-all text-[#94B4C1] hover:bg-[#547792]/10 hover:text-[#EAE0CF] cursor-pointer">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-            Departments
+        <nav class="flex-1 px-3 py-5 space-y-1">
+          <p class="text-[9px] uppercase tracking-[0.2em] text-white/20 font-bold px-3 mb-3">Main Menu</p>
+          <a routerLink="dashboard" routerLinkActive="bg-[#e53935] text-white" 
+             class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all text-white/40 hover:bg-white/5 hover:text-white cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
+            Dashboard
           </a>
-          <a routerLink="employees" routerLinkActive="bg-[#547792]/20 text-[#EAE0CF] border-[#94B4C1]/50" 
-             class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-sm font-semibold transition-all text-[#94B4C1] hover:bg-[#547792]/10 hover:text-[#EAE0CF] cursor-pointer">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-            Employees
-          </a>
-          <a routerLink="projects" routerLinkActive="bg-[#547792]/20 text-[#EAE0CF] border-[#94B4C1]/50" 
-             class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-sm font-semibold transition-all text-[#94B4C1] hover:bg-[#547792]/10 hover:text-[#EAE0CF] cursor-pointer">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+          <a routerLink="projects" routerLinkActive="bg-[#e53935] text-white" 
+             class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all text-white/40 hover:bg-white/5 hover:text-white cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
             Projects
           </a>
-          <a routerLink="tasks" routerLinkActive="bg-[#547792]/20 text-[#EAE0CF] border-[#94B4C1]/50" 
-             class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-sm font-semibold transition-all text-[#94B4C1] hover:bg-[#547792]/10 hover:text-[#EAE0CF] cursor-pointer">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+          <a routerLink="tasks" routerLinkActive="bg-[#e53935] text-white" 
+             class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all text-white/40 hover:bg-white/5 hover:text-white cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
             Tasks
           </a>
-          <a routerLink="profile" routerLinkActive="bg-[#547792]/20 text-[#EAE0CF] border-[#94B4C1]/50" 
-             class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-sm font-semibold transition-all text-[#94B4C1] hover:bg-[#547792]/10 hover:text-[#EAE0CF] cursor-pointer">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-            My Profile
+          <a routerLink="departments" routerLinkActive="bg-[#e53935] text-white" 
+             class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all text-white/40 hover:bg-white/5 hover:text-white cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            Departments
           </a>
+          <a routerLink="employees" routerLinkActive="bg-[#e53935] text-white" 
+             class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all text-white/40 hover:bg-white/5 hover:text-white cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            Employees
+          </a>
+
+          <div class="pt-4">
+            <p class="text-[9px] uppercase tracking-[0.2em] text-white/20 font-bold px-3 mb-3">Settings</p>
+            <a routerLink="profile" routerLinkActive="bg-[#e53935] text-white" 
+               class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all text-white/40 hover:bg-white/5 hover:text-white cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+              My Profile
+            </a>
+          </div>
         </nav>
 
-        <div class="p-4 relative z-10">
-          <button (click)="logout()" class="w-full px-4 py-3 bg-[#547792]/20 text-[#94B4C1] border border-[#547792]/30 hover:bg-[#547792]/40 hover:text-[#EAE0CF] rounded-xl transition-all font-semibold text-sm flex items-center justify-center gap-2">
+        <div class="p-4 border-t border-white/5">
+          <div class="flex items-center gap-3 mb-4 px-1">
+            <div class="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-[#e53935] to-[#b71c1c] flex items-center justify-center text-white font-black text-xs border border-[#e53935]/20 shrink-0">
+              <img *ngIf="user?.profile_photo" [src]="user.profile_photo" class="w-full h-full object-cover">
+              <span *ngIf="!user?.profile_photo">{{(user?.username || 'A').charAt(0).toUpperCase()}}</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-bold text-white truncate">{{user?.username || 'Admin'}}</p>
+              <p class="text-[9px] text-white/30 truncate">{{user?.email || 'admin@brandshift.com'}}</p>
+            </div>
+          </div>
+          <button (click)="logout()" class="w-full px-4 py-3 bg-white/5 text-white/40 hover:bg-[#e53935]/20 hover:text-[#e53935] rounded-xl transition-all font-semibold text-sm flex items-center justify-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            Log Out
+            End session and logout
           </button>
         </div>
     </aside>
@@ -60,23 +79,34 @@
     <!-- Main -->
     <main class="flex-1 flex flex-col overflow-hidden relative">
         <!-- Top bar -->
-        <header class="flex items-center justify-between px-8 py-5 bg-[#213448] border-b border-[#547792]/30 shrink-0 shadow-sm z-10 fade-down">
+        <header class="flex items-center justify-between px-8 py-4 bg-[#0d0d0d] border-b border-white/5 shrink-0 z-10">
           <div class="flex items-center gap-4">
-            <button (click)="showSidebar = !showSidebar" class="md:hidden p-2 text-[#94B4C1] hover:text-[#EAE0CF]">
+            <button (click)="showSidebar = !showSidebar" class="md:hidden p-2 text-white/40 hover:text-white">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <div>
-              <h2 class="text-xl font-black text-[#EAE0CF]">Admin Portal</h2>
-              <p class="text-xs text-[#94B4C1] mt-0.5">Manage your workspace seamlessly</p>
+            <div class="relative hidden md:block">
+              <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              <input type="text" placeholder="Search tasks, teams, projects..." class="bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm text-white/60 placeholder-white/20 focus:outline-none focus:border-white/20 w-72 transition-all">
             </div>
           </div>
           <div class="flex items-center gap-3">
-            <button routerLink="profile" class="w-9 h-9 rounded-full bg-gradient-to-tr from-[#547792] to-[#94B4C1] flex items-center justify-center text-[#213448] font-black text-sm transition-all hover:scale-105 shadow-md">A</button>
+            <button class="px-4 py-2 bg-[#e53935] hover:bg-[#c62828] text-white text-sm font-bold rounded-lg transition-all flex items-center gap-2 shadow-lg shadow-red-900/30">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+              New Project
+            </button>
+            <button class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all relative">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+              <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#e53935] rounded-full"></span>
+            </button>
+            <button routerLink="profile" class="w-9 h-9 rounded-lg overflow-hidden border border-white/10 flex items-center justify-center bg-gradient-to-br from-[#e53935] to-[#b71c1c] text-white font-black text-sm transition-all hover:border-[#e53935]/50">
+              <img *ngIf="user?.profile_photo" [src]="user.profile_photo" class="w-full h-full object-cover">
+              <span *ngIf="!user?.profile_photo">{{(user?.username || 'A').charAt(0).toUpperCase()}}</span>
+            </button>
           </div>
         </header>
 
         <!-- Content area -->
-        <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-gradient-to-br from-[#213448] to-[#1b2a3a]">
+        <div class="flex-1 overflow-y-auto p-6 md:p-8 bg-[#0d0d0d]">
           <router-outlet></router-outlet>
         </div>
     </main>

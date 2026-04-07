@@ -10,133 +10,6 @@
 # https://docs.djangoproject.com/en/3.2/ref/settings/
 # """
 
-# from pathlib import Path
-# import mongoengine
-# mongoengine.connect(db='mediast_db', host='localhost', username='', password='')
-# # Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# # Quick-start development settings - unsuitable for production
-# # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
-# # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-^bfkgkfyih9n$v)x6&ylin*ll_$onn#vhmw=d74-2y)qy#5zb('
-
-# # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-
-# ALLOWED_HOSTS = []
-
-
-# # Application definition
-
-# INSTALLED_APPS = [
-#     'django.contrib.admin',
-#     'django.contrib.auth',
-#     'django.contrib.contenttypes',
-#     'django.contrib.sessions',
-#     'django.contrib.messages',
-#     'django.contrib.staticfiles',
-#     'rest_framework',
-#     'users',
-#     # 'tasks',
-    # 'projects',
-#     # 'departments',
-# ]
-
-# MIDDLEWARE = [
-#     'django.middleware.security.SecurityMiddleware',
-#     'django.contrib.sessions.middleware.SessionMiddleware',
-#     'django.middleware.common.CommonMiddleware',
-#     'django.middleware.csrf.CsrfViewMiddleware',
-#     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#     'django.contrib.messages.middleware.MessageMiddleware',
-#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-# ]
-
-# ROOT_URLCONF = 'mon_projet.urls'
-
-# TEMPLATES = [
-#     {
-#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-#         'DIRS': [],
-#         'APP_DIRS': True,
-#         'OPTIONS': {
-#             'context_processors': [
-#                 'django.template.context_processors.debug',
-#                 'django.template.context_processors.request',
-#                 'django.contrib.auth.context_processors.auth',
-#                 'django.contrib.messages.context_processors.messages',
-#             ],
-#         },
-#     },
-# ]
-
-# WSGI_APPLICATION = 'mon_projet.wsgi.application'
-
-
-# # Database
-# # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-# # DATABASES = {
-# #     'default': {
-# #         'ENGINE': 'django',
-# #         'NAME': 'mediast_db',
-# #         'CLIENT': {
-# #             'host': 'localhost', # Adresse du serveur MongoDB
-# #             'port': 27017, # Port par défaut de MongoDB
-# #             # Si MongoDB requiert une authentification :
-# #             # 'username': 'ton_utilisateur',
-# #             # 'password': 'ton_mot_de_passe',
-# #             # 'authSource': 'admin',
-# #         }
-# #     }
-# # }
-
-
-# # Password validation
-# # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
-
-# AUTH_PASSWORD_VALIDATORS = [
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-#     },
-# ]
-
-
-# # Internationalization
-# # https://docs.djangoproject.com/en/3.2/topics/i18n/
-
-# LANGUAGE_CODE = 'en-us'
-
-# TIME_ZONE = 'UTC'
-
-# USE_I18N = True
-
-# USE_L10N = True
-
-# USE_TZ = True
-
-
-# # Static files (CSS, JavaScript, Images)
-# # https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-# STATIC_URL = '/static/'
-
-# # Default primary key field type
-# # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
-# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 from pathlib import Path
 import mongoengine
 
@@ -164,6 +37,7 @@ INSTALLED_APPS = [
     'tasks',
     'projects',
     'departments',
+    'meetings',
 ]
 
 MIDDLEWARE = [
@@ -244,6 +118,18 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # -------------------------------------------------------------------
+# -------------------------------------------------------------------
+# Django REST Framework Settings
+# -------------------------------------------------------------------
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'users.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
 # Default primary key field type
 # -------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
