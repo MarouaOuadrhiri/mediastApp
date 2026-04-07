@@ -1,7 +1,7 @@
 <div class="flex h-screen bg-[#0d0d0d] text-white font-sans overflow-hidden">
   <!-- Sidebar -->
   <aside [class]="showSidebar ? 'flex absolute md:relative w-64 h-full z-50' : 'hidden md:flex w-64'"
-         class="flex-col bg-[#111111] border-r border-white/5 shadow-2xl shrink-0 transition-all">
+         class="flex-col bg-[#17171780] border-r border-white/5 shadow-2xl shrink-0 transition-all">
 
     <!-- Logo -->
     <div class="px-6 py-7 border-b border-white/5">
@@ -22,14 +22,14 @@
     <!-- Nav -->
     <nav class="flex-1 px-3 py-5 space-y-1">
       <p class="text-[9px] uppercase tracking-[0.2em] text-white/20 font-bold px-3 mb-3">Main Menu</p>
-      <a routerLink="dashboard" routerLinkActive="bg-[#e53935] text-white"
+      <a routerLink="dashboard" routerLinkActive="bg-[#FE0707] text-white"
          class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all text-white/40 hover:bg-white/5 hover:text-white cursor-pointer">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
         Dashboard
       </a>
       <div class="pt-4">
         <p class="text-[9px] uppercase tracking-[0.2em] text-white/20 font-bold px-3 mb-3">Account</p>
-        <a routerLink="profile" routerLinkActive="bg-[#e53935] text-white"
+        <a routerLink="profile" routerLinkActive="bg-[#FE0707] text-white"
            class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all text-white/40 hover:bg-white/5 hover:text-white cursor-pointer">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
           My Profile
@@ -70,7 +70,7 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <button class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all relative">
+        <button (click)="openMeetingNotifications()" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all relative">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
         </button>
         <button routerLink="profile" class="w-9 h-9 rounded-lg overflow-hidden border border-white/10 flex items-center justify-center bg-gradient-to-br from-[#e53935] to-[#b71c1c] text-white font-black text-sm transition-all hover:border-[#e53935]/50">

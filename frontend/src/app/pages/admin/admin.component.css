@@ -17,6 +17,41 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+.admin-sidebar {
+  background: rgba(23, 23, 23, 0.5);
+  backdrop-filter: blur(24px);
+}
+
+.nav-link {
+  width: 256px;
+  height: 44px;
+  padding: 12px 32px;
+  gap: 16px;
+  display: flex;
+  align-items: center;
+  border-radius: 24px;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background 300ms ease-in, color 300ms ease-in;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.nav-link-active {
+  background: #FE0707;
+  color: #ffffff;
+  border-right: 4px solid #DC2626;
+}
+
+.nav-link-active svg {
+  color: #ffffff;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 4px;

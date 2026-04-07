@@ -22,6 +22,35 @@ export class EmployeeComponent implements OnInit {
     private zone: NgZone
   ) {}
 
+  openMeetingNotifications() {
+    if (typeof window === 'undefined') return;
+
+    const dispatchShowPanel = () => {
+      window.dispatchEvent(new CustomEvent('employee-show-meeting-panel'));
+      try {
+        localStorage.setItem('employee-show-meeting-panel', JSON.stringify({ ts: new Date().toISOString(), action: 'open' }));
+      } catch {
+        // ignore storage errors
+      }
+    };
+
+    const isDashboardActive = this.router.url.includes('/employee/dashboard');
+    if (isDashboardActive) {
+      dispatchShowPanel();
+      return;
+    }
+
+    this.router.navigate(['/employee/dashboard']).then((navigated) => {
+      if (navigated) {
+        setTimeout(dispatchShowPanel, 120);
+      } else {
+        dispatchShowPanel();
+      }
+    }).catch(() => {
+      dispatchShowPanel();
+    });
+  }
+
   ngOnInit() {
     // Avoid NG0100 error by wrapping the async load in a microtask/setTimeout
     setTimeout(() => {

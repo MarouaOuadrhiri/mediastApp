@@ -84,9 +84,9 @@ class ListMeetingsView(APIView):
                 meetings = Meeting.objects.all().order_by('-date_time')
             else:
                 from mongoengine.queryset.visitor import Q
-                q = Q(employees=request.user.id)
+                q = Q(employees=request.user)
                 if request.user.department:
-                    q |= Q(departments=request.user.department.id)
+                    q |= Q(departments=request.user.department)
                 meetings = Meeting.objects(q).order_by('-date_time')
             
             result = []

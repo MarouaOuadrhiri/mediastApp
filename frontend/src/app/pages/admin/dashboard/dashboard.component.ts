@@ -152,9 +152,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
 
     this.api.createMeeting(meetingData).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isSubmittingMeeting = false;
         this.showMeetingModal = false;
+
+        const createdMeeting = {
+          id: res?.id || `${Date.now()}`,
+          title,
+          description: meetingData.description,
+          date_time: meetingData.date_time,
+          departments: this.meetingForm.allDepartments
+            ? this.allDepartments.map(d => ({ id: d.id, name: d.name }))
+            : this.allDepartments.filter(d => this.meetingForm.selectedDepartments.includes(d.id)).map(d => ({ id: d.id, name: d.name })),
+          employees: this.allEmployees
+            .filter(e => this.meetingForm.selectedEmployees.includes(e.id))
+            .map(e => ({ id: e.id, name: e.username }))
+        };
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('meeting-created', { detail: createdMeeting }));
+          try {
+            localStorage.setItem('meeting-created', JSON.stringify({
+              meeting: createdMeeting,
+              ts: new Date().toISOString()
+            }));
+          } catch {
+            // ignore localStorage errors
+          }
+        }
+
+        this.loadData();
         alert('Meeting scheduled successfully!');
       },
       error: (err) => {

@@ -18,6 +18,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   upcomingMeetings: any[] = [];
   newMeetingCount = 0;
   showMeetingPanel = false;
+  toastMeeting: any = null;
+  private toastTimer: any;
+  private lastSeenMeetingIds: Set<string> = new Set();
+  private meetingSeenStorageKey = 'employeeMeetingSeenIds';
 
   newTaskTitle = '';
   isAddingTask = false;
@@ -27,6 +31,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   elapsedTime = '00:00:00';
   private timerInterval: any;
   private refreshInterval: any;
+  private meetingCreatedListener: any;
+  private meetingStorageListener: any;
+  private employeeShowPanelListener: any;
+  private employeeShowPanelActionKey = 'employee-show-meeting-panel';
 
   constructor(
     private api: ApiService,
@@ -37,17 +45,84 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.loadSeenMeetingIds();
     this.loadData();
     if (isPlatformBrowser(this.platformId)) {
       this.refreshInterval = setInterval(() => {
         this.loadData(true);
       }, 30000);
+
+      this.meetingCreatedListener = (event: any) => {
+        const meeting = event?.detail;
+        if (meeting && meeting.title) {
+          this.showToast(meeting);
+          this.loadData(true);
+        }
+      };
+      window.addEventListener('meeting-created', this.meetingCreatedListener);
+
+      this.meetingStorageListener = (event: StorageEvent) => {
+        if (event.key === 'meeting-created' && event.newValue) {
+          try {
+            const payload = JSON.parse(event.newValue);
+            const meeting = payload?.meeting;
+            if (meeting && meeting.title) {
+              this.showToast(meeting);
+              this.loadData(true);
+            }
+          } catch {
+            // ignore invalid payload
+          }
+        }
+
+        if (event.key === 'employee-show-meeting-panel') {
+          this.zone.run(() => {
+            this.showMeetingPanel = true;
+            this.loadData(true);
+            this.cdr.detectChanges();
+          });
+        }
+      };
+      window.addEventListener('storage', this.meetingStorageListener);
+
+      this.employeeShowPanelListener = () => {
+        this.handleEmployeeShowPanel();
+      };
+      window.addEventListener('employee-show-meeting-panel', this.employeeShowPanelListener);
+
+      this.checkStoredEmployeeShowPanel();
     }
   }
 
   ngOnDestroy() {
     if (this.timerInterval) clearInterval(this.timerInterval);
     if (this.refreshInterval) clearInterval(this.refreshInterval);
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    if (this.meetingCreatedListener) window.removeEventListener('meeting-created', this.meetingCreatedListener);
+    if (this.meetingStorageListener) window.removeEventListener('storage', this.meetingStorageListener);
+    if (this.employeeShowPanelListener) window.removeEventListener('employee-show-meeting-panel', this.employeeShowPanelListener);
+  }
+
+  private loadSeenMeetingIds() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      const raw = localStorage.getItem(this.meetingSeenStorageKey);
+      if (raw) {
+        const ids = JSON.parse(raw) as string[];
+        this.lastSeenMeetingIds = new Set(ids || []);
+      }
+    } catch {
+      this.lastSeenMeetingIds = new Set();
+    }
+  }
+
+  private saveSeenMeetingIds() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      localStorage.setItem(this.meetingSeenStorageKey, JSON.stringify([...this.lastSeenMeetingIds]));
+    } catch {
+      // ignore storage errors
+    }
   }
 
   private runInZone(fn: () => void) {
@@ -67,7 +142,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     this.api.getMeetings().subscribe({
-      next: (r: any) => this.runInZone(() => { this.processMeetings(r || []); this.cdr.detectChanges(); }),
+      next: (r: any) => this.runInZone(() => { this.processMeetings(r || [], isRefresh); this.cdr.detectChanges(); }),
       error: () => {}
     });
 
@@ -90,7 +165,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  processMeetings(raw: any[]) {
+  processMeetings(raw: any[], isRefresh = false) {
     const now = new Date();
     this.meetings = raw;
     this.upcomingMeetings = raw
@@ -100,6 +175,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Count meetings in the next 24 hours as "new/alert"
     const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     this.newMeetingCount = this.upcomingMeetings.filter(m => new Date(m.date_time) <= in24h).length;
+
+    if (isRefresh || this.lastSeenMeetingIds.size > 0) {
+      const newOnes = raw.filter(m => m.id && !this.lastSeenMeetingIds.has(m.id));
+      raw.forEach(m => { if (m.id) this.lastSeenMeetingIds.add(m.id); });
+      this.saveSeenMeetingIds();
+      if (newOnes.length > 0) {
+        this.showToast(newOnes[newOnes.length - 1]);
+      }
+    } else {
+      raw.forEach(m => { if (m.id) this.lastSeenMeetingIds.add(m.id); });
+      this.saveSeenMeetingIds();
+    }
+  }
+
+  showToast(meeting: any) {
+    this.zone.run(() => {
+      if (this.toastTimer) clearTimeout(this.toastTimer);
+      this.toastMeeting = meeting;
+      this.cdr.detectChanges();
+      this.toastTimer = setTimeout(() => {
+        this.zone.run(() => { this.toastMeeting = null; this.cdr.detectChanges(); });
+      }, 6000);
+    });
+  }
+
+  dismissToast() {
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.zone.run(() => { this.toastMeeting = null; this.cdr.detectChanges(); });
+  }
+
+  private handleEmployeeShowPanel() {
+    this.zone.run(() => {
+      this.showMeetingPanel = true;
+      this.loadData(true);
+      this.cdr.detectChanges();
+    });
+  }
+
+  private checkStoredEmployeeShowPanel() {
+    try {
+      const raw = localStorage.getItem(this.employeeShowPanelActionKey);
+      if (!raw) return;
+      const payload = JSON.parse(raw);
+      if (payload?.action === 'open') {
+        const eventTime = new Date(payload.ts).getTime();
+        if (!isNaN(eventTime) && Date.now() - eventTime < 20000) {
+          this.handleEmployeeShowPanel();
+        }
+      }
+    } catch {
+      // ignore invalid payload
+    }
   }
 
   getMeetingTimeLabel(dateStr: string): string {
@@ -241,6 +368,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!p || !p.tasks || p.tasks.length === 0) return 0;
     const done = p.tasks.filter((t: any) => t.status === 'DONE').length;
     return Math.round((done / p.tasks.length) * 100);
+  }
+
+  isPastMeeting(dateStr: string): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const meetingDate = new Date(dateStr);
+    meetingDate.setHours(0, 0, 0, 0);
+    return meetingDate < today;
   }
 
   updateProjectTaskStatus(projectId: string, taskId: string, status: string) {

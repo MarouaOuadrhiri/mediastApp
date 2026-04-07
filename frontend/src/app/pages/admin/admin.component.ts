@@ -23,6 +23,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   toastMeeting: any = null;
   private toastTimer: any;
   private meetingPollInterval: any;
+  private meetingCreatedListener: any;
   private lastSeenMeetingIds: Set<string> = new Set();
 
   constructor(
@@ -47,12 +48,22 @@ export class AdminComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       // Poll for new meetings every 30s
       this.meetingPollInterval = setInterval(() => this.loadMeetings(false), 30000);
+
+      this.meetingCreatedListener = (event: any) => {
+        const meeting = event?.detail;
+        if (meeting && meeting.title) {
+          this.loadMeetings(false);
+          this.showToast(meeting);
+        }
+      };
+      window.addEventListener('meeting-created', this.meetingCreatedListener);
     }
   }
 
   ngOnDestroy() {
     if (this.meetingPollInterval) clearInterval(this.meetingPollInterval);
     if (this.toastTimer) clearTimeout(this.toastTimer);
+    if (this.meetingCreatedListener) window.removeEventListener('meeting-created', this.meetingCreatedListener);
   }
 
   loadMeetings(isInitial = false) {
@@ -89,16 +100,19 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   showToast(meeting: any) {
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastMeeting = meeting;
-    this.toastTimer = setTimeout(() => {
-      this.zone.run(() => { this.toastMeeting = null; this.cdr.detectChanges(); });
-    }, 6000);
+    this.zone.run(() => {
+      if (this.toastTimer) clearTimeout(this.toastTimer);
+      this.toastMeeting = meeting;
+      this.cdr.detectChanges();
+      this.toastTimer = setTimeout(() => {
+        this.zone.run(() => { this.toastMeeting = null; this.cdr.detectChanges(); });
+      }, 6000);
+    });
   }
 
   dismissToast() {
     if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastMeeting = null;
+    this.zone.run(() => { this.toastMeeting = null; this.cdr.detectChanges(); });
   }
 
   getMeetingTimeLabel(dateStr: string): string {
