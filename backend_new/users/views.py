@@ -24,10 +24,7 @@ def serialize_user(u, include_department=True):
     
     records = AttendanceRecord.objects(user=u, start_time__gte=today_start)
     for r in records:
-        if r.status == 'ACTIVE':
-            delta = datetime.datetime.utcnow() - r.start_time
-            total_seconds_today += delta.total_seconds()
-        elif r.end_time:
+        if r.status == 'COMPLETED' and r.end_time:
             delta = r.end_time - r.start_time
             total_seconds_today += delta.total_seconds()
 
@@ -64,6 +61,41 @@ def serialize_user(u, include_department=True):
         'current_session_start': current_session_start,
         'total_work_today': format_seconds(total_seconds_today)
     }
+    
+    last_task = None
+    try:
+        from tasks.models import Task
+        t = Task.objects(employee=u.id).order_by('-id').first()
+        if t:
+            last_task = {'title': t.title, 'status': t.status}
+    except Exception:
+        pass
+
+    if not last_task:
+        try:
+            from projects.models import Project
+            from mongoengine.queryset.visitor import Q
+            filters = [Q(employees=u.id), Q(tasks__completed_by=u.id)]
+            if u.department:
+                filters.append(Q(department=u.department.id))
+            query = filters[0]
+            for q in filters[1:]:
+                query |= q
+            
+            p = Project.objects.filter(query).order_by('-start_date').first()
+            if p and p.tasks:
+                target_task = None
+                for task in reversed(p.tasks):
+                    if getattr(task, 'status', '') != 'DONE':
+                        target_task = task
+                        break
+                if not target_task:
+                    target_task = p.tasks[-1]
+                last_task = {'title': target_task.title, 'status': target_task.status}
+        except Exception:
+            pass
+
+    data['last_task'] = last_task
     if include_department:
         data['department_id'] = dep_id
         data['department_name'] = dep_name
@@ -398,6 +430,23 @@ def end_attendance(request):
         set__status='COMPLETED'
     )
     return Response({'message': 'Attendance session ended.'})
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def start_attendance(request):
+    """Start a new active session for the user."""
+    # Ensure no lingering active sessions
+    AttendanceRecord.objects(user=request.user, status='ACTIVE').update(
+        set__end_time=datetime.datetime.utcnow(),
+        set__status='COMPLETED'
+    )
+    AttendanceRecord(
+        user=request.user,
+        start_time=datetime.datetime.utcnow(),
+        status='ACTIVE'
+    ).save()
+    return Response({'message': 'Attendance session started.'})
 
 
 @api_view(['GET'])

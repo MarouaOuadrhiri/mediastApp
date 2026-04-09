@@ -25,12 +25,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { day: 'MON', value: 0 }, { day: 'TUE', value: 0 }, { day: 'WED', value: 0 },
     { day: 'THU', value: 0 }, { day: 'FRI', value: 0 }, { day: 'SAT', value: 0 }, { day: 'SUN', value: 0 }
   ];
+  
+  currentDateTime = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   timerValue = '00:00:00';
   timerRunning = false;
   private timerInterval: any;
   private teamTimerInterval: any;
   private refreshInterval: any;
+
+  isLunchBreak = false;
+  lunchSecondsLeft = 3600;
+  private lunchTimerIntervalId: any;
 
   // Meeting Modal State
   showMeetingModal = false;
@@ -259,7 +265,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
             isOnline: e.is_online,
             sessionStart: e.current_session_start,
             totalWorkToday: e.total_work_today,
-            elapsed: e.is_online ? '00:00:00' : e.total_work_today
+            elapsed: e.is_online ? '00:00:00' : e.total_work_today,
+            lastTask: e.last_task ? e.last_task.title : null,
+            taskStatus: e.last_task ? e.last_task.status : 'TODO'
           }));
           this.startTeamTimer();
           this.cdr.detectChanges();
@@ -355,7 +363,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.teamPerformance.forEach(m => {
             if (m.isOnline && m.sessionStart) {
               const start = new Date(m.sessionStart).getTime();
-              const diff = now - start;
+              let prevSecs = 0;
+              if (m.totalWorkToday) {
+                const parts = m.totalWorkToday.split(':');
+                if (parts.length === 3) prevSecs = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+              }
+              const diff = (now - start) + (prevSecs * 1000);
               const h = Math.floor(diff / 3600000);
               const m_ = Math.floor((diff % 3600000) / 60000);
               const s = Math.floor((diff % 60000) / 1000);
@@ -376,10 +389,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.timerInterval) clearInterval(this.timerInterval);
     if (!this.zone) return;
     
+    let prevSecs = 0;
+    if (this.user && this.user.total_work_today) {
+      const parts = this.user.total_work_today.split(':');
+      if (parts.length === 3) prevSecs = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+    }
+
     this.zone.runOutsideAngular(() => {
       this.timerInterval = setInterval(() => {
         const now = new Date().getTime();
-        const diff = now - start;
+        const diff = (now - start) + (prevSecs * 1000);
         const h = Math.floor(diff / 3600000);
         const m_ = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
@@ -396,7 +415,65 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   toggleTimer() {
-    this.timerRunning = !this.timerRunning;
+    if (this.isLunchBreak) {
+      this.isLunchBreak = false;
+      if (this.lunchTimerIntervalId) clearInterval(this.lunchTimerIntervalId);
+      this.timerValue = '00:00:00';
+    }
+
+    if (this.timerRunning) {
+      this.stopTimer();
+    } else {
+      this.api.startAttendance().subscribe({
+        next: () => {
+          this.timerRunning = true;
+          const now = new Date().toISOString();
+          this.startTimer(now);
+          this.loadData();
+        },
+        error: () => {}
+      });
+    }
+  }
+
+  startLunchBreak() {
+    if (this.isLunchBreak) return;
+    
+    if (this.timerRunning) {
+      this.api.endAttendance().subscribe(() => {
+        this.beginLunchCountdown();
+        this.loadData();
+      });
+    } else {
+      this.beginLunchCountdown();
+    }
+  }
+
+  private beginLunchCountdown() {
+    this.timerRunning = false;
+    this.isLunchBreak = true;
+    this.lunchSecondsLeft = 3600;
+
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    if (this.lunchTimerIntervalId) clearInterval(this.lunchTimerIntervalId);
+
+    this.zone.runOutsideAngular(() => {
+      this.lunchTimerIntervalId = setInterval(() => {
+        this.zone.run(() => {
+          if (this.lunchSecondsLeft > 0) {
+            this.lunchSecondsLeft--;
+            const m_ = Math.floor(this.lunchSecondsLeft / 60);
+            const s = this.lunchSecondsLeft % 60;
+            this.timerValue = `LUNCH ${this.pad(m_)}:${this.pad(s)}`;  
+            this.cdr.detectChanges();
+          } else {
+            clearInterval(this.lunchTimerIntervalId);
+            this.timerValue = '00:00:00';
+            this.cdr.detectChanges();
+          }
+        });
+      }, 1000);
+    });
   }
 
   stopTimer() {
@@ -405,6 +482,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.timerRunning = false;
         this.timerValue = '00:00:00';
         this.cdr.detectChanges();
+        this.loadData();
       };
       if (this.zone) this.zone.run(runLogic);
       else runLogic();

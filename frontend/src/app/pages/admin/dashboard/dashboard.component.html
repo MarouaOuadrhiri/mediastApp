@@ -42,116 +42,256 @@
       
       <!-- Chart Card -->
       <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden group">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-[#e53935]/5 blur-[100px] rounded-full -mr-20 -mt-20"></div>
-        
-        <div class="flex items-center justify-between mb-10 relative z-10">
-          <div>
-            <h2 class="my-heading-style">Weekly Project Activity</h2>
-            <p class="subTitle">Data tracking based on task completion velocity</p>
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-10">
+          <div class="flex flex-col gap-1">
+            <h2
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; line-height: 28px; color: #FFFFFF; margin: 0;">
+              Weekly Project Activity
+            </h2>
+            <p
+              style="font-family: 'Inter'; font-weight: 400; font-size: 12px; line-height: 16px; color: #737373; margin: 0;">
+              Data tracking based on task completion velocity
+            </p>
           </div>
-          <div class="flex items-center gap-3">
-            <div class="w-2.5 h-2.5 bg-[#e53935] rounded-sm shadow-[0_0_10px_rgba(229,57,53,0.5)]"></div>
-            <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Output</span>
-            <!-- <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 ml-2">
-              <span class="w-1 h-1 bg-[#e53935] rounded-full animate-pulse"></span>
-              <span class="text-[8px] font-black text-[#e53935] uppercase tracking-widest">Live</span>
-            </span> -->
+          <div class="flex items-center gap-2">
+            <div
+              style="width: 12px; height: 12px; background: #DC2626; border-radius: 2px; flex-shrink: 0;">
+            </div>
+            <span
+              style="font-family: 'Inter'; font-weight: 400; font-size: 12px; line-height: 15px; color: #A3A3A3;  font-style: regular;">
+              Output
+            </span>
           </div>
         </div>
 
-        <div class="chart-bar-container relative z-10 h-[220px]">
-          <div *ngFor="let item of weeklyActivity" class="chart-bar-wrapper">
-            <div class="chart-bar group relative" [style.height]="item.value + '%'">
-              <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-black px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100 whitespace-nowrap shadow-2xl z-20">
-                {{ item.value }} pts
+        <!-- Chart -->
+        <div class="flex items-end justify-between w-full"
+          style="height: 192px; padding-left: 16px; padding-right: 16px; box-sizing: border-box;">
+          <div
+            *ngFor="let item of weeklyActivity"
+            class="flex flex-col items-center justify-end gap-4"
+            style="height: 159px; width: 48px;">
+
+            <!-- Value label -->
+            <span
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; line-height: 15px; color: #A3A3A3; text-align: center; min-height: 15px;">
+              {{ item.value > 0 ? item.value : '' }}
+            </span>
+
+            <!-- Bar or red dot -->
+            <div class="flex items-end justify-center" style="width: 8px; height: 128px;">
+              <!-- Normal bar -->
+              <div
+                *ngIf="item.value > 0"
+                style="width: 8px; border-radius: 9999px; background: linear-gradient(176.42deg, #FD0000 0%, #FF3B3B 100%);"
+                [style.height.px]="(item.value / 100) * 128">
+              </div>
+              <!-- Zero dot -->
+              <div
+                *ngIf="item.value === 0"
+                style="width: 8px; height: 8px; border-radius: 9999px; background: #DC2626;">
               </div>
             </div>
-            <p class="chart-label mt-4">{{ item.day }}</p>
+
+            <!-- Day label -->
+            <span
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #525252; text-transform: uppercase; text-align: center;">
+              {{ item.day }}
+            </span>
           </div>
         </div>
       </div>
 
       <!-- Current Projects Card -->
       <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl">
-        <div class="flex items-center justify-between mb-8">
-          <h2 class="my-heading-style">Current Projects</h2>
-          <button routerLink="../projects" class="text-[10px] text-white/30 font-black uppercase tracking-widest hover:text-[#e53935] transition-all flex items-center gap-2 group">
-            View All
-            <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+          <h2
+            style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; line-height: 28px; color: #FFFFFF; margin: 0;">
+            Current Projects
+          </h2>
+          <button
+            routerLink="../projects"
+            class="flex items-center group"
+            style="background: none; border: none; cursor: pointer; gap: 8px; padding: 0;">
+            <span
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; line-height: 15px; color: #525252; text-transform: uppercase; letter-spacing: 1px; transition: color 0.2s;"
+              class="group-hover:!text-[#DC2626]">
+              View All
+            </span>
+            <svg
+              class="group-hover:translate-x-1 transition-transform"
+              width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="#525252" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+              style="transition: stroke 0.2s;"
+              [style.stroke]="'#525252'">
+              <path d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
           </button>
         </div>
 
-        <div class="space-y-4">
-          <div *ngFor="let p of projects.slice(0, 3)" class="flex items-center justify-between p-6 rounded-[1.5rem] bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all group">
-            <div class="flex items-center gap-6">
-              <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110"
-                   [ngClass]="{
-                     'bg-green-500/10 text-green-500': getProjectProgress(p) === 100,
-                     'bg-[#e53935]/10 text-[#e53935]': getProjectProgress(p) < 100 && getProjectProgress(p) > 0,
-                     'bg-amber-500/10 text-amber-500': getProjectProgress(p) === 0
-                   }">
-                <svg *ngIf="getProjectProgress(p) === 100" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
-                <svg *ngIf="getProjectProgress(p) < 100 && getProjectProgress(p) > 0" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                <svg *ngIf="getProjectProgress(p) === 0" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+        <!-- Project List -->
+        <div class="flex flex-col" style="gap: 16px;">
+          <div
+            *ngFor="let p of projects.slice(0, 3)"
+            class="flex items-center justify-between"
+            style="background: #2A2A2B; border-radius: 48px; padding: 16px; width: 100%; box-sizing: border-box;">
+
+            <!-- Left: Icon + Info -->
+            <div class="flex items-center" style="gap: 16px;">
+
+              <!-- Icon bubble -->
+              <div class="flex items-center justify-center flex-shrink-0"
+                style="width: 40px; height: 40px; border-radius: 32px;"
+                [ngStyle]="{
+                  'background': getProjectProgress(p) === 100 ? '#22C55E1A' :
+                                getProjectProgress(p) > 0    ? '#DC26261A' : '#EAB3081A'
+                }">
+
+                <!-- Done -->
+                <svg *ngIf="getProjectProgress(p) === 100"
+                  width="22" height="22" viewBox="0 0 24 24" fill="none"
+                  stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 13l4 4L19 7"/>
+                </svg>
+
+                <!-- In Progress -->
+                <svg *ngIf="getProjectProgress(p) > 0 && getProjectProgress(p) < 100"
+                  width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M18 8L16.75 5.25L14 4L16.75 2.75L18 0L19.25 2.75L22 4L19.25 5.25L18 8ZM18 22L16.75 19.25L14 18L16.75 16.75L18 14L19.25 16.75L22 18L19.25 19.25L18 22ZM8 19L5.5 13.5L0 11L5.5 8.5L8 3L10.5 8.5L16 11L10.5 13.5L8 19ZM8 14.15L9 12L11.15 11L9 10L8 7.85L7 10L4.85 11L7 12L8 14.15Z" fill="#DC2626"/>
+                </svg>
+
+                <!-- Pending -->
+                <svg *ngIf="getProjectProgress(p) === 0"
+                  width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M16.6666 3.33331H3.33329C2.41282 3.33331 1.66663 4.07951 1.66663 4.99998V15C1.66663 15.9205 2.41282 16.6666 3.33329 16.6666H16.6666C17.5871 16.6666 18.3333 15.9205 18.3333 15V4.99998C18.3333 4.07951 17.5871 3.33331 16.6666 3.33331Z" stroke="#EAB308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10 7.5V16.6667" stroke="#EAB308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M1.66663 7.5H12.5C12.942 7.5 13.3659 7.6756 13.6785 7.98816C13.991 8.30072 14.1666 8.72464 14.1666 9.16667V16.6667" stroke="#EAB308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </div>
-              <div>
-                <h3 class="text-base font-black text-white tracking-tight group-hover:text-[#e53935] transition-colors">{{ p.name }}</h3>
-                <p class="text-[10px] text-white/20 mt-1 font-bold uppercase tracking-widest">{{ p.department_name || 'Organization Wide' }}</p>
+
+              <!-- Name + Department -->
+              <div class="flex flex-col" style="gap: 0;">
+                <span
+                  style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px; line-height: 20px; color: #FFFFFF; letter-spacing: 0px;">
+                  {{ p.name }}
+                </span>
+                <span
+                  style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #737373; text-transform: uppercase; letter-spacing: 0.25px;">
+                  {{ p.department_name || 'Organization Wide' }}
+                </span>
               </div>
             </div>
-            
-            <div class="flex items-center gap-6">
-              <div class="px-5 py-2 rounded-full text-[9px] font-black tracking-[0.1em] uppercase border"
-                   [ngClass]="{
-                     'bg-green-500/5 text-green-500 border-green-500/20': getProjectProgress(p) === 100,
-                     'bg-[#e53935]/5 text-[#e53935] border-[#e53935]/20': getProjectProgress(p) < 100 && getProjectProgress(p) > 0,
-                     'bg-amber-500/5 text-amber-500 border-amber-500/20': getProjectProgress(p) === 0
-                   }">
-                {{ getProjectProgress(p) === 100 ? 'DONE' : getProjectProgress(p) > 0 ? 'IN PROGRESS' : 'PENDING' }}
-              </div>
+
+            <!-- Right: Status badge -->
+            <div
+              style="border-radius: 9999px; padding: 4px 12px; display: flex; align-items: center; flex-shrink: 0;"
+              [ngStyle]="{
+                'background': getProjectProgress(p) === 100 ? '#22C55E1A' :
+                              getProjectProgress(p) > 0    ? '#DC26261A' : '#EAB3081A'
+              }">
+              <span
+                style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 10px; line-height: 15px; letter-spacing: 1px; text-transform: uppercase;"
+                [ngStyle]="{
+                  'color': getProjectProgress(p) === 100 ? '#22C55E' :
+                          getProjectProgress(p) > 0    ? '#DC2626' : '#EAB308'
+                }">
+                {{ getProjectProgress(p) === 100 ? 'Done' : getProjectProgress(p) > 0 ? 'In Progress' : 'Pending' }}
+              </span>
             </div>
+
           </div>
         </div>
       </div>
 
       <!-- Team Performance -->
-      <div class="space-y-6">
-        <div class="flex items-center justify-between">
-          <h2 class="my-heading-style">Team Performance</h2>
-          <button routerLink="/admin/employees" class="text-[10px] text-white/20 font-black uppercase tracking-widest hover:text-white transition-all">View All</button>
+      <div class="flex flex-col" style="background: #1C1B1C; border-radius: 32px; padding: 32px; gap: 24px; width: 100%; box-sizing: border-box;">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+          <h2
+            style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; line-height: 28px; color: #FFFFFF; margin: 0;">
+            Team Performance
+          </h2>
+          <button
+            routerLink="/admin/employees"
+            style="background: none; border: none; cursor: pointer; padding: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 11px; line-height: 16.5px; letter-spacing: 1.1px; text-transform: uppercase; text-decoration: underline; color: #A3A3A3; transition: color 0.2s;"
+            onmouseover="this.style.color='#DC2626'"
+            onmouseout="this.style.color='#A3A3A3'">
+            View All
+          </button>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div *ngFor="let member of teamPerformance" class="bg-[#161616] border border-white/5 rounded-[1.5rem] p-8 hover:border-white/10 transition-all group">
-            <div class="flex items-center gap-4 mb-6">
-              <div class="relative">
-                <img *ngIf="member.photo" [src]="member.photo" class="w-12 h-12 rounded-2xl object-cover ring-2 ring-white/5">
-                <div *ngIf="!member.photo" class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-xs font-black text-white/40 border border-white/10 uppercase tracking-tighter">
-                  {{ member.name.slice(0,2) }}
-                </div>
 
+        <!-- Grid -->
+        <div class="grid grid-cols-2" style="gap: 16px;">
+          <div
+            *ngFor="let member of teamPerformance"
+            class="flex flex-col"
+            style="background: #2A2A2B; border-radius: 24px; padding: 16px; gap: 12px; border-left: 2px solid #DC26264D; box-sizing: border-box;">
+
+            <!-- Avatar + Name + Role -->
+            <div class="flex items-center" style="gap: 12px;">
+              <img
+                *ngIf="member.photo"
+                [src]="member.photo"
+                style="width: 32px; height: 32px; border-radius: 9999px; object-fit: cover; border: 1px solid #FFFFFF1A; flex-shrink: 0;">
+              <div
+                *ngIf="!member.photo"
+                class="flex items-center justify-center flex-shrink-0"
+                style="width: 32px; height: 32px; border-radius: 9999px; border: 1px solid #FFFFFF1A; background: #FFFFFF0D;">
+                <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; color: #FFFFFF66; text-transform: uppercase;">
+                  {{ member.name.slice(0, 2) }}
+                </span>
               </div>
-              <div>
-                <h4 class="text-sm font-black text-white tracking-tight">{{ member.name }}</h4>
-                <p class="text-[10px] text-white/20 font-bold uppercase">{{ member.role }}</p>
+              <div class="flex flex-col" style="gap: 1px;">
+                <span
+                  style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12px; line-height: 16px; color: #FFFFFF;">
+                  {{ member.name }}
+                </span>
+                <span
+                  style="font-family: 'Inter', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #737373;">
+                  {{ member.role }}
+                </span>
               </div>
             </div>
-            <div class="flex items-baseline gap-2">
-              <span class="text-xs font-black text-white font-mono">{{ member.elapsed }}</span>
-              <span class="text-[8px] font-bold tracking-widest uppercase" 
-                    [class]="member.isOnline ? 'text-[#e53935] animate-pulse' : 'text-white/20'">
+
+            <!-- Last activity -->
+            <span
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 9px; line-height: 13.5px; color: #737373; text-transform: uppercase;">
+              {{ member.isOnline ? 'Active ' + member.elapsed + ' ago' : 'Active ' + member.elapsed + ' ago' }}
+            </span>
+
+            <!-- Last task -->
+            <p class="flex items-center"
+              style="width: 240px; min-height: 39px; font-family: 'Inter', sans-serif; font-weight: 400; font-size: 12px; line-height: 19.5px; color: #D4D4D4; margin: 0; box-sizing: border-box;">
+              {{ member.lastTask || 'No active tasks' }}
+            </p>
+
+            <!-- Bottom row: status text + badge -->
+            <div class="flex items-center justify-between">
+              <span
+                style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 9px; line-height: 13.5px; color: #737373; text-transform: uppercase;">
                 {{ member.isOnline ? 'En ligne' : 'Work Today' }}
               </span>
-            </div>
-            <p class="text-xs text-white/40 leading-relaxed min-h-[40px]">Working on projects</p>
-            <div class="flex items-center justify-between mt-8">
-              <span class="text-[9px] font-black text-white/20 uppercase tracking-widest">
-                {{ member.isOnline ? 'Active for: ' + member.elapsed : 'Offline' }}
-              </span>
-              <div [class]="member.isOnline ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-white/5 border-white/5 text-white/20'"
-                   class="px-4 py-1.5 rounded-lg border text-[9px] font-black tracking-widest uppercase">
-                {{ member.status }}
+              <div
+                style="border-radius: 16px; padding: 2px 8px; display: flex; align-items: center;"
+                [ngStyle]="{
+                  'background': member.taskStatus === 'DONE' ? '#22C55E1A' : 
+                                member.taskStatus === 'IN_PROGRESS' ? '#DC26261A' : 
+                                member.taskStatus ? '#EAB3081A' : '#FFFFFF0D'
+                }">
+                <span
+                  style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 9px; line-height: 13.5px;"
+                  [ngStyle]="{
+                    'color': member.taskStatus === 'DONE' ? '#22C55E' : 
+                             member.taskStatus === 'IN_PROGRESS' ? '#DC2626' : 
+                             member.taskStatus ? '#EAB308' : '#A3A3A3'
+                  }">
+                  {{ member.taskStatus || 'NO TASK' }}
+                </span>
               </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -161,8 +301,8 @@
     <div class="lg:col-span-4 space-y-8">
       
       <!-- Global Progress -->
-      <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl flex flex-col items-center">
-        <h2 class="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mb-12 align-self-start w-full">Global Progress</h2>
+      <!-- <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl flex flex-col items-center">
+        <h2 class="text-[10px] font-black text-[#A3A3A3] uppercase tracking-[0.2em] mb-12 align-self-start w-full">Global Progress</h2>
         
         <div class="relative w-full flex justify-center py-4">
           <div class="progress-gauge-container">
@@ -201,10 +341,108 @@
             <span class="text-xs font-black text-white/20">{{ globalStats.pending }}</span>
           </div>
         </div>
-      </div>
+      </div> -->
+      <!-- Global Progress -->
+      <div class="flex flex-col items-center"
+        style="background: #1C1B1C; border-radius: 32px; padding: 32px; width: 100%; box-sizing: border-box; gap: 0;">
 
+        <!-- Title -->
+        <h2 class="w-full"
+          style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; line-height: 28px; color: #A3A3A3; margin: 0 0 32px 0;">
+          Global Progress
+        </h2>
+
+        <!-- Circular gauge -->
+        <div class="relative flex items-center justify-center"
+          style="width: 192px; height: 192px;">
+          <svg viewBox="0 0 192 192" style="width: 192px; height: 192px; transform: rotate(-90deg);">
+            <!-- Track -->
+            <circle
+              cx="96" cy="96" r="88"
+              fill="none"
+              stroke="#353436"
+              stroke-width="12"/>
+            <!-- Progress -->
+            <circle
+              cx="96" cy="96" r="88"
+              fill="none"
+              stroke="url(#redGradient)"
+              stroke-width="12"
+              stroke-linecap="round"
+              [attr.stroke-dasharray]="(overallVelocity * 5.53) + ' 553'"
+              [attr.stroke-dashoffset]="0"/>
+            <defs>
+              <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FD0000"/>
+                <stop offset="100%" stop-color="#FF3B3B"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <!-- Center text -->
+          <div class="absolute inset-0 flex flex-col items-center justify-center" style="gap: 4px;">
+            <span
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 48px; line-height: 48px; color: #FFFFFF; letter-spacing: 0px;">
+              {{ overallVelocity }}%
+            </span>
+            <span
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #737373; text-transform: uppercase; letter-spacing: 1px;">
+              Overall Velocity
+            </span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="w-full flex flex-col" style="margin-top: 40px; gap: 16px;">
+
+          <!-- Completed -->
+          <div class="flex items-center justify-between w-full">
+            <div class="flex items-center" style="gap: 8px;">
+              <div style="width: 8px; height: 8px; border-radius: 9999px; background: linear-gradient(135deg, #FD0000 0%, #FF3B3B 100%); flex-shrink: 0;"></div>
+              <span
+                style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #FFFFFF; text-transform: uppercase; letter-spacing: 1px;">
+                Completed
+              </span>
+            </div>
+            <span
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #737373; letter-spacing: 1px; text-transform: uppercase;">
+              {{ globalStats.completed }}
+            </span>
+          </div>
+
+          <!-- In Progress -->
+          <div class="flex items-center justify-between w-full">
+            <div class="flex items-center" style="gap: 8px;">
+              <div style="width: 8px; height: 8px; border-radius: 9999px; background: #DC26264D; flex-shrink: 0;"></div>
+              <span
+                style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #FFFFFF; text-transform: uppercase; letter-spacing: 1px;">
+                In Progress
+              </span>
+            </div>
+            <span
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #737373; letter-spacing: 1px; text-transform: uppercase;">
+              {{ globalStats.inProgress }}
+            </span>
+          </div>
+
+          <!-- Pending -->
+          <div class="flex items-center justify-between w-full">
+            <div class="flex items-center" style="gap: 8px;">
+              <div style="width: 8px; height: 8px; border-radius: 9999px; background: #353436; flex-shrink: 0;"></div>
+              <span
+                style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #FFFFFF; text-transform: uppercase; letter-spacing: 1px;">
+                Pending
+              </span>
+            </div>
+            <span
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #737373; letter-spacing: 1px; text-transform: uppercase;">
+              {{ globalStats.pending }}
+            </span>
+          </div>
+
+        </div>
+      </div>
       <!-- Priority Meeting Widget -->
-      <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl">
+      <!-- <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl">
         <div class="flex items-start justify-between mb-8">
           <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-[#e53935] border border-white/5">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
@@ -216,20 +454,141 @@
         <button (click)="openMeetingModal()" class="w-full bg-[#161616] hover:bg-[#e53935] text-white/40 hover:text-white border border-white/5 hover:border-[#e53935] py-4 rounded-2xl text-xs font-black tracking-widest transition-all">
           Start Meeting
         </button>
-      </div>
+      </div> -->
+      <!-- Reminders Card -->
+      <div class="flex flex-col"
+        style="background: #1C1B1C; border-radius: 32px; padding: 24px; gap: 7.5px; border-top: 1px solid #FFFFFF0D; box-sizing: border-box; width: 100%; backdrop-filter: blur(16px);">
 
+        <!-- Header: icon + label -->
+        <div class="flex items-center justify-between w-full">
+          <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 20C1.45 20 0.979167 19.8042 0.5875 19.4125C0.195833 19.0208 0 18.55 0 18V4C0 3.45 0.195833 2.97917 0.5875 2.5875C0.979167 2.19583 1.45 2 2 2H3V0H5V2H13V0H15V2H16C16.55 2 17.0208 2.19583 17.4125 2.5875C17.8042 2.97917 18 3.45 18 4V18C18 18.55 17.8042 19.0208 17.4125 19.4125C17.0208 19.8042 16.55 20 16 20H2ZM2 18H16V8H2V18ZM2 6H16V4H2V6ZM2 6V4V6ZM4 12V10H14V12H4ZM4 16V14H11V16H4Z" fill="#DC2626"/>
+          </svg>
+          <span
+            style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; line-height: 15px; color: #737373; text-transform: uppercase;">
+            Priority Meeting
+          </span>
+        </div>
+
+        <!-- Title -->
+        <h3
+          style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; line-height: 22.5px; color: #FFFFFF; margin: 0; padding-top: 15.75px; padding-bottom: 0.75px;">
+          Product Launch Sync: Q3 Velocity
+        </h3>
+
+        <!-- Meta: time + platform -->
+        <div class="flex items-center" style="gap: 16px; padding-bottom: 16.5px;">
+
+          <!-- Time -->
+          <div class="flex items-center" style="gap: 4px;">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.75833 8.575L8.575 7.75833L6.41667 5.6V2.91667H5.25V6.06667L7.75833 8.575ZM5.83333 11.6667C5.02639 11.6667 4.26806 11.5135 3.55833 11.2073C2.84861 10.901 2.23125 10.4854 1.70625 9.96042C1.18125 9.43542 0.765625 8.81806 0.459375 8.10833C0.153125 7.39861 0 6.64028 0 5.83333C0 5.02639 0.153125 4.26806 0.459375 3.55833C0.765625 2.84861 1.18125 2.23125 1.70625 1.70625C2.23125 1.18125 2.84861 0.765625 3.55833 0.459375C4.26806 0.153125 5.02639 0 5.83333 0C6.64028 0 7.39861 0.153125 8.10833 0.459375C8.81806 0.765625 9.43542 1.18125 9.96042 1.70625C10.4854 2.23125 10.901 2.84861 11.2073 3.55833C11.5135 4.26806 11.6667 5.02639 11.6667 5.83333C11.6667 6.64028 11.5135 7.39861 11.2073 8.10833C10.901 8.81806 10.4854 9.43542 9.96042 9.96042C9.43542 10.4854 8.81806 10.901 8.10833 11.2073C7.39861 11.5135 6.64028 11.6667 5.83333 11.6667ZM5.83333 10.5C7.12639 10.5 8.22743 10.0455 9.13646 9.13646C10.0455 8.22743 10.5 7.12639 10.5 5.83333C10.5 4.54028 10.0455 3.43924 9.13646 2.53021C8.22743 1.62118 7.12639 1.16667 5.83333 1.16667C4.54028 1.16667 3.43924 1.62118 2.53021 2.53021C1.62118 3.43924 1.16667 4.54028 1.16667 5.83333C1.16667 7.12639 1.62118 8.22743 2.53021 9.13646C3.43924 10.0455 4.54028 10.5 5.83333 10.5Z" fill="#A3A3A3"/>
+            </svg>
+            <span
+              style="font-family: 'Inter', sans-serif; font-weight: 400; font-size: 12px; line-height: 16px; color: #A3A3A3;">
+              {{ currentDateTime }}
+            </span>
+          </div>
+
+          <!-- Platform -->
+          <div class="flex items-center" style="gap: 4px;">
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.16667 9.33333C0.845833 9.33333 0.571181 9.2191 0.342708 8.99063C0.114236 8.76215 0 8.4875 0 8.16667V1.16667C0 0.845833 0.114236 0.571181 0.342708 0.342708C0.571181 0.114236 0.845833 0 1.16667 0H8.16667C8.4875 0 8.76215 0.114236 8.99063 0.342708C9.2191 0.571181 9.33333 0.845833 9.33333 1.16667V3.79167L11.6667 1.45833V7.875L9.33333 5.54167V8.16667C9.33333 8.4875 9.2191 8.76215 8.99063 8.99063C8.76215 9.2191 8.4875 9.33333 8.16667 9.33333H1.16667ZM1.16667 8.16667H8.16667V1.16667H1.16667V8.16667ZM1.16667 8.16667V1.16667V8.16667Z" fill="#A3A3A3"/>
+            </svg>
+            <span
+              style="font-family: 'Inter', sans-serif; font-weight: 400; font-size: 12px; line-height: 16px; color: #A3A3A3;">
+              Zoom
+            </span>
+          </div>
+        </div>
+
+        <!-- Button -->
+        <button
+          (click)="openMeetingModal()"
+          class="w-full flex items-center justify-center"
+          style="border-radius: 48px; padding: 12px; background: linear-gradient(99.07deg, #FD0000 0%, #FF3B3B 100%); box-shadow: 0px 4px 6px -4px #7F1D1D33, 0px 10px 15px -3px #7F1D1D33; border: none; cursor: pointer; transition: opacity 0.2s;"
+          onmouseover="this.style.opacity='0.9'"
+          onmouseout="this.style.opacity='1'">
+          <span
+            style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12px; line-height: 16px; color: #FFFFFF; text-align: center;">
+            Start Meeting
+          </span>
+        </button>
+
+      </div>
       <!-- Session Tracking Widget -->
-      <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl text-center relative overflow-hidden group">
+      <!-- <div class="bg-[#161616] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl text-center relative overflow-hidden group">
         <div class="absolute top-0 left-0 w-full h-1 bg-[#e53935]/20 overflow-hidden">
            <div class="h-full bg-[#e53935] w-2/3 animate-pulse"></div>
         </div>
         <h4 class="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mb-6">Your Session Tracking</h4>
         <div class="text-5xl font-black text-white tracking-tighter mb-8 font-mono">{{ timerValue }}</div>
         <div class="grid grid-cols-1 gap-4">
-          <!-- Admin can manual start/stop if they participate in pointage -->
+           Admin can manual start/stop if they participate in pointage 
           <button (click)="toggleTimer()" class="bg-[#e53935] hover:bg-[#c62828] text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-red-900/30">
             {{ timerRunning ? 'Pause Session' : 'Resume Session' }}
           </button>
+        </div>
+      </div> -->
+      <!-- Time Tracker Glass Card -->
+      <div class="relative overflow-hidden flex flex-col"
+        style="background: #17171799; border-radius: 32px; padding: 24px; border: 1px solid #FFFFFF0D; backdrop-filter: blur(16px); box-sizing: border-box; width: 100%;">
+
+        <!-- Decorative glow -->
+        <div class="absolute"
+          style="width: 128px; height: 128px; border-radius: 9999px; background: #DC26261A; backdrop-filter: blur(60px); top: -32px; right: -32px; pointer-events: none;">
+        </div>
+
+        <!-- Content -->
+        <div class="flex flex-col relative z-10" style="gap: 16px;">
+
+          <!-- Label -->
+          <span
+            style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 10px; line-height: 15px; color: #737373; text-transform: uppercase; letter-spacing: 1px;">
+            Current Session Tracking
+          </span>
+
+          <!-- Timer value -->
+          <span
+            style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 36px; line-height: 40px; letter-spacing: -1.8px; color: #FFFFFF;">
+            {{ timerValue }}
+          </span>
+
+          <!-- Buttons -->
+          <div class="flex items-center" style="gap: 12px; padding-top: 8px;">
+
+            <!-- Pause / secondary action -->
+            <button
+              (click)="timerRunning ? startLunchBreak() : toggleTimer()"
+              class="flex items-center justify-center flex-shrink-0"
+              style="width: 38px; height: 38px; border-radius: 48px; background: #FFFFFF1A; border: none; cursor: pointer; transition: background 0.2s;"
+              onmouseover="this.style.background='#FFFFFF2A'"
+              onmouseout="this.style.background='#FFFFFF1A'">
+              <!-- Pause icon -->
+              <svg *ngIf="timerRunning" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <rect x="2" y="1" width="4" height="12" rx="1" fill="#FFFFFF"/>
+                <rect x="8" y="1" width="4" height="12" rx="1" fill="#FFFFFF"/>
+              </svg>
+              <!-- Play icon -->
+              <svg *ngIf="!timerRunning" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 1.5L12 7L3 12.5V1.5Z" fill="#FFFFFF"/>
+              </svg>
+            </button>
+
+            <!-- Stop / main CTA -->
+            <button
+              (click)="toggleTimer()"
+              class="flex items-center justify-center"
+              style="flex: 1; height: 48px; border-radius: 48px; background: linear-gradient(108.7deg, #FD0000 0%, #FF3B3B 100%); border: none; cursor: pointer; transition: opacity 0.2s;"
+              onmouseover="this.style.opacity='0.9'"
+              onmouseout="this.style.opacity='1'">
+              <span
+                style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12px; line-height: 16px; color: #FFFFFF; text-align: center;">
+                {{ timerRunning ? 'Stop Timer' : 'Resume Session' }}
+              </span>
+            </button>
+
+          </div>
         </div>
       </div>
 

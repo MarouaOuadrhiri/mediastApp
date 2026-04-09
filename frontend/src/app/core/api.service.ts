@@ -44,6 +44,7 @@ export class ApiService {
 
   // Attendance
   getCurrentAttendance(): Observable<any> { return this.http.get(`${this.baseUrl}/users/attendance/current/`); }
+  startAttendance(): Observable<any> { return this.http.post(`${this.baseUrl}/users/attendance/start/`, {}); }
   endAttendance(): Observable<any> { return this.http.post(`${this.baseUrl}/users/attendance/end/`, {}); }
   getEmployeeAttendance(userId: string): Observable<any> { return this.http.get(`${this.baseUrl}/users/employees/${userId}/attendance/`); }
 

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap');
+
 :host {
   display: block;
   background-color: #0d0d0d;
@@ -123,23 +125,28 @@ h2, h3, h4 {
 .stat-label {
   width: 217.25px;
   height: 17px;
-  font-family: var(--font-grotesk);
+  font-family: Space Grotesk;
   font-weight: 400;
+  font-style: regular;
   font-size: 11px;
   line-height: 16.5px;
   letter-spacing: 1.1px;
   text-transform: uppercase;
   color: #737373;
+  vertical-align: middle;
+  text-transform: uppercase;
   display: flex;
   align-items: center; /* vertical-align: middle */
 }
+
 #stat-label {
   color: #FFFFFFB2;
 }
 .stat-sub {
-  width: 217.25px;
-  height: 16px;
-  font-family: var(--font-grotesk);
+  width: auto;
+  min-height: 16px;
+  font-family: 'Space Grotesk';
+  font-style: regular;
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
@@ -174,7 +181,7 @@ h2, h3, h4 {
 
 
 body {
-  font-family: 'Space Grotesk', sans-serif;
+  /* font-family: 'Space Grotesk', sans-serif; */
   background-color: #131314;
 }
 
@@ -229,8 +236,8 @@ body {
    border-radius: 20px | padding: 24px | gap: 8px
    ============================================================ */
 .stat-card {
-  width: 333px;
-  height: 137px;
+  width: 100%;
+  min-height: 137px;
   border-radius: 20px;
   padding: 24px;
   display: flex;
@@ -267,16 +274,22 @@ body {
    font-size: 11px | weight: 400 | line-height: 16.5px
    letter-spacing: 1.1px | uppercase
    ============================================================ */
+
 .stat-label {
-  font-family: 'Space Grotesk', sans-serif;
+  width: 174px;
+  height: 17px;
+
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 400;
+  font-style: regular;
   font-size: 11px;
   line-height: 16.5px;
   letter-spacing: 1.1px;
   text-transform: uppercase;
-  color: #737373;          /* default for dark cards */
-  width: 174px;
-  height: 17px;
+
+  color: #737373; /* assuming this is text color */
+  min-height: 17px;
+  opacity: 1;
 }
 
 /* Label on red card uses white/70 */
@@ -288,17 +301,22 @@ body {
    Stat Number  (big heading)
    font-size: 36px | weight: 700 | line-height: 40px
    ============================================================ */
+
 .stat-number {
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  font-size: 36px;
-  line-height: 40px;
-  letter-spacing: 0px;
-  color: #FFFFFF;
   width: 174px;
   height: 40px;
-}
 
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-style: bold;
+  font-size: 36px;
+  line-height: 40px;
+  letter-spacing: 0;
+
+  color: #ffffff; /* assuming this is text color */
+vertical-align: middle;
+  opacity: 1;
+}
 /* ============================================================
    Stat Sub-text  (bottom status line)
    font-size: 12px | weight: 400 | line-height: 16px
@@ -309,8 +327,8 @@ body {
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0px;
-  width: 174px;
-  height: 16px;
+  width: auto;
+  min-height: 16px;
 }
 
 /* Color variants for sub-text */
