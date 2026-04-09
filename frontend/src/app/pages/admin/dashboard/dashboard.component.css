@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Space+Grotesk:wght@400;700&display=swap');
 
 :host {
   display: block;
@@ -122,38 +122,8 @@ h2, h3, h4 {
 }
 /* design li zedt  */
 
-.stat-label {
-  width: 217.25px;
-  height: 17px;
-  font-family: Space Grotesk;
-  font-weight: 400;
-  font-style: regular;
-  font-size: 11px;
-  line-height: 16.5px;
-  letter-spacing: 1.1px;
-  text-transform: uppercase;
-  color: #737373;
-  vertical-align: middle;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center; /* vertical-align: middle */
-}
 
-#stat-label {
-  color: #FFFFFFB2;
-}
-.stat-sub {
-  width: auto;
-  min-height: 16px;
-  font-family: 'Space Grotesk';
-  font-style: regular;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: 0;
-  display: flex;
-  align-items: center; /* vertical-align: middle */
-}
+
 .stats-grid {
   /* width: 1133px; */
   height: 136.5px;
@@ -276,25 +246,24 @@ body {
    ============================================================ */
 
 .stat-label {
-  width: 174px;
-  height: 17px;
-
   font-family: "Space Grotesk", sans-serif;
   font-weight: 400;
-  font-style: regular;
+  font-style: normal;
   font-size: 11px;
   line-height: 16.5px;
   letter-spacing: 1.1px;
   text-transform: uppercase;
-
-  color: #737373; /* assuming this is text color */
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  color: #737373;
+  width: 174px;
   min-height: 17px;
-  opacity: 1;
 }
 
-/* Label on red card uses white/70 */
+/* Label on red card */
 .stat-label--white {
-  color: rgba(255, 255, 255, 0.70);
+  color: #FFFFFFB2;
 }
 
 /* ============================================================
@@ -302,21 +271,17 @@ body {
    font-size: 36px | weight: 700 | line-height: 40px
    ============================================================ */
 
-.stat-number {
-  width: 174px;
-  height: 40px;
 
-  font-family: "Space Grotesk", sans-serif;
+.stat-number {
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
-  font-style: bold;
   font-size: 36px;
   line-height: 40px;
-  letter-spacing: 0;
-
-  color: #ffffff; /* assuming this is text color */
-vertical-align: middle;
-  opacity: 1;
-}
+  letter-spacing: 0px;
+  vertical-align: middle;
+  color: #FFFFFF;
+  margin: 0;
+}    
 /* ============================================================
    Stat Sub-text  (bottom status line)
    font-size: 12px | weight: 400 | line-height: 16px
@@ -324,9 +289,11 @@ vertical-align: middle;
 .stat-sub {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 400;
+  font-style: normal;
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0px;
+  vertical-align: middle;
   width: auto;
   min-height: 16px;
 }

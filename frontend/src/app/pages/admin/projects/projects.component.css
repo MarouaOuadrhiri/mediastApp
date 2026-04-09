@@ -1,6 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&display=swap");
 
-* { font-family: "Barlow", sans-serif; }
+* {
+  font-family: "Barlow", sans-serif;
+}
 
 .animate-fade-up {
   animation: fadeUp 0.4s ease-out forwards;
@@ -10,8 +12,251 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.custom-scrollbar::-webkit-scrollbar { width: 3px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(229, 57, 53, 0.25); border-radius: 2px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(229, 57, 53, 0.5); }
+.projects-page {
+  min-height: 100%;
+}
+
+.projects-filter .filter-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.64);
+  padding: 0.9rem 1.3rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  transition: all 0.25s ease;
+}
+
+.projects-filter .filter-pill.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 20px 45px rgba(255, 255, 255, 0.04);
+}
+
+.project-hero-card {
+  background: linear-gradient(180deg, #ff4242 0%, #e91c24 48%, #c21807 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 36px 120px rgba(255, 0, 0, 0.16);
+  min-height: 320px;
+}
+
+.hero-card-header {
+  align-items: center;
+}
+
+.hero-priority-badge {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.65rem 1rem;
+  border-radius: 9999px;
+  letter-spacing: 0.24em;
+}
+
+.hero-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #ffffff;
+}
+
+.hero-code {
+  letter-spacing: 0.24em;
+}
+
+.project-card {
+  min-height: 320px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.project-card-head {
+  align-items: flex-start;
+}
+
+.project-card-actions button {
+  min-width: 38px;
+  min-height: 38px;
+}
+
+.project-card-actions button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.archive-panel {
+  min-height: 100%;
+  background: rgba(15, 15, 15, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.25);
+}
+
+.archive-panel .archive-header {
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.archive-panel .archive-title {
+  margin: 0;
+}
+
+.archive-panel .archive-count {
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+}
+
+.archive-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.95rem;
+  margin-top: 1.5rem;
+}
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.25rem;
+  border-radius: 1.65rem;
+}
+
+.metric-card p:last-child {
+  margin-top: 0.75rem;
+}
+
+.projects-filter .filter-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  cursor: pointer;
+}
+
+.projects-filter .filter-pill.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.project-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.project-status-pill.status-pending {
+  background: rgba(234, 179, 8, 0.14);
+  color: #f8c250;
+}
+
+.project-status-pill.status-progress {
+  background: rgba(220, 38, 38, 0.16);
+  color: #ff7a79;
+}
+
+.project-status-pill.status-done {
+  background: rgba(34, 197, 94, 0.16);
+  color: #8ce99a;
+}
+
+.avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-stack .avatar,
+.avatar-stack .avatar-fallback,
+.avatar-stack .avatar-more {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  border: 2px solid #101010;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: white;
+  background: #181818;
+}
+
+.avatar-stack .avatar {
+  object-fit: cover;
+}
+
+.avatar-stack .avatar:not(:first-child),
+.avatar-stack .avatar-fallback:not(:first-child),
+.avatar-stack .avatar-more:not(:first-child) {
+  margin-left: -10px;
+}
+
+.avatar-stack .avatar-more {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.archive-panel {
+  position: sticky;
+  top: 2rem;
+}
+
+.archive-row {
+  text-align: left;
+}
+
+.archive-icon {
+  min-width: 44px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  display: inline-block;
+}
+
+.status-dot-green {
+  background: #22c55e;
+}
+
+.status-dot-blue {
+  background: #38bdf8;
+}
+
+.status-dot-yellow {
+  background: #facc15;
+}
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.modal-overlay {
+  z-index: 999;
+}
+
+.modal-panel {
+  max-height: calc(100vh - 80px);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(229, 57, 53, 0.25);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(229, 57, 53, 0.45);
+}
 

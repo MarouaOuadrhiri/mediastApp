@@ -1,12 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap');
 
-:host {
-  font-family: 'Barlow', sans-serif;
-}
-
-* {
-  font-family: 'Barlow', sans-serif;
-}
 
 .animate-fade-up {
   animation: fadeUp 0.4s ease-out forwards;
@@ -58,12 +51,15 @@
   gap: 4px;
 }
 .sidebar-tagline {
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-style: normal;
   font-size: 10px;
-  line-height: 14px;
-  color: rgba(255, 255, 255, 0.30);
+  line-height: 15px;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
   text-transform: uppercase;
+  color: #737373;
 }
 .nav-link {
   width: 256px;
@@ -73,16 +69,17 @@
   display: flex;
   align-items: center;
   border-radius: 24px;
-  color: rgba(255, 255, 255, 0.65);
-   /* Space Grotesk specs */
+  color: #A3A3A3;
   font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
+  font-weight: 400;
+  font-style: normal;
   font-size: 14px;
   line-height: 20px;
   letter-spacing: 0.7px;
+  vertical-align: middle;
   text-transform: uppercase;
   overflow: hidden;
-  transition: background 300ms ease-in, color 300ms ease-in, width 300ms ease-in, padding 300ms ease-in;
+  transition: background 300ms ease-in, color 300ms ease-in, width 300ms ease-in, padding 300ms ease-in, font-weight 300ms ease;
 }
 
 .nav-link.collapsed {
@@ -122,8 +119,15 @@
 
 .nav-link-active {
   background: #FE0707;
-  color: #ffffff;
-  /* border-right: 4px solid #DC2626; */
+  color: #FFFFFF;
+  font-family: 'Space Grotesk', serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.7px;
+  vertical-align: middle;
+  text-transform: uppercase;
 }
 
 .nav-link-active svg {
