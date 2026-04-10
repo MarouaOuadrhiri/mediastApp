@@ -1,9 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&display=swap");
-
-* {
-  font-family: "Barlow", sans-serif;
-}
-
 .animate-fade-up {
   animation: fadeUp 0.4s ease-out forwards;
 }
@@ -16,68 +10,343 @@
   min-height: 100%;
 }
 
-.projects-filter .filter-pill {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.64);
-  padding: 0.9rem 1.3rem;
-  border-radius: 9999px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  transition: all 0.25s ease;
-}
-
-.projects-filter .filter-pill.active {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: transparent;
-  color: white;
-  box-shadow: 0 20px 45px rgba(255, 255, 255, 0.04);
-}
-
-.project-hero-card {
-  background: linear-gradient(180deg, #ff4242 0%, #e91c24 48%, #c21807 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 36px 120px rgba(255, 0, 0, 0.16);
-  min-height: 320px;
-}
-
-.hero-card-header {
+.projects-filter-pill-container {
+  display: flex;
   align-items: center;
 }
 
-.hero-priority-badge {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 0.65rem 1rem;
+.projects-header .filter-pill {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0.8rem 1.6rem;
   border-radius: 9999px;
-  letter-spacing: 0.24em;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  line-height: 1;
+  cursor: pointer;
 }
 
-.hero-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 9999px;
-  background: #ffffff;
+.projects-header .filter-pill.stacked {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+  line-height: 1.2;
 }
 
-.hero-code {
-  letter-spacing: 0.24em;
+.projects-header .filter-pill.active {
+  background: #2a2a2a;
+  color: white;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+.projects-header .filter-pill:hover:not(.active) {
+  color: white;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.projects-main {
+  margin-top: 2rem;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Base Project Card */
 .project-card {
-  min-height: 320px;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 304px;
+  height: 278px;
+  background: #1C1B1C;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 32px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  min-height: auto;
 }
 
 .project-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: #1c1c1c;
 }
 
-.project-card-head {
-  align-items: flex-start;
+.project-card-header {
+  width: 256px;
+  height: 15px;
+  gap: 8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-task {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  font-style: regular;
+  line-height: 15px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+
+.title-area h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFF;
+  font-style: bold;
+  margin-bottom: 0.75rem;
+  line-height: 28px;
+  letter-spacing: 0px;
+  vertical-align: middle;
+}
+
+.desc-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 14px;
+  line-height: 20px;
+  vertical-align: middle;
+  color: rgba(255, 255, 255, 0.5);
+  /* margin-bottom: 2rem; */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Progress Section */
+.card-progress-section {
+  margin-top: auto;
+}
+
+.progress-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.progress-label {
+  font-size: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-style: regular;
+  font-weight: 400;
+  color: #737373;
+  text-transform: uppercase;
+  vertical-align: middle;
+  letter-spacing: 0.5px;
+  line-height: 15px;
+}
+.progress-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px;
+  font-style: Regular;
+  font-weight: 400;
+  color: #FFFFFF;
+  line-height: 15px;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+  text-transform: uppercase;
+}
+
+.progress-bar-container {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s ease-out;
+}
+
+/* Card Footer */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deadline-info {
+  text-align: right;
+}
+
+.deadline-label {
+  font-size: 9px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.25rem;
+}
+
+.deadline-date {
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+}
+
+/* Featured Hero Bento Card (Red) */
+.project-hero-card {
+  grid-column: 1 / -1;
+  background: #FF2E2E;
+  border-radius: 2.75rem;
+  padding: 3rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .project-hero-card {
+    grid-column: 2 / 4;
+  }
+}
+
+.project-hero-card h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+.project-hero-card .desc-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.15rem;
+  max-width: 80%;
+}
+
+.project-hero-card .progress-bar-container {
+  background: rgba(255, 255, 255, 0.2);
+  height: 10px;
+}
+
+.project-hero-card .progress-bar-fill {
+  background: white;
+}
+
+.project-hero-card .progress-label, 
+.project-hero-card .progress-value {
+  color: white;
+}
+
+.hero-view-btn {
+  background: white;
+  color: #FF2E2E;
+  padding: 1rem 2rem;
+  border-radius: 1.5rem;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: all 0.2s;
+}
+
+.hero-view-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Velocity Footer */
+.velocity-footer {
+  margin-top: 4rem;
+  background: #000000;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 2.5rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.stat-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2.25rem;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.stat-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.system-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(34, 197, 94, 0.05);
+  border: 1px solid rgba(34, 197, 94, 0.15);
+  padding: 0.75rem 1.5rem;
+  border-radius: 99px;
+}
+
+.status-pill-text {
+  font-size: 11px;
+  font-weight: 800;
+  color: #22c55e;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
 }
 
 .project-card-actions button {
@@ -87,6 +356,17 @@
 
 .project-card-actions button:hover {
   background: rgba(255, 255, 255, 0.08);
+}
+
+#project {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  font-style: bold;
+  line-height: 40px;
+  letter-spacing: -0.9px;
+  vertical-align: middle;
 }
 
 .archive-panel {
@@ -128,43 +408,11 @@
   margin-top: 0.75rem;
 }
 
-.projects-filter .filter-pill {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  cursor: pointer;
-}
-
-.projects-filter .filter-pill.active {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-}
-
-.project-status-pill {
-  display: inline-flex;
+.advanced-filter-pill {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.7rem 1rem;
-  border-radius: 9999px;
-  font-size: 0.68rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
 }
 
-.project-status-pill.status-pending {
-  background: rgba(234, 179, 8, 0.14);
-  color: #f8c250;
-}
-
-.project-status-pill.status-progress {
-  background: rgba(220, 38, 38, 0.16);
-  color: #ff7a79;
-}
-
-.project-status-pill.status-done {
-  background: rgba(34, 197, 94, 0.16);
-  color: #8ce99a;
-}
 
 .avatar-stack {
   display: flex;

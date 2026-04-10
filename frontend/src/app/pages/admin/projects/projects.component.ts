@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
+import { UiService } from '../../../core/ui.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-projects',
@@ -11,6 +13,7 @@ import { ApiService } from '../../../core/api.service';
   styleUrls: ['./projects.component.css']
 })
 export class ProjectsComponent implements OnInit {
+  private modalSub: Subscription | null = null;
   projects: any[] = [];
   employees: any[] = [];
   departments: any[] = [];
@@ -32,10 +35,22 @@ export class ProjectsComponent implements OnInit {
   showProjectModal = false;
   selectedPriorityProjectId = localStorage.getItem('selectedPriorityProjectId') || '';
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private ui: UiService) {}
 
   ngOnInit() {
     this.loadData();
+    if (this.ui.checkPendingProjectModal()) {
+      this.openModal();
+    }
+    this.modalSub = this.ui.openProjectModal$.subscribe(() => {
+      this.openModal();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.modalSub) {
+      this.modalSub.unsubscribe();
+    }
   }
 
   loadData() {
@@ -83,10 +98,10 @@ export class ProjectsComponent implements OnInit {
   getFilteredProjects() {
     const filtered = this.projects.filter(p => this.projectMatches(p));
     if (this.activeFilter === 'DONE') {
-      return filtered.filter(p => this.getProjectProgress(p) === 100 && p.tasks?.length > 0);
+      return filtered.filter(p => this.getProjectProgress(p) === 100);
     }
     if (this.activeFilter === 'PENDING') {
-      return filtered.filter(p => p.tasks && p.tasks.length > 0 && p.tasks.every((t: any) => t.status === 'TODO'));
+      return filtered.filter(p => this.getProjectProgress(p) === 0);
     }
     if (this.activeFilter === 'IN_PROGRESS') {
       return filtered.filter(p => {
@@ -97,23 +112,25 @@ export class ProjectsComponent implements OnInit {
     return filtered;
   }
 
-  get activeProjects() {
-    return this.getFilteredProjects().filter(p => this.getProjectProgress(p) < 100);
+  get displayProjects() {
+    return this.getFilteredProjects();
   }
 
   get heroProject() {
-    const active = this.activeProjects;
-    const priority = active.find(p => p.isPriority);
-    return priority ?? active[0];
+    const projects = this.displayProjects;
+    if (projects.length === 0) return null;
+    const priority = projects.find(p => p.isPriority);
+    return priority ?? projects[0];
   }
 
   get cardProjects() {
     const hero = this.heroProject;
-    return this.activeProjects.filter(p => p !== hero);
+    return this.displayProjects.filter(p => p !== hero);
   }
 
   get ArchivedProjects() {
-    return this.getFilteredProjects().filter(p => this.getProjectProgress(p) === 100 && p.tasks?.length > 0);
+    // Keep this for any metrics or logic that still needs high-level stats
+    return this.projects.filter(p => this.getProjectProgress(p) === 100 && p.tasks?.length > 0);
   }
 
   get systemMetrics() {

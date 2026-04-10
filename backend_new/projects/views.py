@@ -17,8 +17,8 @@ def serialize_project(p):
         'name': p.name,
         'description': p.description,
         'department_id': str(p.department.id) if p.department else None,
-        'department_name': p.department.name if p.department else None,
-        'employees': [{'id': str(e.id), 'username': e.username} for e in p.employees],
+        'department_name': getattr(p.department, 'name', None) if p.department and not isinstance(p.department, bson.DBRef) else (Department.objects.filter(id=p.department.id).first().name if p.department and Department.objects.filter(id=p.department.id).first() else None),
+        'employees': [{'id': str(e.id), 'username': getattr(e, 'username', '') if not isinstance(e, bson.DBRef) else getattr(User.objects.filter(id=e.id).first(), 'username', '')} for e in p.employees],
         'start_date': p.start_date.isoformat() if p.start_date else None,
         'deadline': p.deadline.isoformat() if p.deadline else None,
         'tasks': [
@@ -29,7 +29,10 @@ def serialize_project(p):
                 'note': getattr(t, 'note', ''),
                 'status': t.status,
                 'deadline': t.deadline.isoformat() if getattr(t, 'deadline', None) else None,
-                'completed_by_name': t.completed_by.username if (getattr(t, 'completed_by', None) and hasattr(t.completed_by, 'username')) else None,
+                'completed_by_name': (
+                    t.completed_by.username if not isinstance(t.completed_by, bson.DBRef) and hasattr(t.completed_by, 'username')
+                    else getattr(User.objects.filter(id=t.completed_by.id).first(), 'username', '') if t.completed_by else None
+                ) if getattr(t, 'completed_by', None) else None,
                 'completed_at': t.completed_at.isoformat() if getattr(t, 'completed_at', None) else None,
             } for t in p.tasks
         ]

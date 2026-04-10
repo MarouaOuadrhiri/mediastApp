@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, PLATFORM_ID, Inject, ChangeDetectorRef, N
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
+import { UiService } from '../../core/ui.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -28,6 +29,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   constructor(
     private api: ApiService,
+    private ui: UiService,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object,
     private cdr: ChangeDetectorRef,
@@ -152,5 +154,14 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   toggleSidebar() {
     this.showSidebar = !this.showSidebar;
+  }
+
+  onNewProjectClick() {
+    if (this.router.url !== '/admin/projects') {
+      this.ui.setPendingProjectModal(true);
+      this.router.navigate(['/admin/projects']);
+    } else {
+      this.ui.triggerOpenProjectModal();
+    }
   }
 }
