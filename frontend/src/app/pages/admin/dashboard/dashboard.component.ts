@@ -356,31 +356,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.teamTimerInterval) clearInterval(this.teamTimerInterval);
     if (!this.zone) return;
     
-    this.zone.runOutsideAngular(() => {
-      this.teamTimerInterval = setInterval(() => {
-        const now = new Date().getTime();
-        this.zone.run(() => {
-          this.teamPerformance.forEach(m => {
-            if (m.isOnline && m.sessionStart) {
-              const start = new Date(m.sessionStart).getTime();
-              let prevSecs = 0;
-              if (m.totalWorkToday) {
-                const parts = m.totalWorkToday.split(':');
-                if (parts.length === 3) prevSecs = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
-              }
-              const diff = (now - start) + (prevSecs * 1000);
-              const h = Math.floor(diff / 3600000);
-              const m_ = Math.floor((diff % 3600000) / 60000);
-              const s = Math.floor((diff % 60000) / 1000);
-              m.elapsed = `${this.pad(h)}:${this.pad(m_)}:${this.pad(s)}`;
-            } else {
-              m.elapsed = m.totalWorkToday;
-            }
-          });
-          this.cdr.detectChanges();
-        });
-      }, 1000);
-    });
+    this.teamTimerInterval = setInterval(() => {
+      const now = new Date().getTime();
+      this.teamPerformance.forEach(m => {
+        if (m.isOnline && m.sessionStart) {
+          const start = new Date(m.sessionStart).getTime();
+          let prevSecs = 0;
+          if (m.totalWorkToday) {
+            const parts = m.totalWorkToday.split(':');
+            if (parts.length === 3) prevSecs = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+          }
+          const diff = (now - start) + (prevSecs * 1000);
+          const h = Math.floor(diff / 3600000);
+          const m_ = Math.floor((diff % 3600000) / 60000);
+          const s = Math.floor((diff % 60000) / 1000);
+          m.elapsed = `${this.pad(h)}:${this.pad(m_)}:${this.pad(s)}`;
+        } else {
+          m.elapsed = m.totalWorkToday || '00:00:00';
+        }
+      });
+      this.cdr.detectChanges();
+    }, 1000);
   }
 
   startTimer(startTime: string) {
@@ -395,19 +391,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (parts.length === 3) prevSecs = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
     }
 
-    this.zone.runOutsideAngular(() => {
-      this.timerInterval = setInterval(() => {
-        const now = new Date().getTime();
-        const diff = (now - start) + (prevSecs * 1000);
-        const h = Math.floor(diff / 3600000);
-        const m_ = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        this.zone.run(() => {
-          this.timerValue = `${this.pad(h)}:${this.pad(m_)}:${this.pad(s)}`;
-          this.cdr.detectChanges();
-        });
-      }, 1000);
-    });
+    this.timerInterval = setInterval(() => {
+      const now = new Date().getTime();
+      const diff = (now - start) + (prevSecs * 1000);
+      const h = Math.floor(diff / 3600000);
+      const m_ = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      this.timerValue = `${this.pad(h)}:${this.pad(m_)}:${this.pad(s)}`;
+      this.cdr.detectChanges();
+    }, 1000);
   }
 
   private pad(n: number): string {
@@ -457,23 +449,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.timerInterval) clearInterval(this.timerInterval);
     if (this.lunchTimerIntervalId) clearInterval(this.lunchTimerIntervalId);
 
-    this.zone.runOutsideAngular(() => {
-      this.lunchTimerIntervalId = setInterval(() => {
-        this.zone.run(() => {
-          if (this.lunchSecondsLeft > 0) {
-            this.lunchSecondsLeft--;
-            const m_ = Math.floor(this.lunchSecondsLeft / 60);
-            const s = this.lunchSecondsLeft % 60;
-            this.timerValue = `LUNCH ${this.pad(m_)}:${this.pad(s)}`;  
-            this.cdr.detectChanges();
-          } else {
-            clearInterval(this.lunchTimerIntervalId);
-            this.timerValue = '00:00:00';
-            this.cdr.detectChanges();
-          }
-        });
-      }, 1000);
-    });
+    this.lunchTimerIntervalId = setInterval(() => {
+      if (this.lunchSecondsLeft > 0) {
+        this.lunchSecondsLeft--;
+        const m_ = Math.floor(this.lunchSecondsLeft / 60);
+        const s = this.lunchSecondsLeft % 60;
+        this.timerValue = `LUNCH ${this.pad(m_)}:${this.pad(s)}`;
+      } else {
+        clearInterval(this.lunchTimerIntervalId);
+        this.timerValue = '00:00:00';
+      }
+      this.cdr.detectChanges();
+    }, 1000);
   }
 
   stopTimer() {

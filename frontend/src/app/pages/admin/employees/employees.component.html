@@ -112,97 +112,113 @@
     </div>
   </div>
 
-  <!-- History Modal -->
-  <div *ngIf="showHistoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" (click)="closeHistory()">
-    <div class="bg-[#161616] border border-white/10 rounded-2xl p-7 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl custom-scrollbar" (click)="$event.stopPropagation()">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-[#e53935]/10 border border-[#e53935]/20 flex items-center justify-center text-white font-black overflow-hidden">
-            <img *ngIf="selectedHistory?.user?.profile_photo" [src]="selectedHistory.user.profile_photo" class="w-full h-full object-cover">
-            <span *ngIf="!selectedHistory?.user?.profile_photo">{{(selectedHistory?.user?.username || 'U').charAt(0).toUpperCase()}}</span>
+  <!-- History Modal (Redesigned) -->
+  <div *ngIf="showHistoryModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300" (click)="closeHistory()">
+    <div class="bg-[#111111] border border-white/10 rounded-[2.5rem] max-w-2xl w-full max-h-[85vh] flex flex-col shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden" (click)="$event.stopPropagation()">
+      <!-- Sticky Header -->
+      <div class="p-8 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-5">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#e53935] to-[#b71c1c] p-0.5 shadow-lg shadow-red-900/20">
+            <div class="w-full h-full rounded-[0.85rem] overflow-hidden bg-[#111] flex items-center justify-center">
+              <img *ngIf="selectedHistory?.user?.profile_photo" [src]="selectedHistory.user.profile_photo" class="w-full h-full object-cover">
+              <span *ngIf="!selectedHistory?.user?.profile_photo" class="text-xl font-black text-white italic">
+                {{(selectedHistory?.user?.username || 'U').charAt(0).toUpperCase()}}
+              </span>
+            </div>
           </div>
           <div>
-            <h3 class="font-black text-white">{{selectedHistory?.user?.username}}</h3>
-            <p class="text-xs text-white/30">{{selectedHistory?.user?.email}}</p>
+            <h3 class="text-xl font-black text-white tracking-tight italic">{{selectedHistory?.user?.username}}</h3>
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-[#e53935] mt-1">Personnel Records</p>
           </div>
         </div>
-        <button (click)="closeHistory()" class="text-white/30 hover:text-white transition-all">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <button (click)="closeHistory()" class="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/30 hover:text-white transition-all">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
 
-      <div *ngIf="selectedHistory" class="space-y-5">
-        <div *ngIf="selectedHistory.projects?.length > 0">
-          <h4 class="text-xs font-black text-white/30 uppercase tracking-widest mb-3">Projects</h4>
-          <div class="space-y-2">
-            <div *ngFor="let p of selectedHistory.projects" class="p-3 bg-white/3 border border-white/5 rounded-xl">
-              <div class="flex items-center justify-between">
-                <p class="text-sm font-bold text-white">{{p.name}}</p>
-                <span class="text-[9px] text-white/30 font-mono">#{{p.id?.slice(-4)}}</span>
+      <!-- Scrollable Body -->
+      <div class="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-8 bg-gradient-to-b from-transparent to-white/[0.01]">
+        <div *ngIf="selectedHistory" class="space-y-10">
+          <div *ngIf="selectedHistory.projects?.length > 0">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="w-1 h-4 bg-[#e53935] rounded-full"></span>
+              <h4 class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em]">Active Projects</h4>
+            </div>
+            <div class="grid grid-cols-1 gap-3">
+              <div *ngFor="let p of selectedHistory.projects" class="group p-5 bg-white/[0.03] border border-white/5 rounded-3xl hover:bg-white/[0.05] transition-all">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="font-black text-white italic group-hover:text-[#e53935] transition-colors">{{p.name}}</p>
+                  <span class="text-[10px] bg-white/5 px-2 py-1 rounded-lg text-white/30 font-mono tracking-wider">#{{p.id?.slice(-4)}}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-[8px] font-black text-white/40">{{p.tasks?.length || 0}}</div>
+                  <p class="text-[10px] font-bold text-white/20 uppercase tracking-widest pl-1">Tasks Assigned</p>
+                </div>
               </div>
-              <p class="text-xs text-white/30 mt-0.5">{{p.tasks?.length || 0}} tasks</p>
+            </div>
+          </div>
+          <div *ngIf="selectedHistory.standalone_tasks?.length > 0">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="w-1 h-4 bg-[#e53935] rounded-full"></span>
+              <h4 class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em]">Workflow History</h4>
+            </div>
+            <div class="space-y-3">
+              <div *ngFor="let t of selectedHistory.standalone_tasks" class="p-4 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-5 group hover:border-white/10 transition-all">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all" [class]="t.status === 'DONE' ? 'bg-green-500/10 text-green-400 border border-green-500/10' : 'bg-white/5 text-white/20'">
+                  <svg *ngIf="t.status === 'DONE'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                  <svg *ngIf="t.status !== 'DONE'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="text-sm font-bold text-white block truncate">{{t.title}}</span>
+                  <p class="text-[9px] uppercase tracking-widest font-black mt-1" [class]="t.status === 'DONE' ? 'text-green-400' : 'text-white/20'">{{t.status?.replace('_',' ')}}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <div *ngIf="selectedHistory.standalone_tasks?.length > 0">
-          <h4 class="text-xs font-black text-white/30 uppercase tracking-widest mb-3">Standalone Tasks</h4>
-          <div class="space-y-2">
-            <div *ngFor="let t of selectedHistory.standalone_tasks" class="p-3 bg-white/3 border border-white/5 rounded-xl flex items-center gap-3">
-              <div class="w-1.5 h-1.5 rounded-full shrink-0" [class]="t.status === 'DONE' ? 'bg-green-400' : t.status === 'IN_PROGRESS' ? 'bg-orange-400' : 'bg-white/20'"></div>
-              <span class="text-sm text-white/70 flex-1">{{t.title}}</span>
-              <span class="text-[9px] uppercase tracking-wider text-white/30 font-bold">{{t.status?.replace('_',' ')}}</span>
-            </div>
-          </div>
+        <div *ngIf="!selectedHistory" class="flex flex-col items-center justify-center py-20 gap-4">
+          <div class="w-10 h-10 border-4 border-[#e53935] border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Querying Engine...</p>
         </div>
-
-        <div *ngIf="!selectedHistory.projects?.length && !selectedHistory.standalone_tasks?.length"
-          class="text-center py-8 text-white/20 text-sm">No work history yet.</div>
-      </div>
-
-      <div *ngIf="!selectedHistory" class="flex items-center justify-center py-12">
-        <div class="w-6 h-6 border-2 border-[#e53935] border-t-transparent rounded-full animate-spin"></div>
       </div>
     </div>
   </div>
 
-  <!-- Attendance Modal -->
-  <div *ngIf="showAttendanceModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" (click)="closeAttendance()">
-    <div class="bg-[#161616] border border-white/10 rounded-[2.5rem] p-10 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl custom-scrollbar" (click)="$event.stopPropagation()">
-      <div class="flex items-center justify-between mb-10">
+  <!-- Attendance Modal (Redesigned) -->
+  <div *ngIf="showAttendanceModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 md:p-8 animate-in fade-in zoom-in-95 duration-300" (click)="closeAttendance()">
+    <div class="bg-[#111111] border border-white/10 rounded-[2.5rem] max-w-2xl w-full max-h-[85vh] flex flex-col shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="p-8 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
         <div>
-          <h3 class="text-2xl font-black text-white tracking-tight">Attendance Logs</h3>
-          <p class="text-sm text-white/30 mt-1">Pointage history for <span class="text-[#e53935]">{{selectedEmpName}}</span></p>
+          <h3 class="text-2xl font-black text-white tracking-tight italic">Attendance Logs</h3>
+          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-[#e53935] mt-1.5">Punch history for <span class="bg-white/5 px-2 py-0.5 rounded italic">{{selectedEmpName}}</span></p>
         </div>
         <button (click)="closeAttendance()" class="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/30 hover:text-white transition-all">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
-
-      <div class="space-y-4">
-        <div *ngFor="let log of selectedAttendanceLogs" class="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex items-center justify-between group hover:bg-white/[0.04] transition-all">
+      <div class="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-4">
+        <div *ngFor="let log of selectedAttendanceLogs" class="bg-white/[0.02] border border-white/5 rounded-3xl p-6 flex items-center justify-between group hover:bg-white/[0.04] transition-all">
           <div class="flex items-center gap-6">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
-                 [ngClass]="log.status === 'ACTIVE' ? 'bg-[#e53935]/10 text-[#e53935] border border-[#e53935]/20 animate-pulse' : 'bg-white/5 text-white/20 border border-white/5'">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all" [ngClass]="log.status === 'ACTIVE' ? 'bg-[#e53935] text-white shadow-red-900/40' : 'bg-white/5 text-white/20 border border-white/5'">
+              <svg *ngIf="log.status === 'ACTIVE'" class="w-7 h-7 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+              <svg *ngIf="log.status !== 'ACTIVE'" class="w-7 h-7 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
             </div>
             <div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-[#e53935] mb-1" *ngIf="log.status === 'ACTIVE'">Current Session</p>
-              <h4 class="text-sm font-bold text-white">{{ log.start_time | date:'mediumDate' }}</h4>
-              <p class="text-xs text-white/30 mt-1">Starting: <span class="text-white/60 font-mono">{{ log.start_time | date:'shortTime' }}</span></p>
+              <div class="flex items-center gap-3 mb-1.5" *ngIf="log.status === 'ACTIVE'">
+                <span class="flex h-2 w-2 rounded-full bg-[#e53935] animate-ping"></span>
+                <p class="text-[9px] font-black uppercase tracking-widest text-[#e53935]">Live Session</p>
+              </div>
+              <h4 class="text-base font-black text-white italic">{{ log.start_time | date:'mediumDate' }}</h4>
+              <p class="text-xs font-bold text-white/20 mt-0.5 tracking-tight">Clock In: <span class="text-white/50 font-mono">{{ log.start_time | date:'shortTime' }}</span></p>
             </div>
           </div>
-
           <div class="text-right">
-            <p class="text-xs font-black text-white/80 tracking-tight">{{ log.status === 'ACTIVE' ? 'Ongoing' : log.duration }}</p>
-            <p class="text-[10px] text-white/20 mt-1 uppercase tracking-widest font-bold">Total Duration</p>
+            <p class="text-lg font-black text-white italic tracking-tight">{{ log.status === 'ACTIVE' ? 'Ongoing' : log.duration }}</p>
+            <p class="text-[10px] text-white/10 mt-1 uppercase tracking-widest font-black">Total Runtime</p>
           </div>
-        </div>
-
-        <div *ngIf="selectedAttendanceLogs.length === 0" class="text-center py-20 border border-dashed border-white/5 rounded-3xl">
-          <p class="text-sm text-white/20 italic">No attendance records found for this employee.</p>
         </div>
       </div>
     </div>
   </div>
+
 </div>

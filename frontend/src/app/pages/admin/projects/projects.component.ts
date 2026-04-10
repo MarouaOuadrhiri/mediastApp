@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, Inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
 import { UiService } from '../../../core/ui.service';
@@ -13,37 +13,28 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./projects.component.css']
 })
 export class ProjectsComponent implements OnInit {
-  private modalSub: Subscription | null = null;
   projects: any[] = [];
   employees: any[] = [];
   departments: any[] = [];
-  isSubmitting = false;
   errorMsg = '';
   searchQuery = '';
-
-  projectName = '';
-  projectDesc = '';
-  projectDepartmentId = '';
-  projectEmployeeIds: string[] = [];
-  projectDeadline = '';
-  projectTasks: { id?: string, title: string, description?: string, note?: string }[] = [];
-  projectSuccess = false;
-  filteredEmployees: any[] = [];
-  isEditingMode = false;
-  editingProjectId = '';
   activeFilter = 'ALL';
-  showProjectModal = false;
-  selectedPriorityProjectId = localStorage.getItem('selectedPriorityProjectId') || '';
+  selectedPriorityProjectId = '';
+  private modalSub: Subscription | null = null;
 
-  constructor(private api: ApiService, private ui: UiService) {}
+  constructor(
+    private api: ApiService, 
+    private ui: UiService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit() {
-    this.loadData();
-    if (this.ui.checkPendingProjectModal()) {
-      this.openModal();
+    if (isPlatformBrowser(this.platformId)) {
+      this.selectedPriorityProjectId = localStorage.getItem('selectedPriorityProjectId') || '';
     }
-    this.modalSub = this.ui.openProjectModal$.subscribe(() => {
-      this.openModal();
+    this.loadData();
+    this.modalSub = this.ui.projectEdited$.subscribe(() => {
+      this.loadData();
     });
   }
 
@@ -60,21 +51,10 @@ export class ProjectsComponent implements OnInit {
         isPriority: project.id === this.selectedPriorityProjectId || !!project.isPriority
       }));
     }, error: () => {} });
-    this.api.getEmployees().subscribe({ next: (r: any) => { this.employees = r; this.filterEmployees(); }, error: () => {} });
+    this.api.getEmployees().subscribe({ next: (r: any) => { this.employees = r; }, error: () => {} });
     this.api.getDepartments().subscribe({ next: (r: any) => { this.departments = r; }, error: () => {} });
   }
 
-  filterEmployees() {
-    if (!this.projectDepartmentId) {
-      this.filteredEmployees = [...this.employees];
-    } else {
-      this.filteredEmployees = this.employees.filter(e => e.department_id === this.projectDepartmentId);
-    }
-  }
-
-  onDepartmentChange() {
-    this.filterEmployees();
-  }
 
   getProjectProgress(p: any): number {
     if (!p.tasks || p.tasks.length === 0) return 0;
@@ -116,16 +96,25 @@ export class ProjectsComponent implements OnInit {
     return this.getFilteredProjects();
   }
 
+  get topThree() {
+    return this.displayProjects.filter(p => p.id !== this.heroProject?.id).slice(0, 3);
+  }
+
+  get fourthProject() {
+    const others = this.displayProjects.filter(p => p.id !== this.heroProject?.id);
+    return others.length >= 4 ? others[3] : null;
+  }
+
+  get remainingProjects() {
+    const others = this.displayProjects.filter(p => p.id !== this.heroProject?.id);
+    return others.slice(4);
+  }
+
   get heroProject() {
     const projects = this.displayProjects;
     if (projects.length === 0) return null;
     const priority = projects.find(p => p.isPriority);
     return priority ?? projects[0];
-  }
-
-  get cardProjects() {
-    const hero = this.heroProject;
-    return this.displayProjects.filter(p => p !== hero);
   }
 
   get ArchivedProjects() {
@@ -160,42 +149,8 @@ export class ProjectsComponent implements OnInit {
     return { completion, active, upcoming };
   }
 
-  openModal() {
-    this.showProjectModal = true;
-  }
-
-  closeModal() {
-    this.cancelEdit();
-  }
-
-  addProjectTask() { this.projectTasks.push({ title: '' }); }
-  removeProjectTask(i: number) { this.projectTasks.splice(i, 1); }
-
   editProject(p: any) {
-    this.isEditingMode = true;
-    this.editingProjectId = p.id;
-    this.projectName = p.name;
-    this.projectDesc = p.description || '';
-    this.projectDepartmentId = p.department_id || '';
-    this.filterEmployees();
-    this.projectEmployeeIds = p.employees?.map((e: any) => e.id) || [];
-    this.projectDeadline = p.deadline ? p.deadline.slice(0, 16) : '';
-    this.projectTasks = p.tasks?.map((t: any) => ({ id: t.id, title: t.title, description: t.description, note: t.note })) || [];
-    this.showProjectModal = true;
-  }
-
-  cancelEdit() {
-    this.isEditingMode = false;
-    this.editingProjectId = '';
-    this.projectName = '';
-    this.projectDesc = '';
-    this.projectDepartmentId = '';
-    this.projectEmployeeIds = [];
-    this.filterEmployees();
-    this.projectDeadline = '';
-    this.projectTasks = [];
-    this.errorMsg = '';
-    this.showProjectModal = false;
+    this.ui.triggerOpenProjectModal(p);
   }
 
   deleteProject(id: string) {
@@ -212,57 +167,5 @@ export class ProjectsComponent implements OnInit {
     this.selectedPriorityProjectId = project.id;
     localStorage.setItem('selectedPriorityProjectId', project.id);
     this.projects = this.projects.map(p => ({ ...p, isPriority: p.id === project.id }));
-  }
-
-  submitProject() {
-    this.errorMsg = '';
-
-    if (!this.projectName || !this.projectDeadline) {
-      this.errorMsg = 'Please fill the project name and deadline.';
-      return;
-    }
-
-    if (!this.projectDepartmentId && this.projectEmployeeIds.length === 0) {
-      this.errorMsg = 'Please assign to a department or select at least one employee.';
-      return;
-    }
-
-    const validTasks = this.projectTasks.filter(t => t.title && t.title.trim());
-
-    let deadlineIso = '';
-    try {
-      deadlineIso = new Date(this.projectDeadline).toISOString();
-    } catch {
-      this.errorMsg = 'Invalid date format.';
-      return;
-    }
-
-    this.isSubmitting = true;
-    const payload = {
-      name: this.projectName,
-      description: this.projectDesc,
-      department_id: this.projectDepartmentId || undefined,
-      employee_ids: this.projectEmployeeIds,
-      deadline: deadlineIso,
-      tasks: validTasks
-    };
-
-    const req = this.isEditingMode
-      ? this.api.updateProject(this.editingProjectId, payload)
-      : this.api.createProject(payload);
-
-    req.subscribe({
-      next: () => {
-        this.cancelEdit();
-        this.projectSuccess = true;
-        this.isSubmitting = false;
-        setTimeout(() => this.projectSuccess = false, 4000);
-        this.loadData();
-      },
-      error: (err: any) => {
-        this.errorMsg = err.error?.error || 'Failed to save project.';
-        this.isSubmitting = false;
-      }
-    });
   }
 }

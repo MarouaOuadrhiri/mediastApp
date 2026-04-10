@@ -17,6 +17,7 @@ class ProjectTask(EmbeddedDocument):
 class Project(Document):
     meta = {'strict': False}
     name = StringField(required=True, max_length=200)
+    client = StringField(max_length=200)
     description = StringField()
     employees = ListField(ReferenceField(User))
     department = ReferenceField(Department, null=True)

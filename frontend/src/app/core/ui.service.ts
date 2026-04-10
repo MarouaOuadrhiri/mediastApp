@@ -5,22 +5,17 @@ import { Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class UiService {
-  private openProjectModalSource = new Subject<void>();
+  private openProjectModalSource = new Subject<any | null>();
   openProjectModal$ = this.openProjectModalSource.asObservable();
   
-  private _shouldOpenProjectModal = false;
+  private projectEditedSource = new Subject<void>();
+  projectEdited$ = this.projectEditedSource.asObservable();
 
-  triggerOpenProjectModal() {
-    this.openProjectModalSource.next();
+  triggerOpenProjectModal(project: any = null) {
+    this.openProjectModalSource.next(project);
   }
 
-  setPendingProjectModal(value: boolean) {
-    this._shouldOpenProjectModal = value;
-  }
-
-  checkPendingProjectModal(): boolean {
-    const val = this._shouldOpenProjectModal;
-    this._shouldOpenProjectModal = false;
-    return val;
+  notifyProjectChanged() {
+    this.projectEditedSource.next();
   }
 }

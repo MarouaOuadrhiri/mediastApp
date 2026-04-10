@@ -15,6 +15,7 @@ def serialize_project(p):
     return {
         'id': str(p.id),
         'name': p.name,
+        'client': getattr(p, 'client', ''),
         'description': p.description,
         'department_id': str(p.department.id) if p.department else None,
         'department_name': getattr(p.department, 'name', None) if p.department and not isinstance(p.department, bson.DBRef) else (Department.objects.filter(id=p.department.id).first().name if p.department and Department.objects.filter(id=p.department.id).first() else None),
@@ -58,6 +59,7 @@ def project_list_create(request):
             return Response({'error': 'Unauthorized'}, status=403)
 
         name = request.data.get('name')
+        client = request.data.get('client', '')
         description = request.data.get('description', '')
         department_id = request.data.get('department_id')
         employee_ids = request.data.get('employee_ids', [])
@@ -110,6 +112,7 @@ def project_list_create(request):
 
         project = Project(
             name=name, 
+            client=client,
             description=description, 
             department=department,
             employees=employees,
@@ -138,6 +141,7 @@ def project_detail(request, pk):
 
     if request.method == 'PUT':
         name = request.data.get('name')
+        client = request.data.get('client', project.client if hasattr(project, 'client') else '')
         description = request.data.get('description', project.description)
         department_id = request.data.get('department_id')
         employee_ids = request.data.get('employee_ids', [])
@@ -146,6 +150,7 @@ def project_detail(request, pk):
 
         if name:
             project.name = name
+        project.client = client
         project.description = description
 
         if department_id:

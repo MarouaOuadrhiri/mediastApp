@@ -3,11 +3,12 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { UiService } from '../../core/ui.service';
+import { ProjectModalComponent } from './projects/project-modal.component';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ProjectModalComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css']
 })
@@ -140,7 +141,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       }
     };
 
-    const isAdmin = localStorage.getItem('role') === 'admin';
+    const isAdmin = isPlatformBrowser(this.platformId) && localStorage.getItem('role') === 'admin';
     if (isAdmin) {
       finalizeLogout();
     } else {
@@ -157,11 +158,6 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   onNewProjectClick() {
-    if (this.router.url !== '/admin/projects') {
-      this.ui.setPendingProjectModal(true);
-      this.router.navigate(['/admin/projects']);
-    } else {
-      this.ui.triggerOpenProjectModal();
-    }
+    this.ui.triggerOpenProjectModal();
   }
 }
