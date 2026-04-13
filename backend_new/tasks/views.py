@@ -12,6 +12,7 @@ def serialize_task(t):
     try:
         employee_id = str(t.employee.id) if t.employee else None
         employee_name = t.employee.username if t.employee else "Unknown Member"
+        employee_photo = getattr(t.employee, 'profile_photo', '') if t.employee else ""
     except DoesNotExist:
         employee_id = None
         employee_name = "Unknown Member (Deleted)"
@@ -23,6 +24,7 @@ def serialize_task(t):
         'status': t.status,
         'employee_id': employee_id,
         'employee_name': employee_name,
+        'employee_photo': employee_photo,
         'source_project_task_id': getattr(t, 'source_project_task_id', None),
     }
 
@@ -81,8 +83,8 @@ def update_task_status(request, pk):
         return Response({'error': 'You can only update your own tasks'}, status=403)
 
     status = request.data.get('status')
-    if status not in ('TODO', 'IN_PROGRESS', 'DONE'):
-        return Response({'error': 'Invalid status. Must be TODO, IN_PROGRESS, or DONE'}, status=400)
+    if status not in ('BLOCKED', 'IN_PROGRESS', 'REVIEW', 'DONE'):
+        return Response({'error': 'Invalid status. Must be BLOCKED, IN_PROGRESS, REVIEW, or DONE'}, status=400)
 
     task.status = status
     task.save()

@@ -41,7 +41,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.api.getMe().subscribe({
         next: (r: any) => {
-          this.zone.run(() => { this.user = r; this.cdr.detectChanges(); });
+          this.zone.run(() => { this.user = r; this.cdr.markForCheck(); });
         },
         error: () => {}
       });
@@ -95,7 +95,7 @@ export class AdminComponent implements OnInit, OnDestroy {
               this.showToast(newOnes[newOnes.length - 1]); // show the latest
             }
           }
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
         });
       },
       error: () => {}
@@ -106,16 +106,16 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.zone.run(() => {
       if (this.toastTimer) clearTimeout(this.toastTimer);
       this.toastMeeting = meeting;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
       this.toastTimer = setTimeout(() => {
-        this.zone.run(() => { this.toastMeeting = null; this.cdr.detectChanges(); });
+        this.zone.run(() => { this.toastMeeting = null; this.cdr.markForCheck(); });
       }, 6000);
     });
   }
 
   dismissToast() {
     if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.zone.run(() => { this.toastMeeting = null; this.cdr.detectChanges(); });
+    this.zone.run(() => { this.toastMeeting = null; this.cdr.markForCheck(); });
   }
 
   getMeetingTimeLabel(dateStr: string): string {

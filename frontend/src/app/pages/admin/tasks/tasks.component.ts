@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
 import { 
@@ -21,6 +21,7 @@ export class TasksComponent implements OnInit {
   employees: any[] = [];
   projects: any[] = [];
   departments: any[] = [];
+  columnIds = ['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE'];
   
   // Grouped tasks for Drag and Drop
   boardTasks: { [key: string]: any[] } = {
@@ -49,13 +50,19 @@ export class TasksComponent implements OnInit {
 
   editTaskId: string | null = null;
 
-  constructor(private api: ApiService) {}
+  constructor(
+    private api: ApiService,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit() {
     this.loadData();
   }
 
   loadData() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
     this.api.getTasks().subscribe({ 
       next: (r: any) => { 
         this.tasks = r.map((t: any) => ({
@@ -67,12 +74,13 @@ export class TasksComponent implements OnInit {
           employee_name: t.employee_name || 'Unknown'
         }));
         this.groupTasks();
+        this.cdr.markForCheck();
       }, 
       error: () => {} 
     });
-    this.api.getEmployees().subscribe({ next: (r: any) => { this.employees = r; }, error: () => {} });
-    this.api.getProjects().subscribe({ next: (r: any) => { this.projects = r; }, error: () => {} });
-    this.api.getDepartments().subscribe({ next: (r: any) => { this.departments = r; }, error: () => {} });
+    this.api.getEmployees().subscribe({ next: (r: any) => { this.employees = r; this.cdr.markForCheck(); }, error: () => {} });
+    this.api.getProjects().subscribe({ next: (r: any) => { this.projects = r; this.cdr.markForCheck(); }, error: () => {} });
+    this.api.getDepartments().subscribe({ next: (r: any) => { this.departments = r; this.cdr.markForCheck(); }, error: () => {} });
   }
 
   groupTasks() {
@@ -85,9 +93,9 @@ export class TasksComponent implements OnInit {
   }
 
   mapStatus(status: string): string {
-    const s = status?.toUpperCase();
+    const s = status?.toUpperCase()?.replace('_', ' ');
     if (s === 'TODO' || s === 'BLOCKED') return 'BLOCKED';
-    if (s === 'IN_PROGRESS' || s === 'IN PROGRESS') return 'IN PROGRESS';
+    if (s === 'IN PROGRESS') return 'IN PROGRESS';
     if (s === 'REVIEW') return 'REVIEW';
     if (s === 'DONE') return 'DONE';
     return s || 'IN PROGRESS';
@@ -118,12 +126,15 @@ export class TasksComponent implements OnInit {
       this.api.updateTaskStatus(task.id, newStatus.replace(' ', '_')).subscribe({
         next: () => {
           task.status = newStatus; // Update local status property
+          this.cdr.markForCheck();
         },
         error: (err) => {
           this.errorMsg = 'Failed to update task status.';
           this.loadData(); // Revert on error
+          this.cdr.markForCheck();
         }
       });
+      this.cdr.markForCheck();
     }
   }
 
@@ -156,5 +167,9 @@ export class TasksComponent implements OnInit {
       next: () => { this.editTaskId = null; this.loadData(); },
       error: (err: any) => { this.errorMsg = err.error?.error || 'Failed to update task.'; }
     });
+  }
+
+  getSelectedEmployee() {
+    return this.employees.find(e => e.id === this.taskEmployeeId);
   }
 }

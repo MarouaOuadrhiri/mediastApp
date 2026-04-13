@@ -5,7 +5,7 @@
       <h1>All Tasks</h1>
       <div class="header-stats">
         <div class="avatar-group">
-          <img *ngFor="let e of employees.slice(0, 3)" [src]="'https://ui-avatars.com/api/?name=' + e.username + '&background=random'" class="avatar-sm">
+          <img *ngFor="let e of employees.slice(0, 3)" [src]="e.profile_photo || ('https://ui-avatars.com/api/?name=' + e.username + '&background=random')" class="avatar-sm">
           <div class="avatar-more" *ngIf="employees.length > 3">+{{employees.length - 3}}</div>
         </div>
         <span class="stats-divider">|</span>
@@ -35,7 +35,7 @@
   <!-- Kanban Board -->
   <div class="kanban-board" *ngIf="viewMode === 'board'" cdkDropListGroup>
     <!-- Columns -->
-    <div class="kanban-column" *ngFor="let status of ['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE']">
+    <div class="kanban-column" *ngFor="let status of columnIds">
       <div class="column-header">
         <div class="title-with-count">
           <span class="column-title">{{status}}</span>
@@ -48,12 +48,13 @@
            cdkDropList
            [id]="status"
            [cdkDropListData]="boardTasks[status]"
+           [cdkDropListConnectedTo]="columnIds"
            (cdkDropListDropped)="drop($event)">
         
         <div class="task-card" *ngFor="let t of boardTasks[status]" cdkDrag>
           <div class="card-header">
             <span class="priority-badge" [attr.data-priority]="t.priority">{{t.priority}}</span>
-            <div class="drag-handle" cdkDragHandle>
+            <div class="drag-handle">
               <svg class="w-4 h-4 text-white/20" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a2 2 0 100 4h2a2 2 0 100-4H7zM11 2a2 2 0 100 4h2a2 2 0 100-4h-2zM7 7a2 2 0 100 4h2a2 2 0 100-4H7zM11 7a2 2 0 100 4h2a2 2 0 100-4h-2zM7 12a2 2 0 100 4h2a2 2 0 100-4H7zM11 12a2 2 0 100 4h2a2 2 0 100-4h-2z"></path></svg>
             </div>
           </div>
@@ -76,14 +77,17 @@
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 <span>{{t.deadline}}</span>
               </div>
-              <img [src]="'https://ui-avatars.com/api/?name=' + t.employee_name + '&background=random'" class="assignee-avatar" [title]="t.employee_name">
+              <div class="assignee-info">
+                <!-- <span class="assignee-name">{{t.employee_name}}</span> -->
+                <img [src]="t.employee_photo || ('https://ui-avatars.com/api/?name=' + t.employee_name + '&background=random')" class="assignee-avatar" [title]="t.employee_name">
+              </div>
             </div>
 
             <!-- Done status specific -->
             <div class="done-verification" *ngIf="status === 'DONE'">
               <span class="status-badge complete">COMPLETE</span>
               <div class="verified-tag">
-                <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1.0 00-1.414-1.414L9 10.586 7.707 9.293a1 1.0 00-1.414 1.414l2 2a1 1.0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                 <span>VERIFIED</span>
               </div>
             </div>
@@ -184,8 +188,16 @@
             <label>ASSIGN MEMBER</label>
             <div class="member-selector">
               <div class="selected-members">
-                <img *ngFor="let e of employees.slice(0, 2)" [src]="'https://ui-avatars.com/api/?name=' + e.username" class="avatar-xs">
-                <button type="button" class="add-member-btn">+</button>
+                <ng-container *ngIf="getSelectedEmployee() as selectedEmp">
+                  <img [src]="selectedEmp.profile_photo || ('https://ui-avatars.com/api/?name=' + selectedEmp.username)" class="avatar-xs">
+                  <span class="text-[10px] font-bold text-white/50 lowercase tracking-wider">{{selectedEmp.username}}</span>
+                </ng-container>
+                <div *ngIf="!taskEmployeeId" class="flex items-center gap-2">
+                  <div class="avatar-xs bg-white/5 border border-dashed border-white/20 rounded-full flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                  </div>
+                  <span class="text-[10px] font-bold text-white/10 uppercase tracking-wider">No assignee</span>
+                </div>
               </div>
               <!-- Logic for selecting employee_id -->
               <select [(ngModel)]="taskEmployeeId" name="taskEmployeeId" required class="mt-2 text-[10px] bg-transparent border-none text-white/40">
