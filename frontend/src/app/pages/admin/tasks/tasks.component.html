@@ -33,26 +33,33 @@
   </div>
 
   <!-- Kanban Board -->
-  <div class="kanban-board" *ngIf="viewMode === 'board'">
+  <div class="kanban-board" *ngIf="viewMode === 'board'" cdkDropListGroup>
     <!-- Columns -->
     <div class="kanban-column" *ngFor="let status of ['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE']">
       <div class="column-header">
         <div class="title-with-count">
           <span class="column-title">{{status}}</span>
-          <span class="column-count" [attr.data-status]="status">{{getTasksByStatus(status).length}}</span>
+          <span class="column-count" [attr.data-status]="status">{{boardTasks[status].length}}</span>
         </div>
         <button class="more-btn text-white/30">•••</button>
       </div>
 
-      <div class="column-content">
-        <div class="task-card" *ngFor="let t of getTasksByStatus(status)">
+      <div class="column-content custom-scrollbar"
+           cdkDropList
+           [id]="status"
+           [cdkDropListData]="boardTasks[status]"
+           (cdkDropListDropped)="drop($event)">
+        
+        <div class="task-card" *ngFor="let t of boardTasks[status]" cdkDrag>
           <div class="card-header">
             <span class="priority-badge" [attr.data-priority]="t.priority">{{t.priority}}</span>
-            <svg class="w-4 h-4 text-white/20" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a2 2 0 100 4h2a2 2 0 100-4H7zM11 2a2 2 0 100 4h2a2 2 0 100-4h-2zM7 7a2 2 0 100 4h2a2 2 0 100-4H7zM11 7a2 2 0 100 4h2a2 2 0 100-4h-2zM7 12a2 2 0 100 4h2a2 2 0 100-4H7zM11 12a2 2 0 100 4h2a2 2 0 100-4h-2z"></path></svg>
+            <div class="drag-handle" cdkDragHandle>
+              <svg class="w-4 h-4 text-white/20" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a2 2 0 100 4h2a2 2 0 100-4H7zM11 2a2 2 0 100 4h2a2 2 0 100-4h-2zM7 7a2 2 0 100 4h2a2 2 0 100-4H7zM11 7a2 2 0 100 4h2a2 2 0 100-4h-2zM7 12a2 2 0 100 4h2a2 2 0 100-4H7zM11 12a2 2 0 100 4h2a2 2 0 100-4h-2z"></path></svg>
+            </div>
           </div>
           
           <h3 class="task-title">{{t.title}}</h3>
-          <p class="task-desc">{{t.description || 'No description available for this task.'}}</p>
+          <p class="task-desc">{{t.description || 'No description available.'}}</p>
           
           <div class="card-footer">
             <div class="progress-section" *ngIf="status !== 'DONE' && status !== 'BLOCKED'">
@@ -76,15 +83,18 @@
             <div class="done-verification" *ngIf="status === 'DONE'">
               <span class="status-badge complete">COMPLETE</span>
               <div class="verified-tag">
-                <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1.0 00-1.414-1.414L9 10.586 7.707 9.293a1 1.0 00-1.414 1.414l2 2a1 1.0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                 <span>VERIFIED</span>
               </div>
             </div>
           </div>
+
+          <!-- Drag Preview Placeholder -->
+          <div class="task-card-placeholder" *cdkDragPlaceholder></div>
         </div>
 
-        <div class="empty-column" *ngIf="getTasksByStatus(status).length === 0">
-          No tasks in this stage.
+        <div class="empty-column-hint" *ngIf="boardTasks[status].length === 0">
+          Drop tasks here
         </div>
       </div>
     </div>

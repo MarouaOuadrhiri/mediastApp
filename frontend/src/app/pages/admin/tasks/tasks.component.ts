@@ -2,11 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
+import { 
+  DragDropModule, 
+  CdkDragDrop, 
+  moveItemInArray, 
+  transferArrayItem 
+} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-admin-tasks',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DragDropModule],
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.css']
 })
@@ -16,6 +22,14 @@ export class TasksComponent implements OnInit {
   projects: any[] = [];
   departments: any[] = [];
   
+  // Grouped tasks for Drag and Drop
+  boardTasks: { [key: string]: any[] } = {
+    'BLOCKED': [],
+    'IN PROGRESS': [],
+    'REVIEW': [],
+    'DONE': []
+  };
+
   isSubmitting = false;
   errorMsg = '';
   isModalOpen = false;
@@ -47,10 +61,12 @@ export class TasksComponent implements OnInit {
         this.tasks = r.map((t: any) => ({
           ...t,
           status: this.mapStatus(t.status),
-          priority: t.priority || this.getRandomPriority(), // Mocking if not in backend
-          progress: t.progress || Math.floor(Math.random() * 100), // Mocking
-          deadline: t.deadline || 'MAY 16' // Mocking
+          priority: t.priority || this.getRandomPriority(),
+          progress: t.progress || Math.floor(Math.random() * 100),
+          deadline: t.deadline || 'MAY 16',
+          employee_name: t.employee_name || 'Unknown'
         }));
+        this.groupTasks();
       }, 
       error: () => {} 
     });
@@ -59,13 +75,22 @@ export class TasksComponent implements OnInit {
     this.api.getDepartments().subscribe({ next: (r: any) => { this.departments = r; }, error: () => {} });
   }
 
+  groupTasks() {
+    this.boardTasks = {
+      'BLOCKED': this.tasks.filter(t => t.status === 'BLOCKED'),
+      'IN PROGRESS': this.tasks.filter(t => t.status === 'IN PROGRESS'),
+      'REVIEW': this.tasks.filter(t => t.status === 'REVIEW'),
+      'DONE': this.tasks.filter(t => t.status === 'DONE')
+    };
+  }
+
   mapStatus(status: string): string {
     const s = status?.toUpperCase();
     if (s === 'TODO' || s === 'BLOCKED') return 'BLOCKED';
     if (s === 'IN_PROGRESS' || s === 'IN PROGRESS') return 'IN PROGRESS';
     if (s === 'REVIEW') return 'REVIEW';
     if (s === 'DONE') return 'DONE';
-    return 'IN PROGRESS';
+    return s || 'IN PROGRESS';
   }
 
   getRandomPriority() {
@@ -73,63 +98,59 @@ export class TasksComponent implements OnInit {
     return ps[Math.floor(Math.random() * ps.length)];
   }
 
-  getTasksByStatus(status: string) {
-    return this.tasks.filter(t => t.status === status);
+  // Drag and Drop Handler
+  drop(event: CdkDragDrop<any[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      const task = event.previousContainer.data[event.previousIndex];
+      const newStatus = event.container.id; // We'll set the ID of the list to the status string
+      
+      // OPTIMISTIC UPDATE: Move locally first
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+
+      // Backend update
+      this.api.updateTaskStatus(task.id, newStatus.replace(' ', '_')).subscribe({
+        next: () => {
+          task.status = newStatus; // Update local status property
+        },
+        error: (err) => {
+          this.errorMsg = 'Failed to update task status.';
+          this.loadData(); // Revert on error
+        }
+      });
+    }
   }
 
-  openModal() {
-    this.isModalOpen = true;
-  }
-
-  closeModal() {
-    this.isModalOpen = false;
-    this.resetForm();
-  }
-
+  // Rest of the methods...
+  openModal() { this.isModalOpen = true; }
+  closeModal() { this.isModalOpen = false; this.resetForm(); }
   resetForm() {
-    this.taskTitle = '';
-    this.taskDesc = '';
-    this.taskEmployeeId = '';
-    this.taskProjectId = '';
-    this.taskDepartmentId = '';
-    this.taskPriority = 'MEDIUM';
-    this.taskStatus = 'IN PROGRESS';
-    this.taskDeadline = '';
-    this.taskProgress = 0;
-    this.assignedMembers = [];
+    this.taskTitle = ''; this.taskDesc = ''; this.taskEmployeeId = ''; this.taskProjectId = '';
+    this.taskDepartmentId = ''; this.taskPriority = 'MEDIUM'; this.taskStatus = 'IN PROGRESS';
+    this.taskDeadline = ''; this.taskProgress = 0; this.assignedMembers = [];
   }
 
   createTask() {
     if (!this.taskTitle || !this.taskEmployeeId) { this.errorMsg = 'Please fill all fields.'; return; }
     this.isSubmitting = true;
-    
-    // We send what the backend supports, but we can include other fields which might be ignored or handled if we update backend later
     const taskData = {
-      title: this.taskTitle,
-      description: this.taskDesc,
-      employee_id: this.taskEmployeeId,
-      status: this.taskStatus.replace(' ', '_'), // Backend uses underscores
-      priority: this.taskPriority,
-      project_id: this.taskProjectId,
-      deadline: this.taskDeadline,
-      progress: this.taskProgress
+      title: this.taskTitle, description: this.taskDesc, employee_id: this.taskEmployeeId,
+      status: this.taskStatus.replace(' ', '_'), priority: this.taskPriority,
+      project_id: this.taskProjectId, deadline: this.taskDeadline, progress: this.taskProgress
     };
-
     this.api.createTask(taskData).subscribe({
-      next: () => { 
-        this.isSubmitting = false; 
-        this.closeModal();
-        this.loadData(); 
-      },
-      error: (err: any) => { 
-        this.errorMsg = err.error?.error || 'Failed to create task.'; 
-        this.isSubmitting = false; 
-      }
+      next: () => { this.isSubmitting = false; this.closeModal(); this.loadData(); },
+      error: (err: any) => { this.errorMsg = err.error?.error || 'Failed to create task.'; this.isSubmitting = false; }
     });
   }
 
   startEditTask(t: any) { this.editTaskId = t.id; t.editTitle = t.title; t.editDesc = t.description; t.editEmployeeId = t.employee_id; }
-  
   saveEditTask(t: any) {
     this.api.updateTask(t.id, { title: t.editTitle, description: t.editDesc, employee_id: t.editEmployeeId }).subscribe({
       next: () => { this.editTaskId = null; this.loadData(); },
