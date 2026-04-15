@@ -34,7 +34,7 @@ export class TasksComponent implements OnInit {
   isSubmitting = false;
   errorMsg = '';
   isModalOpen = false;
-  viewMode: 'board' | 'list' = 'board';
+  viewMode: 'board' | 'list' | 'archive' = 'board';
 
   // New task form fields
   taskTitle = '';
@@ -49,6 +49,9 @@ export class TasksComponent implements OnInit {
   assignedMembers: any[] = [];
 
   editTaskId: string | null = null;
+
+  /** Tracks which project groups are expanded in list view */
+  expandedProjects: Set<string> = new Set();
 
   constructor(
     private api: ApiService,
@@ -102,8 +105,47 @@ export class TasksComponent implements OnInit {
   }
 
   getRandomPriority() {
-    const ps = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
+    const ps = ['LOW', 'MEDIUM', 'HIGH', 'COMPLETED'];
     return ps[Math.floor(Math.random() * ps.length)];
+  }
+
+  /** Returns tasks whose status is DONE — shown in Archive view */
+  get archivedTasks(): any[] {
+    return this.tasks.filter(t => t.status === 'DONE');
+  }
+
+  /** Look up project name by id */
+  getProjectName(projectId: string): string {
+    if (!projectId) return 'No Project';
+    const p = this.projects.find((pr: any) => pr.id === projectId);
+    return p ? p.name : 'Unknown Project';
+  }
+
+  /** Group all tasks by project for the list accordion view */
+  get groupedByProject(): { projectId: string; projectName: string; tasks: any[] }[] {
+    const map = new Map<string, any[]>();
+    for (const t of this.tasks) {
+      const key = t.project_id || '__none__';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(t);
+    }
+    // Initialise all groups as expanded on first load
+    if (this.expandedProjects.size === 0) {
+      map.forEach((_, key) => this.expandedProjects.add(key));
+    }
+    return Array.from(map.entries()).map(([projectId, tasks]) => ({
+      projectId,
+      projectName: this.getProjectName(projectId === '__none__' ? '' : projectId),
+      tasks
+    }));
+  }
+
+  toggleProject(projectId: string) {
+    if (this.expandedProjects.has(projectId)) {
+      this.expandedProjects.delete(projectId);
+    } else {
+      this.expandedProjects.add(projectId);
+    }
   }
 
   // Drag and Drop Handler

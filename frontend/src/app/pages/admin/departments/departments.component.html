@@ -26,8 +26,9 @@
     <div *ngFor="let d of departments" class="dep-card glass" (click)="viewDetail(d)">
       <div class="card-top">
         <div class="icon-box" [style.background]="d.status === 'OPTIMAL' ? 'rgba(229, 57, 53, 0.9)' : 'rgba(255, 255, 255, 0.05)'">
-          <!-- Mapping icons or using stored SVG -->
-          <div [innerHTML]="d.icon || defaultIcon" class="icon-inner"></div>
+          <!-- Show uploaded image if available, otherwise fall back to SVG icon -->
+          <img *ngIf="d.image" [src]="'data:image/jpeg;base64,' + d.image" class="dep-card-img" alt="">
+          <div *ngIf="!d.image" [innerHTML]="d.icon || defaultIcon" class="icon-inner"></div>
         </div>
         <div class="status-badge" [attr.data-status]="d.status">{{d.status}}</div>
       </div>
@@ -147,14 +148,28 @@
       </div>
 
       <form (ngSubmit)="submitDepartment()" class="modal-form">
-        <div class="form-row split">
-          <div class="form-group">
+
+        <!-- Image Upload -->
+        <div class="form-row">
+          <div class="form-group full">
+            <label>DEPARTMENT IMAGE</label>
+            <div class="img-upload-area" (click)="imgInput.click()">
+              <img *ngIf="depImagePreview" [src]="depImagePreview" class="img-preview" alt="preview">
+              <div *ngIf="!depImagePreview" class="img-placeholder">
+                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 20M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>Click to upload image from your laptop</span>
+                <span class="img-hint">PNG, JPG, WEBP — max 5 MB</span>
+              </div>
+              <div *ngIf="depImagePreview" class="img-change-overlay">Change image</div>
+            </div>
+            <input #imgInput type="file" accept="image/*" style="display:none" (change)="onImageSelected($event)">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full">
             <label>DEPARTMENT NAME</label>
             <input type="text" [(ngModel)]="depName" name="depName" placeholder="e.g. Marketing" required>
-          </div>
-          <div class="form-group">
-            <label>ICON SVG / NAME</label>
-            <input type="text" [(ngModel)]="depIcon" name="depIcon" placeholder="Paste SVG or icon name...">
           </div>
         </div>
 

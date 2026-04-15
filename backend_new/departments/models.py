@@ -5,3 +5,4 @@ class Department(Document):
     subtitle = StringField(max_length=200)
     description = StringField()
     icon = StringField()  # Will store SVG path or icon name
+    image = StringField()  # Stores base64-encoded department image

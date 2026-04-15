@@ -21,6 +21,8 @@ export class DepartmentsComponent implements OnInit {
   depSubtitle = '';
   depDesc = '';
   depIcon = '';
+  depImage = '';          // base64 string sent to backend
+  depImagePreview = '';   // data URL shown in preview
   editDepId: string | null = null;
 
   isModalOpen = false;
@@ -72,12 +74,16 @@ export class DepartmentsComponent implements OnInit {
       this.depSubtitle = d.subtitle;
       this.depDesc = d.description;
       this.depIcon = d.icon;
+      this.depImage = d.image || '';
+      this.depImagePreview = d.image ? `data:image/jpeg;base64,${d.image}` : '';
     } else {
       this.editDepId = null;
       this.depName = '';
       this.depSubtitle = '';
       this.depDesc = '';
       this.depIcon = '';
+      this.depImage = '';
+      this.depImagePreview = '';
     }
     this.isModalOpen = true;
   }
@@ -85,6 +91,8 @@ export class DepartmentsComponent implements OnInit {
   closeModal() {
     this.isModalOpen = false;
     this.editDepId = null;
+    this.depImage = '';
+    this.depImagePreview = '';
   }
 
   submitDepartment() {
@@ -94,7 +102,8 @@ export class DepartmentsComponent implements OnInit {
       name: this.depName, 
       subtitle: this.depSubtitle,
       description: this.depDesc, 
-      icon: this.depIcon 
+      icon: this.depIcon,
+      image: this.depImage
     };
 
     if (this.editDepId) {
@@ -108,6 +117,21 @@ export class DepartmentsComponent implements OnInit {
         error: (err: any) => { this.errorMsg = err.error?.error || 'Failed to create department.'; this.isSubmitting = false; }
       });
     }
+  }
+
+  onImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // result is "data:image/jpeg;base64,XXXX" — extract only the base64 part
+      this.depImagePreview = result;
+      this.depImage = result.split(',')[1];
+      this.cdr.detectChanges();
+    };
+    reader.readAsDataURL(file);
   }
 
   postSubmit() {

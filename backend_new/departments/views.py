@@ -51,6 +51,7 @@ def department_list_create(request):
                 'subtitle': d.subtitle or '',
                 'description': d.description or '',
                 'icon': d.icon or '',
+                'image': d.image or '',
                 'employees_count': len(employees),
                 'active_tasks_count': active_tasks,
                 'efficiency': round(efficiency),
@@ -66,12 +67,13 @@ def department_list_create(request):
         subtitle = request.data.get('subtitle', '')
         description = request.data.get('description', '')
         icon = request.data.get('icon', '')
+        image = request.data.get('image', '')
         
         if not name:
             return Response({'error': 'Name is required'}, status=400)
         
         try:
-            dep = Department(name=name, subtitle=subtitle, description=description, icon=icon)
+            dep = Department(name=name, subtitle=subtitle, description=description, icon=icon, image=image)
             dep.save()
             return Response({'id': str(dep.id), 'name': dep.name}, status=201)
         except NotUniqueError:
@@ -120,7 +122,8 @@ def department_detail(request, pk):
             'id': str(dep.id),
             'name': dep.name,
             'description': dep.description,
-            'employees': [{'id': str(e.id), 'username': e.username, 'email': e.email, 'role': e.role} for e in employees],
+            'image': dep.image or '',
+            'employees': [{'id': str(e.id), 'username': e.username, 'email': e.email, 'role': e.role, 'profile_photo': e.profile_photo or ''} for e in employees],
             'projects': project_data
         })
 
@@ -133,6 +136,7 @@ def department_detail(request, pk):
         dep.subtitle = request.data.get('subtitle', dep.subtitle)
         dep.description = request.data.get('description', dep.description)
         dep.icon = request.data.get('icon', dep.icon)
+        dep.image = request.data.get('image', dep.image)
         try:
             dep.save()
             return Response({'id': str(dep.id), 'name': dep.name})
