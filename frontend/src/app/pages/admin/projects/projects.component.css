@@ -558,6 +558,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -567,7 +568,7 @@
 /* Archive & Maintenance Section */
 .archive-section {
   /* margin-top: 16px; */
-  width: 960px;
+  width: 100%;
   height: auto;
   padding-top: 16px;
   gap: 24px;
@@ -592,7 +593,7 @@
 .archive-list {
   display: flex;
   flex-direction: column;
-    gap: 12px;
+  gap: 12px;
   width: 960px;
   height: auto;
   padding-top: 16px;
@@ -614,7 +615,6 @@
   cursor: pointer;
   /* transition: all 0.3s ease; */
   backdrop-filter: blur(16px)
-
 }
 
 .archive-row:hover {
@@ -639,10 +639,10 @@
   font-size: 16px;
   font-weight: 500;
   color: #FFFFFF;
-font-style: Medium;
-line-height: 24px;
-letter-spacing: 0px;
-vertical-align: middle;
+  font-style: Medium;
+  line-height: 24px;
+  letter-spacing: 0px;
+  vertical-align: middle;
 
 }
 
@@ -652,23 +652,25 @@ vertical-align: middle;
   letter-spacing: 0.1em;
   color: rgba(255, 255, 255, 0.25);
   text-transform: uppercase;
-font-weight: 400;
-font-style: regular;
-font-size: 10px;
-line-height: 15px;
-letter-spacing: 0.5px;
-vertical-align: middle;
-text-transform: uppercase;
+  font-weight: 400;
+  font-style: regular;
+  font-size: 10px;
+  line-height: 15px;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+  text-transform: uppercase;
 
 }
 
 .archive-date {
   font-family: 'Inter', sans-serif;
-  font-size: 12px;font-weight: 400;
-font-style: Regular;
-  color: rgba(255, 255, 255, 0.4);line-height: 16px;
-letter-spacing: 0px;
-vertical-align: middle;
+  font-size: 12px;
+  font-weight: 400;
+  font-style: Regular;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 16px;
+  letter-spacing: 0px;
+  vertical-align: middle;
 }
 
 .client-label-tiny {
@@ -679,10 +681,10 @@ vertical-align: middle;
   letter-spacing: 0.1em;
   color: rgba(255, 255, 255, 0.15);
   text-transform: uppercase;
-line-height: 13.5px;
-letter-spacing: 0.45px;
-text-align: right;
-vertical-align: middle;
+  line-height: 13.5px;
+  letter-spacing: 0.45px;
+  text-align: right;
+  vertical-align: middle;
 }
 
 .client-name-archive {
@@ -691,10 +693,10 @@ vertical-align: middle;
   font-weight: 400;
   font-style: Regular;
   color: rgba(255, 255, 255, 0.7);
-line-height: 16px;
-letter-spacing: 0px;
-text-align: right;
-vertical-align: middle;
+  line-height: 16px;
+  letter-spacing: 0px;
+  text-align: right;
+  vertical-align: middle;
 }
 
 @media (max-width: 768px) {
@@ -740,9 +742,10 @@ vertical-align: middle;
 .metric-item {
   display: flex;
   flex-direction: column;
-width: 95;
-height: 47;
-gap: 4px;}
+  width: 95;
+  height: 47;
+  gap: 4px;
+}
 
 
 .metric-label {
@@ -753,9 +756,9 @@ gap: 4px;}
   letter-spacing: 0.15em;
   color: #737373;
   text-transform: uppercase;
-line-height: 15px;
-letter-spacing: 0.5px;
-vertical-align: middle;
+  line-height: 15px;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
 }
 
 .metric-value-box {
@@ -772,7 +775,8 @@ vertical-align: middle;
   line-height: 28px;
   letter-spacing: 0px;
   vertical-align: middle;
-  line-height: 1;font-style: Bold;
+  line-height: 1;
+  font-style: Bold;
 }
 
 
@@ -827,7 +831,7 @@ vertical-align: middle;
   height: 6px;
   background: #10B981;
   border-radius: 9999px;
-  box-shadow:#10B981;
+  box-shadow: #10B981;
   /* animation: pulseNeon 2s infinite; */
 }
 
@@ -844,9 +848,23 @@ vertical-align: middle;
 }
 
 @keyframes pulseNeon {
-  0% { transform: scale(1); opacity: 1; box-shadow: 0 0 12px #10B981; }
-  50% { transform: scale(1.2); opacity: 0.7; box-shadow: 0 0 20px #10B981; }
-  100% { transform: scale(1); opacity: 1; box-shadow: 0 0 12px #10B981; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 12px #10B981;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+    box-shadow: 0 0 20px #10B981;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 12px #10B981;
+  }
 }
 
 @media (max-width: 1024px) {

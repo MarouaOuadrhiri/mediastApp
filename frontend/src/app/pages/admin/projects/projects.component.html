@@ -1,6 +1,6 @@
 <!-- Projects Dashboard Root -->
 <div class="animate-fade-up space-y-12 pb-24">
-  
+
   <!-- Header Section -->
   <div class="flex flex-col xl:flex-row items-baseline justify-between gap-8 px-1">
     <div class="max-w-xl">
@@ -12,12 +12,10 @@
 
     <!-- Filter Pill Sidebar-style -->
     <div class="flex items-center p-2 bg-[#1C1B1C] border border-white/5 rounded-[2rem] backdrop-blur-xl shadow-2xl">
-      <button *ngFor="let f of ['ALL', 'IN_PROGRESS', 'PENDING', 'DONE']" 
-              (click)="activeFilter = f"
-              [class.bg-[#353436]]="activeFilter === f"
-              [class.text-[#FFFFFF]]="activeFilter === f"
-              [class.text-[#737373]]="activeFilter !== f"
-              class="px-8 py-3.5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 hover:text-white">
+      <button *ngFor="let f of ['ALL', 'IN_PROGRESS', 'PENDING', 'DONE']" (click)="activeFilter = f"
+        [class.bg-[#353436]]="activeFilter === f" [class.text-[#FFFFFF]]="activeFilter === f"
+        [class.text-[#737373]]="activeFilter !== f"
+        class="px-8 py-3.5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 hover:text-white">
         {{ f === 'IN_PROGRESS' ? 'IN PROGRESS' : f }}
       </button>
     </div>
@@ -25,7 +23,7 @@
 
   <!-- Main Bento Grid -->
   <div class="projects-grid">
-    
+
     <ng-container *ngIf="heroProject; else standardOnlyGrid">
       <!-- Row 1: First 3 Standard Cards -->
       <ng-container *ngFor="let p of topThree">
@@ -45,22 +43,40 @@
             <span class="status-text white">HIGH PRIORITY</span>
           </div>
           <div class="relative">
-            <button (click)="toggleMenu(heroProject.id, $event)" class="text-white/40 hover:text-white transition-all transform hover:scale-110">
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
+            <button (click)="toggleMenu(heroProject.id, $event)"
+              class="text-white/40 hover:text-white transition-all transform hover:scale-110">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+              </svg>
             </button>
-            
+
             <!-- Dropdown Menu -->
             <div *ngIf="openMenuId === heroProject.id" class="action-dropdown hero-dropdown">
               <button (click)="detailProject(heroProject)" class="dropdown-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
                 <span>Detail</span>
               </button>
-              <button (click)="toggleFavorite(heroProject)" class="dropdown-item" [class.favorite]="heroProject.isFavorite">
-                <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="heroProject.isFavorite ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              <button (click)="toggleFavorite(heroProject)" class="dropdown-item"
+                [class.favorite]="heroProject.isFavorite">
+                <svg width="14" height="14" viewBox="0 0 24 24"
+                  [attr.fill]="heroProject.isFavorite ? 'currentColor' : 'none'" stroke="currentColor"
+                  stroke-width="2.5">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                  </path>
+                </svg>
                 <span>Favorite</span>
               </button>
               <button (click)="editProject(heroProject)" class="dropdown-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
                 <span>Edit</span>
               </button>
             </div>
@@ -70,7 +86,8 @@
         <div class="mb-6">
           <h2 class="project-title">{{ heroProject.name }}</h2>
           <span class="client-label" *ngIf="heroProject.client">CLIENT: {{ heroProject.client }}</span>
-          <p class="project-desc">{{ heroProject.description || 'Production of cinematic assets and creative campaigns.' }}</p>
+          <p class="project-desc">{{ heroProject.description || 'Production of cinematic assets and creative campaigns.'
+            }}</p>
         </div>
 
         <div class="card-progress-section">
@@ -88,7 +105,8 @@
             <div class="avatar-stack">
               <ng-container *ngFor="let m of heroProject.employees?.slice(0, 3)">
                 <img *ngIf="m.profile_photo || m.photo" [src]="m.profile_photo || m.photo" class="avatar hero-avatar" />
-                <div *ngIf="!(m.profile_photo || m.photo)" class="avatar hero-avatar avatar-fallbackSmall">{{ m.username?.slice(0,2).toUpperCase() }}</div>
+                <div *ngIf="!(m.profile_photo || m.photo)" class="avatar hero-avatar avatar-fallbackSmall">{{
+                  m.username?.slice(0,2).toUpperCase() }}</div>
               </ng-container>
             </div>
             <div class="hero-team-label">
@@ -117,12 +135,10 @@
   <!-- ARCHIVE & MAINTENANCE SECTION -->
   <div class="archive-section" *ngIf="ArchivedProjects.length > 0">
     <h2 class="archive-header">ARCHIVE & MAINTENANCE</h2>
-    
+
     <div class="archive-list">
-      <div *ngFor="let p of ArchivedProjects" 
-           class="archive-row group"
-           (click)="editProject(p)">
-        
+      <div *ngFor="let p of ArchivedProjects" class="archive-row group" (click)="editProject(p)">
+
         <!-- Left: Icon & Info -->
         <div class="flex items-center gap-6">
           <div class="archive-icon-box">
@@ -155,8 +171,9 @@
             <span class="client-label-tiny">CLIENT</span>
             <span class="client-name-archive">{{ p.client || 'N/A' }}</span>
           </div>
-          <svg class="w-5 h-5 text-white/10 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg class="w-5 h-5 text-white/10 group-hover:text-white transition-colors" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
 
@@ -171,12 +188,15 @@
         <p class="metric-label">TASK COMPLETION</p>
         <div class="metric-value-box">
           <span class="metric-number">{{ systemMetrics.completion }}%</span>
-         <svg class="metric-arrow" width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0.816667 7L0 6.18333L4.31667 1.8375L6.65 4.17083L9.68333 1.16667H8.16667V0H11.6667V3.5H10.5V1.98333L6.65 5.83333L4.31667 3.5L0.816667 7Z" fill="#10B981"/>
+          <svg class="metric-arrow" width="12" height="7" viewBox="0 0 12 7" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M0.816667 7L0 6.18333L4.31667 1.8375L6.65 4.17083L9.68333 1.16667H8.16667V0H11.6667V3.5H10.5V1.98333L6.65 5.83333L4.31667 3.5L0.816667 7Z"
+              fill="#10B981" />
           </svg>
         </div>
       </div>
-      
+
       <div class="metric-item">
         <p class="metric-label">ACTIVE PROJECTS</p>
         <span class="metric-number">{{ systemMetrics.active }}</span>
@@ -185,14 +205,17 @@
       <div class="metric-item">
         <p class="metric-label">UPCOMING DEADLINES</p>
         <div class="metric-value-box">
-          <span class="metric-number">{{ (systemMetrics.upcoming < 10 ? '0' : '') + systemMetrics.upcoming }}</span>
-          <span class="metric-icon"><svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.82083 9.45L6.83958 5.83333H4.50625L4.92917 2.52292L2.23125 6.41667H4.25833L3.82083 9.45ZM2.33333 11.6667L2.91667 7.58333H0L5.25 0H6.41667L5.83333 4.66667H9.33333L3.5 11.6667H2.33333Z" fill="#EF4444"/>
-          </svg></span>
+          <span class="metric-number">{{ (systemMetrics.upcoming < 10 ? '0' : '' ) + systemMetrics.upcoming }}</span>
+              <span class="metric-icon"><svg width="10" height="12" viewBox="0 0 10 12" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M3.82083 9.45L6.83958 5.83333H4.50625L4.92917 2.52292L2.23125 6.41667H4.25833L3.82083 9.45ZM2.33333 11.6667L2.91667 7.58333H0L5.25 0H6.41667L5.83333 4.66667H9.33333L3.5 11.6667H2.33333Z"
+                    fill="#EF4444" />
+                </svg></span>
         </div>
       </div>
     </div>
-    
+
     <div class="status-right-group">
       <span class="status-label">SYSTEM STATUS</span>
       <div class="status-pill-minimal">
@@ -223,21 +246,35 @@
       </div>
       <div class="relative">
         <button (click)="toggleMenu(p.id, $event)" class="text-[#525252] hover:text-white transition-all transform">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+          </svg>
         </button>
 
         <!-- Dropdown Menu -->
         <div *ngIf="openMenuId === p.id" class="action-dropdown">
           <button (click)="detailProject(p)" class="dropdown-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
             <span>Detail</span>
           </button>
           <button (click)="toggleFavorite(p)" class="dropdown-item" [class.favorite]="p.isFavorite">
-            <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="p.isFavorite ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="p.isFavorite ? 'currentColor' : 'none'"
+              stroke="currentColor" stroke-width="2.5">
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+              </path>
+            </svg>
             <span>Favorite</span>
           </button>
           <button (click)="editProject(p)" class="dropdown-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
             <span>Edit</span>
           </button>
         </div>
@@ -256,9 +293,8 @@
         <span class="progress-value">{{ getProjectProgress(p) }}%</span>
       </div>
       <div class="progress-track">
-        <div class="progress-fill red" 
-             [class.green]="getProjectProgress(p) === 100"
-             [style.width.%]="getProjectProgress(p)">
+        <div class="progress-fill red" [class.green]="getProjectProgress(p) === 100"
+          [style.width.%]="getProjectProgress(p)">
         </div>
       </div>
     </div>
@@ -267,9 +303,11 @@
       <div class="avatar-stack">
         <ng-container *ngFor="let m of p.employees?.slice(0, 3)">
           <img *ngIf="m.profile_photo || m.photo" [src]="m.profile_photo || m.photo" class="avatar" />
-          <div *ngIf="!(m.profile_photo || m.photo)" class="avatar avatar-fallback">{{ m.username?.slice(0,2).toUpperCase() }}</div>
+          <div *ngIf="!(m.profile_photo || m.photo)" class="avatar avatar-fallback">{{
+            m.username?.slice(0,2).toUpperCase() }}</div>
         </ng-container>
-        <span *ngIf="p.employees?.length > 3" class="avatar avatar-fallback bg-white/5 border-white/5 text-white/20">+{{ p.employees.length - 3 }}</span>
+        <span *ngIf="p.employees?.length > 3" class="avatar avatar-fallback bg-white/5 border-white/5 text-white/20">+{{
+          p.employees.length - 3 }}</span>
       </div>
       <div class="deadline-box">
         <p class="deadline-tag">{{ getProjectProgress(p) === 100 ? 'COMPLETED' : 'DEADLINE' }}</p>

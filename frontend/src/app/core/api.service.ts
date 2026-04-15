@@ -30,7 +30,12 @@ export class ApiService {
   getTasks(): Observable<any> { return this.http.get(`${this.baseUrl}/tasks/`); }
   createTask(data: any): Observable<any> { return this.http.post(`${this.baseUrl}/tasks/`, data); }
   updateTask(id: string, data: any): Observable<any> { return this.http.put(`${this.baseUrl}/tasks/${id}/`, data); }
-  updateTaskStatus(id: string, status: string): Observable<any> { return this.http.patch(`${this.baseUrl}/tasks/${id}/status/`, { status }); }
+  updateTaskStatus(id: string, status?: string, isArchived?: boolean): Observable<any> { 
+    const payload: any = {};
+    if (status) payload.status = status;
+    if (isArchived !== undefined) payload.is_archived = isArchived;
+    return this.http.patch(`${this.baseUrl}/tasks/${id}/status/`, payload); 
+  }
 
   // Projects
   getProjects(): Observable<any> { return this.http.get(`${this.baseUrl}/projects/`); }

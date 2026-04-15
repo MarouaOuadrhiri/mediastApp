@@ -15,6 +15,11 @@ import { ProjectModalComponent } from './projects/project-modal.component';
 export class AdminComponent implements OnInit, OnDestroy {
   showSidebar = true;
   user: any = null;
+  showUserDropdown = false;
+
+  toggleUserDropdown() {
+    this.showUserDropdown = !this.showUserDropdown;
+  }
 
   // Meetings notification state
   meetings: any[] = [];

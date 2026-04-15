@@ -17,6 +17,14 @@ def serialize_project(p):
         'name': p.name,
         'client': getattr(p, 'client', ''),
         'description': p.description,
+        'owner_id': str(p.owner.id) if getattr(p, 'owner', None) else None,
+        'owner_name': getattr(p.owner, 'username', None) if getattr(p, 'owner', None) else None,
+        'status': getattr(p, 'status', 'Planning'),
+        'priority': getattr(p, 'priority', 'MEDIUM'),
+        'is_high_priority': getattr(p, 'is_high_priority', False),
+        'budget': getattr(p, 'budget', ''),
+        'duration': getattr(p, 'duration', ''),
+        'tags': getattr(p, 'tags', []),
         'department_id': str(p.department.id) if p.department else None,
         'department_name': getattr(p.department, 'name', None) if p.department and not isinstance(p.department, bson.DBRef) else (Department.objects.filter(id=p.department.id).first().name if p.department and Department.objects.filter(id=p.department.id).first() else None),
         'employees': [
@@ -71,6 +79,14 @@ def project_list_create(request):
         employee_ids = request.data.get('employee_ids', [])
         tasks_data = request.data.get('tasks', [])
         deadline_str = request.data.get('deadline')
+        
+        owner_id = request.data.get('owner_id')
+        status = request.data.get('status', 'Planning')
+        priority = request.data.get('priority', 'MEDIUM')
+        is_high_priority = request.data.get('is_high_priority', False)
+        budget = request.data.get('budget', '')
+        duration_str = request.data.get('duration', '')
+        tags = request.data.get('tags', [])
 
         if not name:
             return Response({'error': 'name is required'}, status=400)
@@ -85,6 +101,13 @@ def project_list_create(request):
             except DoesNotExist:
                 return Response({'error': 'Department not found'}, status=404)
 
+        owner = None
+        if owner_id:
+            try:
+                owner = User.objects.get(id=owner_id)
+            except DoesNotExist:
+                pass
+
         employees = []
         if employee_ids:
             employees = list(User.objects(id__in=employee_ids, role='EMPLOYEE'))
@@ -93,7 +116,6 @@ def project_list_create(request):
         deadline = None
         if deadline_str:
             try:
-                # Handle ISO format strings
                 deadline = datetime.fromisoformat(deadline_str.replace('Z', '+00:00')).replace(tzinfo=None)
             except ValueError:
                 pass
@@ -105,8 +127,8 @@ def project_list_create(request):
         for i, t in enumerate(valid_tasks_data):
             task_deadline = None
             if deadline and start_date and num_tasks > 0:
-                duration = deadline - start_date
-                task_duration = duration / num_tasks
+                duration_td = deadline - start_date
+                task_duration = duration_td / num_tasks
                 task_deadline = start_date + task_duration * (i + 1)
                 
             tasks.append(ProjectTask(
@@ -120,6 +142,13 @@ def project_list_create(request):
             name=name, 
             client=client,
             description=description, 
+            owner=owner,
+            status=status,
+            priority=priority,
+            is_high_priority=is_high_priority,
+            budget=budget,
+            duration=duration_str,
+            tags=tags,
             department=department,
             employees=employees,
             start_date=start_date,
@@ -154,10 +183,23 @@ def project_detail(request, pk):
         tasks_data = request.data.get('tasks', [])
         deadline_str = request.data.get('deadline')
 
-        if name:
-            project.name = name
+        if name: project.name = name
         project.client = client
         project.description = description
+        
+        owner_id = request.data.get('owner_id')
+        if owner_id:
+            try:
+                project.owner = User.objects.get(id=owner_id)
+            except DoesNotExist:
+                pass
+        
+        if 'status' in request.data: project.status = request.data['status']
+        if 'priority' in request.data: project.priority = request.data['priority']
+        if 'is_high_priority' in request.data: project.is_high_priority = request.data['is_high_priority']
+        if 'budget' in request.data: project.budget = request.data['budget']
+        if 'duration' in request.data: project.duration = request.data['duration']
+        if 'tags' in request.data: project.tags = request.data['tags']
 
         if department_id:
             try:
@@ -177,8 +219,6 @@ def project_detail(request, pk):
                 project.deadline = datetime.fromisoformat(deadline_str.replace('Z', '+00:00')).replace(tzinfo=None)
             except ValueError:
                 pass
-        else:
-            project.deadline = None
 
         # Update Tasks
         new_tasks = []
@@ -188,8 +228,8 @@ def project_detail(request, pk):
         for i, t in enumerate(valid_tasks_data):
             task_deadline = None
             if project.deadline and getattr(project, 'start_date', None) and num_tasks > 0:
-                duration = project.deadline - project.start_date
-                task_duration = duration / num_tasks
+                duration_td = project.deadline - project.start_date
+                task_duration = duration_td / num_tasks
                 task_deadline = project.start_date + task_duration * (i + 1)
             
             existing = None
@@ -204,7 +244,6 @@ def project_detail(request, pk):
                 existing.description = t.get('description', '')
                 existing.note = t.get('note', '')
                 existing.deadline = task_deadline
-                # Keep original status
                 new_tasks.append(existing)
             else:
                 new_tasks.append(ProjectTask(

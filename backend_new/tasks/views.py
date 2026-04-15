@@ -26,6 +26,7 @@ def serialize_task(t):
         'employee_name': employee_name,
         'employee_photo': employee_photo,
         'source_project_task_id': getattr(t, 'source_project_task_id', None),
+        'is_archived': getattr(t, 'is_archived', False),
     }
 
 
@@ -34,7 +35,11 @@ def serialize_task(t):
 @permission_classes([IsAuthenticated])
 def task_list_create(request):
     if request.method == 'GET':
-        tasks = Task.objects.all() if request.user.role == 'ADMIN' else Task.objects(employee=request.user)
+        # Admin can see archived tasks in the ARCHIVED column; Employees only see active tasks.
+        if request.user.role == 'ADMIN':
+            tasks = Task.objects()
+        else:
+            tasks = Task.objects(employee=request.user, is_archived=False)
         return Response([serialize_task(t) for t in tasks])
 
     if request.method == 'POST':
@@ -65,7 +70,14 @@ def task_list_create(request):
         except DoesNotExist:
             return Response({'error': 'Employee not found'}, status=404)
 
-        task = Task(title=title, description=description, employee=employee, source_project_task_id=source_project_task_id)
+        task = Task(
+            title=title, 
+            description=description, 
+            employee=employee, 
+            source_project_task_id=source_project_task_id,
+            status=request.data.get('status', 'BLOCKED'),
+            is_archived=(request.data.get('status') == 'ARCHIVED' or request.data.get('is_archived', False))
+        )
         task.save()
         return Response(serialize_task(task), status=201)
 
@@ -83,10 +95,26 @@ def update_task_status(request, pk):
         return Response({'error': 'You can only update your own tasks'}, status=403)
 
     status = request.data.get('status')
-    if status not in ('BLOCKED', 'IN_PROGRESS', 'REVIEW', 'DONE'):
-        return Response({'error': 'Invalid status. Must be BLOCKED, IN_PROGRESS, REVIEW, or DONE'}, status=400)
+    if status is not None:
+        if status not in ('BLOCKED', 'IN_PROGRESS', 'REVIEW', 'DONE', 'ARCHIVED'):
+            return Response({'error': 'Invalid status. Must be BLOCKED, IN_PROGRESS, REVIEW, DONE, or ARCHIVED'}, status=400)
+        task.status = status
+        # Synchronize is_archived with status
+        if status == 'ARCHIVED':
+            task.is_archived = True
+        else:
+            task.is_archived = False
 
-    task.status = status
+    if 'is_archived' in request.data:
+        if request.user.role != 'ADMIN':
+             return Response({'error': 'Only admins can archive tasks'}, status=403)
+        is_archived = request.data['is_archived']
+        task.is_archived = is_archived
+        if is_archived:
+            task.status = 'ARCHIVED'
+        elif task.status == 'ARCHIVED':
+            task.status = 'DONE' # Default back to DONE if unarchived
+
     task.save()
     return Response(serialize_task(task))
 
@@ -110,5 +138,18 @@ def update_task(request, pk):
         except DoesNotExist:
             return Response({'error': 'Employee not found'}, status=404)
 
+    task.save()
+    return Response(serialize_task(task))
+
+@api_view(['PATCH'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdmin])
+def archive_task_view(request, pk):
+    try:
+        task = Task.objects.get(id=pk)
+    except DoesNotExist:
+        return Response({'error': 'Task not found'}, status=404)
+    
+    task.is_archived = True
     task.save()
     return Response(serialize_task(task))

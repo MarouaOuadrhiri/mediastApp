@@ -29,13 +29,20 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
   projectDeadline = '';
   projectTasks: { id?: string, title: string, description?: string, note?: string }[] = [];
 
+  // New fields
+  projectOwnerId = '';
+  projectStatus = 'Planning';
+  isHighPriority = false;
+  projectBudget = '';
+  projectDuration = '';
+
   employees: any[] = [];
   departments: any[] = [];
   filteredEmployees: any[] = [];
 
   private modalSub: Subscription | null = null;
 
-  constructor(private api: ApiService, private ui: UiService) {}
+  constructor(private api: ApiService, private ui: UiService) { }
 
   ngOnInit() {
     this.loadData();
@@ -59,18 +66,18 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
   }
 
   loadData() {
-    this.api.getEmployees().subscribe({ 
-      next: (r: any) => { 
-        this.employees = r; 
-        this.filterEmployees(); 
-      }, 
-      error: () => {} 
+    this.api.getEmployees().subscribe({
+      next: (r: any) => {
+        this.employees = r;
+        this.filterEmployees();
+      },
+      error: () => { }
     });
-    this.api.getDepartments().subscribe({ 
-      next: (r: any) => { 
-        this.departments = r; 
-      }, 
-      error: () => {} 
+    this.api.getDepartments().subscribe({
+      next: (r: any) => {
+        this.departments = r;
+      },
+      error: () => { }
     });
   }
 
@@ -93,11 +100,17 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
     this.filterEmployees();
     this.projectEmployeeIds = p.employees?.map((e: any) => e.id) || [];
     this.projectDeadline = p.deadline ? p.deadline.slice(0, 16) : '';
-    this.projectTasks = p.tasks?.map((t: any) => ({ 
-      id: t.id, 
-      title: t.title, 
-      description: t.description, 
-      note: t.note 
+    this.projectOwnerId = p.owner_id || '';
+    this.projectStatus = p.status || 'Planning';
+    this.isHighPriority = p.is_high_priority || false;
+    this.projectBudget = p.budget || '';
+    this.projectDuration = p.duration || '';
+    
+    this.projectTasks = p.tasks?.map((t: any) => ({
+      id: t.id,
+      title: t.title,
+      description: t.description,
+      note: t.note
     })) || [];
     this.showProjectModal = true;
   }
@@ -121,6 +134,11 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
     this.projectEmployeeIds = [];
     this.projectDeadline = '';
     this.projectTasks = [];
+    this.projectOwnerId = '';
+    this.projectStatus = 'Planning';
+    this.isHighPriority = false;
+    this.projectBudget = '';
+    this.projectDuration = '';
     this.errorMsg = '';
     this.isEditingMode = false;
     this.isReadOnly = false;
@@ -139,12 +157,12 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
     this.filterEmployees();
   }
 
-  addProjectTask() { 
-    this.projectTasks.push({ title: '' }); 
+  addProjectTask() {
+    this.projectTasks.push({ title: '' });
   }
 
-  removeProjectTask(i: number) { 
-    this.projectTasks.splice(i, 1); 
+  removeProjectTask(i: number) {
+    this.projectTasks.splice(i, 1);
   }
 
   submitProject() {
@@ -178,7 +196,12 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
       department_id: this.projectDepartmentId || undefined,
       employee_ids: this.projectEmployeeIds,
       deadline: deadlineIso,
-      tasks: validTasks
+      tasks: validTasks,
+      owner_id: this.projectOwnerId || undefined,
+      status: this.projectStatus,
+      is_high_priority: this.isHighPriority,
+      budget: this.projectBudget,
+      duration: this.projectDuration
     };
 
     const req = this.isEditingMode

@@ -21,20 +21,21 @@ export class TasksComponent implements OnInit {
   employees: any[] = [];
   projects: any[] = [];
   departments: any[] = [];
-  columnIds = ['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE'];
+  columnIds = ['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE', 'ARCHIVED'];
   
   // Grouped tasks for Drag and Drop
   boardTasks: { [key: string]: any[] } = {
     'BLOCKED': [],
     'IN PROGRESS': [],
     'REVIEW': [],
-    'DONE': []
+    'DONE': [],
+    'ARCHIVED': []
   };
 
   isSubmitting = false;
   errorMsg = '';
   isModalOpen = false;
-  viewMode: 'board' | 'list' | 'archive' = 'board';
+  viewMode: 'board' | 'list' = 'board';
 
   // New task form fields
   taskTitle = '';
@@ -52,6 +53,8 @@ export class TasksComponent implements OnInit {
 
   /** Tracks which project groups are expanded in list view */
   expandedProjects: Set<string> = new Set();
+  /** Tracks which individual tasks are expanded to show details in list view */
+  expandedTasks: Set<string> = new Set();
 
   constructor(
     private api: ApiService,
@@ -88,10 +91,11 @@ export class TasksComponent implements OnInit {
 
   groupTasks() {
     this.boardTasks = {
-      'BLOCKED': this.tasks.filter(t => t.status === 'BLOCKED'),
-      'IN PROGRESS': this.tasks.filter(t => t.status === 'IN PROGRESS'),
-      'REVIEW': this.tasks.filter(t => t.status === 'REVIEW'),
-      'DONE': this.tasks.filter(t => t.status === 'DONE')
+      'BLOCKED': this.tasks.filter(t => t.status === 'BLOCKED' && !t.is_archived),
+      'IN PROGRESS': this.tasks.filter(t => t.status === 'IN PROGRESS' && !t.is_archived),
+      'REVIEW': this.tasks.filter(t => t.status === 'REVIEW' && !t.is_archived),
+      'DONE': this.tasks.filter(t => t.status === 'DONE' && !t.is_archived),
+      'ARCHIVED': this.tasks.filter(t => t.is_archived || t.status === 'ARCHIVED')
     };
   }
 
@@ -101,6 +105,7 @@ export class TasksComponent implements OnInit {
     if (s === 'IN PROGRESS') return 'IN PROGRESS';
     if (s === 'REVIEW') return 'REVIEW';
     if (s === 'DONE') return 'DONE';
+    if (s === 'ARCHIVED') return 'ARCHIVED';
     return s || 'IN PROGRESS';
   }
 
@@ -109,9 +114,33 @@ export class TasksComponent implements OnInit {
     return ps[Math.floor(Math.random() * ps.length)];
   }
 
+  isAdmin(): boolean {
+    const userJson = localStorage.getItem('user');
+    if (!userJson) return false;
+    try {
+      const user = JSON.parse(userJson);
+      return user.role === 'ADMIN';
+    } catch {
+      return false;
+    }
+  }
+
+  archiveTask(taskId: string) {
+    if (!confirm('Are you sure you want to archive this completed task?')) return;
+    
+    this.api.updateTaskStatus(taskId, undefined, true).subscribe({
+      next: () => {
+        this.loadData();
+      },
+      error: () => {
+        this.errorMsg = 'Failed to archive task.';
+      }
+    });
+  }
+
   /** Returns tasks whose status is DONE — shown in Archive view */
   get archivedTasks(): any[] {
-    return this.tasks.filter(t => t.status === 'DONE');
+    return this.tasks.filter(t => t.is_archived);
   }
 
   /** Look up project name by id */
@@ -148,6 +177,14 @@ export class TasksComponent implements OnInit {
     }
   }
 
+  toggleTaskDetails(taskId: string) {
+    if (this.expandedTasks.has(taskId)) {
+      this.expandedTasks.delete(taskId);
+    } else {
+      this.expandedTasks.add(taskId);
+    }
+  }
+
   // Drag and Drop Handler
   drop(event: CdkDragDrop<any[]>) {
     if (event.previousContainer === event.container) {
@@ -165,9 +202,10 @@ export class TasksComponent implements OnInit {
       );
 
       // Backend update
-      this.api.updateTaskStatus(task.id, newStatus.replace(' ', '_')).subscribe({
+      const statusToSave = newStatus.replace(' ', '_');
+      this.api.updateTaskStatus(task.id, statusToSave).subscribe({
         next: () => {
-          task.status = newStatus; // Update local status property
+          task.status = statusToSave; // Update local status property
           this.cdr.markForCheck();
         },
         error: (err) => {
@@ -213,5 +251,12 @@ export class TasksComponent implements OnInit {
 
   getSelectedEmployee() {
     return this.employees.find(e => e.id === this.taskEmployeeId);
+  }
+
+  getTaskColor(t: any): string {
+    if (t.priority === 'HIGH' || t.priority === 'URGENT') return 'red';
+    if (t.progress >= 80) return 'green';
+    if (t.progress >= 30) return 'orange';
+    return 'dim';
   }
 }

@@ -33,13 +33,6 @@
           </svg>
           List
         </button>
-        <button [class.active]="viewMode === 'archive'" (click)="viewMode = 'archive'">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4zM3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" />
-          </svg>
-          Archive
-        </button>
       </div>
     </div>
   </header>
@@ -66,9 +59,10 @@
         [cdkDropListConnectedTo]="columnIds" (cdkDropListDropped)="drop($event)">
 
         <div class="task-card" *ngFor="let t of boardTasks[status]" cdkDrag>
+          
           <div class="card-header">
             <span class="priority-badge" [attr.data-priority]="t.priority">{{t.priority}}</span>
-            <div class="drag-handle">
+            <div class="drag-handle" *ngIf="!t.is_archived">
               <svg class="w-4 h-4 text-white/20" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   d="M7 2a2 2 0 100 4h2a2 2 0 100-4H7zM11 2a2 2 0 100 4h2a2 2 0 100-4h-2zM7 7a2 2 0 100 4h2a2 2 0 100-4H7zM11 7a2 2 0 100 4h2a2 2 0 100-4h-2zM7 12a2 2 0 100 4h2a2 2 0 100-4H7zM11 12a2 2 0 100 4h2a2 2 0 100-4h-2z">
@@ -83,23 +77,31 @@
           <div class="card-footer">
             <div class="progress-section" *ngIf="status !== 'DONE' && status !== 'BLOCKED'">
               <div class="progress-bar-container">
-                <div class="progress-bar" [style.width.%]="t.progress" [attr.data-status]="status"></div>
+                <div class="progress-bar" [style.width.%]="t.progress" 
+                  [attr.data-color]="getTaskColor(t)"></div>
               </div>
               <div class="progress-info">
-                <span class="progress-percent" [attr.data-status]="status">{{t.progress}}% DONE</span>
+                <div class="progress-label" [attr.data-color]="getTaskColor(t)">
+                  <!-- Icon based on color -->
+                  <svg *ngIf="getTaskColor(t) === 'red'" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <svg *ngIf="getTaskColor(t) === 'green' || getTaskColor(t) === 'orange'" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span class="progress-percent">{{t.progress}}% DONE</span>
+                </div>
               </div>
             </div>
 
             <div class="meta-section">
               <div class="date-tag">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7.46152 10.4102C7.03332 10.4102 6.66986 10.2609 6.37115 9.96216C6.07243 9.66345 5.92307 9.29999 5.92307 8.87179C5.92307 8.44358 6.07243 8.08012 6.37115 7.78141C6.66986 7.48269 7.03332 7.33333 7.46152 7.33333C7.88973 7.33333 8.25318 7.48269 8.5519 7.78141C8.85062 8.08012 8.99998 8.44358 8.99998 8.87179C8.99998 9.29999 8.85062 9.66345 8.5519 9.96216C8.25318 10.2609 7.88973 10.4102 7.46152 10.4102ZM1.20512 12.7435C0.868369 12.7435 0.583328 12.6269 0.349997 12.3935C0.116666 12.1602 0 11.8752 0 11.5384V2.61538C0 2.27863 0.116666 1.99359 0.349997 1.76026C0.583328 1.52693 0.868369 1.41026 1.20512 1.41026H2.12821V0H3.15383V1.41026H8.20509V0H9.20507V1.41026H10.1282C10.4649 1.41026 10.75 1.52693 10.9833 1.76026C11.2166 1.99359 11.3333 2.27863 11.3333 2.61538V11.5384C11.3333 11.8752 11.2166 12.1602 10.9833 12.3935C10.75 12.6269 10.4649 12.7435 10.1282 12.7435H1.20512ZM1.20512 11.7436H10.1282C10.1795 11.7436 10.2265 11.7222 10.2692 11.6795C10.3119 11.6367 10.3333 11.5897 10.3333 11.5384V5.28205H0.999976V11.5384C0.999976 11.5897 1.02134 11.6367 1.06408 11.6795C1.10682 11.7222 1.15383 11.7436 1.20512 11.7436ZM0.999976 4.28207H10.3333V2.61538C10.3333 2.5641 10.3119 2.51708 10.2692 2.47434C10.2265 2.43161 10.1795 2.41024 10.1282 2.41024H1.20512C1.15383 2.41024 1.10682 2.43161 1.06408 2.47434C1.02134 2.51708 0.999976 2.5641 0.999976 2.61538V4.28207ZM0.999976 4.28207V2.61538C0.999976 2.5641 0.999976 2.51708 0.999976 2.47434C0.999976 2.43161 0.999976 2.41024 0.999976 2.41024C0.999976 2.41024 0.999976 2.43161 0.999976 2.47434C0.999976 2.51708 0.999976 2.5641 0.999976 2.61538V4.28207Z" fill="#A3A3A3"/>
                 </svg>
                 <span>{{t.deadline}}</span>
               </div>
               <div class="assignee-info">
-                <!-- <span class="assignee-name">{{t.employee_name}}</span> -->
                 <img
                   [src]="t.employee_photo || ('https://ui-avatars.com/api/?name=' + t.employee_name + '&background=random')"
                   class="assignee-avatar" [title]="t.employee_name">
@@ -108,15 +110,24 @@
 
             <!-- Done status specific -->
             <div class="done-verification" *ngIf="status === 'DONE'">
-              <span class="status-badge complete">COMPLETE</span>
-              <div class="verified-tag">
-                <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clip-rule="evenodd"></path>
-                </svg>
-                <span>VERIFIED</span>
+              <div class="flex items-center gap-2">
+                <span class="status-badge complete">COMPLETE</span>
+                <div class="verified-tag">
+                  <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 01-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd"></path>
+                  </svg>
+                  <span>VERIFIED</span>
+                </div>
               </div>
+              
+              <!-- Manual Archive Button for Admin -->
+              <button *ngIf="isAdmin()" (click)="archiveTask(t.id)" class="archive-action-btn" title="Archive Task">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -131,7 +142,7 @@
     </div>
   </div>
 
-  <!-- List View — grouped by project, accordion -->
+  <!-- List View — Flat list of all tasks with expandable details -->
   <div class="list-view" *ngIf="viewMode === 'list'">
 
     <div *ngIf="tasks.length === 0" class="list-empty">
@@ -142,122 +153,74 @@
       <span>No tasks yet. Use the + button to create one.</span>
     </div>
 
-    <!-- One accordion block per project -->
-    <div class="acc-group" *ngFor="let group of groupedByProject">
-
-      <!-- Project header row — click to expand/collapse -->
-      <div class="acc-header" (click)="toggleProject(group.projectId)">
-        <div class="acc-header-left">
-          <svg class="acc-folder" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-          </svg>
-          <span class="acc-project-name">{{group.projectName}}</span>
-          <span class="acc-task-count">{{group.tasks.length}} task{{group.tasks.length !== 1 ? 's' : ''}}</span>
-        </div>
-
-        <!-- Chevron rotates when expanded -->
-        <svg class="acc-chevron" [class.rotated]="expandedProjects.has(group.projectId)" width="16" height="16"
-          fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
-
-      <!-- Task rows — shown only when group is expanded -->
-      <div class="acc-body" *ngIf="expandedProjects.has(group.projectId)">
-        <div class="acc-task-row" *ngFor="let t of group.tasks">
-
-          <!-- Left: bullet + title -->
-          <div class="acc-row-left">
-            <div class="acc-dot" [attr.data-status]="t.status"></div>
-            <span class="acc-task-title">{{t.title}}</span>
-          </div>
-
-          <!-- Right: priority · status · deadline · assignee -->
-          <div class="acc-row-right">
-            <span class="priority-badge" [attr.data-priority]="t.priority">{{t.priority}}</span>
-            <span class="list-status-badge" [attr.data-status]="t.status">{{t.status}}</span>
-            <div class="date-tag" *ngIf="t.deadline">
-              <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span>{{t.deadline}}</span>
-            </div>
-            <img
-              [src]="t.employee_photo || ('https://ui-avatars.com/api/?name=' + t.employee_name + '&background=random')"
-              class="assignee-avatar" [title]="t.employee_name">
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Archive View — DONE tasks, project title only -->
-  <div class="archive-view" *ngIf="viewMode === 'archive'">
-
-    <!-- Section title -->
-    <div class="archive-header">
-      <div class="archive-title-row">
-        <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4zM3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" />
-        </svg>
-        <span>Completed Tasks Archive</span>
-        <span class="archive-count">{{archivedTasks.length}}</span>
-      </div>
-      <p class="archive-subtitle">
-        Tasks reach Archive automatically when their status is set to <strong>DONE</strong>.
-        Priority levels determine urgency:
-        <span class="pill-low">LOW</span> → low demand, not time-sensitive;
-        <span class="pill-med">MEDIUM</span> → standard workload;
-        <span class="pill-high">HIGH</span> → critical deadline;
-        <span class="pill-done">COMPLETED</span> → task finished &amp; verified.
-      </p>
-    </div>
-
-    <!-- Archive list -->
-    <div class="archive-list" *ngIf="archivedTasks.length > 0">
-      <div class="archive-row" *ngFor="let t of archivedTasks">
-        <!-- Left: Done check + task title -->
-        <div class="archive-left">
-          <div class="arc-check">
-            <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clip-rule="evenodd" />
+    <div class="list-row-container" *ngFor="let t of tasks">
+      <!-- Main Row -->
+      <div class="acc-task-row flat" [class.expanded]="expandedTasks.has(t.id)">
+        <div class="acc-row-left">
+          <button class="expand-btn" (click)="toggleTaskDetails(t.id)">
+            <svg class="w-4 h-4 transition-transform" [class.rotate-90]="expandedTasks.has(t.id)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
-          </div>
-          <span class="arc-title">{{t.title}}</span>
+          </button>
+          <div class="acc-dot" [attr.data-status]="t.status"></div>
+          <span class="acc-task-title">{{t.title}}</span>
         </div>
 
-        <!-- Right: Project title only -->
-        <div class="archive-right">
-          <span class="arc-project">
-            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="acc-row-right">
+          <button *ngIf="isAdmin() && t.status === 'DONE'" (click)="archiveTask(t.id)" class="archive-action-btn mr-4" title="Archive Task">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+          </button>
+          <span class="priority-badge" [attr.data-priority]="t.priority">{{t.priority}}</span>
+          <span class="list-status-badge" [attr.data-status]="t.status">{{t.status}}</span>
+          <div class="date-tag" *ngIf="t.deadline">
+            <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            {{getProjectName(t.project_id)}}
-          </span>
-          <span class="arc-priority" [attr.data-priority]="t.priority">{{t.priority}}</span>
+            <span>{{t.deadline}}</span>
+          </div>
+          <img
+            [src]="t.employee_photo || ('https://ui-avatars.com/api/?name=' + t.employee_name + '&background=random')"
+            class="assignee-avatar" [title]="t.employee_name">
+        </div>
+      </div>
+
+      <!-- Detail View (Expands) -->
+      <div class="task-detail-panel animate-fade-in" *ngIf="expandedTasks.has(t.id)">
+        <div class="detail-grid">
+          <div class="detail-item full">
+            <label>Description</label>
+            <p>{{t.description || 'No description provided.'}}</p>
+          </div>
+          <div class="detail-item">
+            <label>Project</label>
+            <div class="detail-meta">
+              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+              {{getProjectName(t.project_id)}}
+            </div>
+          </div>
+          <div class="detail-item">
+            <label>Progress</label>
+            <div class="detail-progress">
+              <div class="prog-bar-bg">
+                <div class="prog-bar-fill" [style.width.%]="t.progress" 
+                  [attr.data-priority]="t.priority"
+                  [attr.data-status]="t.status"></div>
+              </div>
+              <span [attr.data-priority]="t.priority">{{t.progress}}%</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- Empty archive -->
-    <div class="archive-empty" *ngIf="archivedTasks.length === 0">
-      <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-          d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8" />
-      </svg>
-      <span>No completed tasks yet. Finish a task and it will appear here.</span>
-    </div>
   </div>
+
   <button class="fab-btn" (click)="openModal()">
-    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
     </svg>
   </button>
@@ -291,17 +254,21 @@
         <div class="form-row split">
           <div class="form-group">
             <label>PROJECT</label>
-            <select [(ngModel)]="taskProjectId" name="taskProjectId">
-              <option value="" disabled selected>Select project...</option>
-              <option *ngFor="let p of projects" [value]="p.id">{{p.name}}</option>
-            </select>
+            <div class="select-wrapper">
+              <select [(ngModel)]="taskProjectId" name="taskProjectId">
+                <option value="" disabled selected>Select project...</option>
+                <option *ngFor="let p of projects" [value]="p.id">{{p.name}}</option>
+              </select>
+            </div>
           </div>
           <div class="form-group">
             <label>DEPARTMENT</label>
-            <select [(ngModel)]="taskDepartmentId" name="taskDepartmentId">
-              <option value="" disabled selected>Select department...</option>
-              <option *ngFor="let d of departments" [value]="d.id">{{d.name}}</option>
-            </select>
+            <div class="select-wrapper">
+              <select [(ngModel)]="taskDepartmentId" name="taskDepartmentId">
+                <option value="" disabled selected>Select department...</option>
+                <option *ngFor="let d of departments" [value]="d.id">{{d.name}}</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -309,7 +276,7 @@
           <div class="form-group full">
             <label>PRIORITY</label>
             <div class="priority-toggle">
-              <button type="button" *ngFor="let p of ['LOW', 'MEDIUM', 'HIGH', 'COMPLETED']"
+              <button type="button" *ngFor="let p of ['LOW', 'MEDIUM', 'HIGH', 'URGENT']"
                 [class.active]="taskPriority === p" (click)="taskPriority = p">
                 {{p}}
               </button>
@@ -320,9 +287,11 @@
         <div class="form-row split">
           <div class="form-group">
             <label>STATUS</label>
-            <select [(ngModel)]="taskStatus" name="taskStatus">
-              <option *ngFor="let s of ['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE']" [value]="s">{{s}}</option>
-            </select>
+            <div class="select-wrapper">
+              <select [(ngModel)]="taskStatus" name="taskStatus">
+                <option *ngFor="let s of ['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE', 'ARCHIVED']" [value]="s">{{s}}</option>
+              </select>
+            </div>
           </div>
           <div class="form-group">
             <label>DEADLINE</label>
@@ -352,7 +321,6 @@
                   <span class="text-[10px] font-bold text-white/10 uppercase tracking-wider">No assignee</span>
                 </div>
               </div>
-              <!-- Logic for selecting employee_id -->
               <select [(ngModel)]="taskEmployeeId" name="taskEmployeeId" required
                 class="mt-2 text-[10px] bg-transparent border-none text-white/40">
                 <option value="" disabled selected>Assign to...</option>

@@ -1,110 +1,213 @@
-<div *ngIf="showProjectModal" class="modal-overlay fixed inset-0 z-[1000] flex items-center justify-center px-4 py-6 bg-black/70 backdrop-blur-md">
-  <div class="modal-panel w-full max-w-3xl rounded-[2rem] bg-[#121212] border border-white/10 shadow-[0_32px_120px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col max-h-[90vh]">
+<div *ngIf="showProjectModal"
+  class="modal-overlay fixed inset-0 z-[1000] flex items-center justify-center px-4 py-6 bg-black/80 animate-fade-in">
+  
+  <div class="modal-panel w-full max-w-4xl rounded-[2.5rem] bg-[#0A0A0A] border border-white/10 shadow-[0_32px_120px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col max-h-[92vh] relative">
     
-    <!-- Fixed Header -->
-    <div class="flex items-center justify-between gap-4 border-b border-white/10 px-8 py-6 shrink-0 bg-[#121212]">
+    <!-- Ambient Red Background Glow -->
+    <div class="absolute -top-[20%] -right-[10%] w-[400px] h-[400px] bg-red-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-4 border-b border-white/5 px-10 py-8 shrink-0 relative z-10">
       <div>
-        <p class="text-xs uppercase tracking-[0.35em] text-white/40 mb-1">
-          {{ isReadOnly ? 'Project Details' : (isEditingMode ? 'Edit Project' : 'Create Project') }}
-        </p>
-        <h2 class="text-2xl font-black text-white">
-          {{ isReadOnly ? projectName : (isEditingMode ? 'Update Project' : 'New Project') }}
+        <h2 class="text-3xl font-black text-white tracking-tight">
+          {{ isReadOnly ? projectName : (isEditingMode ? 'UPDATE PROJECT' : 'NEW PROJECT') }}
         </h2>
+        <p class="text-[10px] uppercase tracking-[0.4em] text-white/30 mt-1 font-bold">
+          {{ isReadOnly ? 'Reviewing project details and notes' : 'Configure workspace initiatives' }}
+        </p>
       </div>
-      <button type="button" (click)="closeModal()" class="text-white/40 hover:text-white transition-all">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      <button type="button" (click)="closeModal()" class="w-12 h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
       </button>
     </div>
 
-    <!-- Scrollable Content -->
-    <div class="px-8 py-8 overflow-y-auto custom-scrollbar flex-1 bg-[#121212]">
-      <form (ngSubmit)="submitProject()" id="projectForm" class="space-y-8">
-        <div class="grid gap-8 lg:grid-cols-2">
-          <div class="space-y-3">
-            <label class="text-[10px] uppercase tracking-[0.28em] text-white/40">Project Name</label>
-            <input type="text" [(ngModel)]="projectName" name="projectName" placeholder="e.g. Website Redesign" required [disabled]="isReadOnly"
-              class="w-full bg-[#111111] border border-white/10 rounded-3xl px-6 py-4 text-white placeholder-white/30 focus:border-[#E53935]/50 focus:outline-none transition-all text-sm disabled:opacity-70" />
-          </div>
-          <div class="space-y-3">
-            <label class="text-[10px] uppercase tracking-[0.28em] text-white/40">Client Name</label>
-            <input type="text" [(ngModel)]="projectClient" name="projectClient" placeholder="e.g. Acme Corp" [disabled]="isReadOnly"
-              class="w-full bg-[#111111] border border-white/10 rounded-3xl px-6 py-4 text-white placeholder-white/30 focus:border-[#E53935]/50 focus:outline-none transition-all text-sm disabled:opacity-70" />
-          </div>
-        </div>
+    <!-- Content -->
+    <div class="px-10 py-10 overflow-y-auto custom-scrollbar flex-1 relative z-10">
+      <form (ngSubmit)="submitProject()" id="projectForm" class="space-y-12">
         
-        <div class="grid gap-8 lg:grid-cols-2">
-          <div class="space-y-3">
-            <label class="text-[10px] uppercase tracking-[0.28em] text-white/40">Deadline</label>
-            <input type="datetime-local" [(ngModel)]="projectDeadline" name="projectDeadline" required [disabled]="isReadOnly"
-              class="w-full bg-[#111111] border border-white/10 rounded-3xl px-6 py-4 text-white placeholder-white/30 focus:border-[#E53935]/50 focus:outline-none transition-all text-sm disabled:opacity-70" />
+        <!-- Section 1: Core Info -->
+        <div class="grid gap-10 lg:grid-cols-2">
+          <div class="flex flex-col gap-3">
+            <label class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold ml-4">Project Name</label>
+            <input type="text" [(ngModel)]="projectName" name="projectName" required [disabled]="isReadOnly"
+              class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-white/20 focus:border-[#E53935]/50 focus:outline-none transition-all" 
+              placeholder="Initiative Title" />
           </div>
-          <div class="space-y-3">
-            <label class="text-[10px] uppercase tracking-[0.28em] text-white/40">Department</label>
-            <select [(ngModel)]="projectDepartmentId" name="projectDepartmentId" (change)="onDepartmentChange()" [disabled]="isReadOnly"
-              class="w-full bg-[#111111] border border-white/10 rounded-3xl px-6 py-4 text-white focus:border-[#E53935]/50 focus:outline-none transition-all text-sm cursor-pointer disabled:opacity-70 disabled:cursor-default">
-              <option value="" class="bg-[#121212]">No department</option>
-              <option *ngFor="let d of departments" [value]="d.id" class="bg-[#121212]">{{ d.name }}</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="space-y-3">
-          <label class="text-[10px] uppercase tracking-[0.28em] text-white/40">Description</label>
-          <textarea [(ngModel)]="projectDesc" name="projectDesc" rows="4" placeholder="Project goals and scope..." [disabled]="isReadOnly"
-            class="w-full bg-[#111111] border border-white/10 rounded-3xl px-6 py-4 text-white placeholder-white/30 focus:border-[#E53935]/50 focus:outline-none transition-all text-sm resize-none disabled:opacity-70"></textarea>
-        </div>
-
-        <div class="grid gap-8 lg:grid-cols-2">
-          <div class="space-y-3">
-            <label class="text-[10px] uppercase tracking-[0.28em] text-white/40">Department</label>
-            <select [(ngModel)]="projectDepartmentId" name="projectDepartmentId" (change)="onDepartmentChange()"
-              class="w-full bg-[#111111] border border-white/10 rounded-3xl px-6 py-4 text-white focus:border-[#E53935]/50 focus:outline-none transition-all text-sm cursor-pointer">
-              <option value="" class="bg-[#121212]">No department</option>
-              <option *ngFor="let d of departments" [value]="d.id" class="bg-[#121212]">{{ d.name }}</option>
-            </select>
-          </div>
-          <div class="space-y-3">
-            <label class="text-[10px] uppercase tracking-[0.28em] text-white/40">Assign Employees</label>
-            <select multiple [(ngModel)]="projectEmployeeIds" name="projectEmployeeIds" [disabled]="isReadOnly"
-              class="w-full min-h-[160px] bg-[#111111] border border-white/10 rounded-3xl px-6 py-4 text-white focus:border-[#E53935]/50 focus:outline-none transition-all text-sm cursor-pointer custom-scrollbar disabled:opacity-70 disabled:cursor-default">
-              <option *ngFor="let e of filteredEmployees" [value]="e.id" class="bg-[#121212]">{{ e.username }} ({{ e.department_name || 'No Dept' }})</option>
-            </select>
+          <div class="flex flex-col gap-3">
+            <label class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold ml-4">Client / Entity</label>
+            <input type="text" [(ngModel)]="projectClient" name="projectClient" [disabled]="isReadOnly"
+              class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-white/20 focus:border-[#E53935]/50 focus:outline-none transition-all" 
+              placeholder="Partner Name" />
           </div>
         </div>
 
-        <div class="space-y-4">
-          <div class="flex items-center justify-between">
-            <label class="text-[10px] uppercase tracking-[0.28em] text-white/40">Tasks Checklist</label>
-            <button *ngIf="!isReadOnly" type="button" (click)="addProjectTask()" class="text-xs font-black uppercase tracking-[0.28em] text-[#E53935] hover:text-white transition-all">Add Task Item</button>
-          </div>
-          <div class="space-y-4">
-            <div *ngFor="let task of projectTasks; let i = index" class="rounded-[1.5rem] border border-white/10 bg-[#111111] p-5">
-              <div class="flex gap-4 items-start">
-                <input type="text" [(ngModel)]="projectTasks[i].title" [name]="'pt_' + i" placeholder="Task title" [disabled]="isReadOnly"
-                  class="flex-1 bg-transparent border border-white/10 rounded-2xl px-5 py-3 text-white placeholder-white/30 focus:border-[#E53935]/50 focus:outline-none transition-all text-sm disabled:opacity-70" />
-                <button *ngIf="!isReadOnly" type="button" (click)="removeProjectTask(i)" class="text-white/20 hover:text-red-400 mt-3 transition-colors">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-              </div>
-              <input type="text" [(ngModel)]="projectTasks[i].note" [name]="'pt_note_' + i" placeholder="Notes or instructions..." [disabled]="isReadOnly"
-                class="w-full bg-transparent border border-white/10 rounded-2xl px-5 py-3 text-white/50 placeholder-white/30 focus:border-white/20 focus:outline-none transition-all text-[13px] mt-4 disabled:opacity-70" />
+        <!-- Section 2: Timeline & Settings -->
+        <div class="grid gap-10 lg:grid-cols-3">
+          <div class="flex flex-col gap-3">
+            <label class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold ml-4">Deadline</label>
+            <div class="relative">
+              <input type="datetime-local" [(ngModel)]="projectDeadline" name="projectDeadline" required [disabled]="isReadOnly"
+                class="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-white focus:outline-none focus:border-[#E53935]/50 transition-all" />
+              <svg class="w-5 h-5 text-white/20 absolute left-6 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
-            <div *ngIf="projectTasks.length === 0" class="rounded-3xl border border-dashed border-white/10 bg-[#101010] px-6 py-10 text-center text-sm text-white/30">No tasks defined for this project.</div>
+          </div>
+          <div class="flex flex-col gap-3">
+            <label class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold ml-4">Project Owner</label>
+            <select [(ngModel)]="projectOwnerId" name="projectOwnerId" [disabled]="isReadOnly" 
+              class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-[#E53935]/50 appearance-none transition-all">
+              <option value="">Select Owner</option>
+              <option *ngFor="let e of employees" [value]="e.id">{{ e.username }}</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-3">
+            <label class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold ml-4">Status</label>
+            <select [(ngModel)]="projectStatus" name="projectStatus" [disabled]="isReadOnly" 
+              class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-[#E53935]/50 appearance-none transition-all">
+              <option value="Planning">Planning</option>
+              <option value="In Progress">In Progress</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Completed">Completed</option>
+            </select>
           </div>
         </div>
+
+        <div class="grid gap-10 lg:grid-cols-3">
+          <div class="flex flex-col gap-3">
+            <label class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold ml-4">Duration</label>
+            <input type="text" [(ngModel)]="projectDuration" name="projectDuration" [disabled]="isReadOnly"
+              class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-white/20 focus:outline-none focus:border-[#E53935]/50 transition-all" 
+              placeholder="e.g. 30 Days" />
+          </div>
+          <div class="flex flex-col gap-3">
+            <label class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold ml-4">Budget</label>
+            <div class="relative">
+              <input type="text" [(ngModel)]="projectBudget" name="projectBudget" [disabled]="isReadOnly"
+                class="w-full bg-white/5 border border-white/10 rounded-2xl pl-6 pr-16 py-4 text-white placeholder-white/20 focus:outline-none focus:border-[#E53935]/50 transition-all" 
+                placeholder="0.00" />
+              <span class="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-white/20 tracking-widest leading-none">DHS</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-3">
+            <label class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold ml-4">High Priority</label>
+            <div class="flex items-center gap-2 p-1.5 bg-white/5 rounded-2xl w-full border border-white/10">
+              <button type="button" (click)="isHighPriority = false" [disabled]="isReadOnly"
+                class="flex-1 py-3 rounded-xl text-[10px] font-black tracking-widest transition-all"
+                [class.bg-white/10]="!isHighPriority" [class.text-white]="!isHighPriority" [class.text-white/20]="isHighPriority">
+                NO
+              </button>
+              <button type="button" (click)="isHighPriority = true" [disabled]="isReadOnly"
+                class="flex-1 py-3 rounded-xl text-[10px] font-black tracking-widest transition-all"
+                [class.bg-[#E53935]]="isHighPriority" [class.text-white]="isHighPriority" [class.text-white/20]="!isHighPriority">
+                YES
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="flex flex-col gap-3">
+          <label class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold ml-4">Scope & Description</label>
+          <textarea [(ngModel)]="projectDesc" name="projectDesc" rows="3" [disabled]="isReadOnly"
+            class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-white/20 focus:outline-none focus:border-[#E53935]/50 transition-all resize-none" 
+            placeholder="Briefly describe the objective..."></textarea>
+        </div>
+
+        <!-- Tasks Sections -->
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-white/5 pb-4">
+            <div class="flex items-center gap-4">
+              <h3 class="text-lg font-black text-white tracking-tight">PROJECT TASKS</h3>
+              <span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-black text-white/40">{{ projectTasks.length }}</span>
+            </div>
+            <button *ngIf="!isReadOnly" type="button" (click)="addProjectTask()"
+              class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#E53935]/10 border border-[#E53935]/20 text-[10px] font-black text-[#E53935] hover:bg-[#E53935] hover:text-white transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+              ADD TASK
+            </button>
+          </div>
+
+          <div class="grid gap-6">
+            <div *ngFor="let task of projectTasks; let i = index" 
+              class="relative group rounded-3xl border border-white/5 bg-white/[0.02] p-8 transition-all hover:bg-white/[0.04] hover:border-white/10">
+              
+              <div class="grid gap-6">
+                <!-- Task Title Row -->
+                <div class="flex gap-6 items-center">
+                   <div class="w-12 h-12 shrink-0 flex items-center justify-center rounded-2xl bg-white/5 text-[14px] font-black text-white/20">
+                    {{ (i + 1 < 10 ? '0' : '') + (i + 1) }}
+                   </div>
+                   <input type="text" [(ngModel)]="projectTasks[i].title" [name]="'pt_title_' + i" required [disabled]="isReadOnly"
+                     class="flex-1 bg-transparent border-b border-white/10 px-0 py-3 text-white placeholder-white/10 focus:border-[#E53935] focus:outline-none transition-all font-bold text-xl" 
+                     placeholder="Task Title" />
+                   
+                   <button *ngIf="!isReadOnly" type="button" (click)="removeProjectTask(i)"
+                     class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 text-white/20 hover:bg-red-500/10 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                   </button>
+                </div>
+
+                <!-- Task Note Field -->
+                <div class="flex flex-col gap-3">
+                  <label class="text-[9px] uppercase tracking-[0.2em] text-white/20 font-bold ml-2">Note / Instructions</label>
+                  <textarea [(ngModel)]="projectTasks[i].note" [name]="'pt_note_' + i" [disabled]="isReadOnly"
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white/60 placeholder-white/10 focus:outline-none focus:border-white/20 transition-all text-sm min-h-[100px]" 
+                    placeholder="Explain the specific requirements for this task..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="projectTasks.length === 0" 
+              class="flex flex-col items-center justify-center py-20 rounded-[2.5rem] border-2 border-dashed border-white/5 bg-white/[0.01]">
+              <svg class="w-16 h-16 text-white/5 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <p class="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">No tasks defined for this project</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Team Assignment -->
+        <div class="space-y-6 border-t border-white/5 pt-10">
+           <label class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold ml-4">Assigned Production Team</label>
+           <div class="grid gap-10 lg:grid-cols-2">
+             <div class="flex flex-col gap-3">
+               <label class="text-[9px] uppercase tracking-[0.2em] text-white/15 font-bold ml-2">Select Department</label>
+               <select [(ngModel)]="projectDepartmentId" name="projectDepartmentId" (change)="onDepartmentChange()" [disabled]="isReadOnly"
+                 class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-[#E53935]/50 appearance-none transition-all">
+                 <option value="">Full Workspace</option>
+                 <option *ngFor="let d of departments" [value]="d.id">{{ d.name }}</option>
+               </select>
+             </div>
+             <div class="flex flex-col gap-3">
+                <label class="text-[9px] uppercase tracking-[0.2em] text-white/15 font-bold ml-2">Select Members</label>
+                <select multiple [(ngModel)]="projectEmployeeIds" name="projectEmployeeIds" [disabled]="isReadOnly"
+                  class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-[#E53935]/50 appearance-none transition-all min-h-[140px] custom-scrollbar">
+                  <option *ngFor="let e of filteredEmployees" [value]="e.id" class="p-3 rounded-xl mb-1 hover:bg-white/10 transition-colors">
+                    {{ e.username }}
+                  </option>
+                </select>
+             </div>
+           </div>
+        </div>
+
       </form>
     </div>
 
-    <!-- Fixed Footer -->
-    <div class="px-8 py-6 border-t border-white/10 shrink-0 bg-[#121212]">
-      <div class="flex flex-col gap-4 sm:flex-row sm:justify-end">
-        <div *ngIf="errorMsg" class="flex-1 text-sm text-red-400 self-center">{{ errorMsg }}</div>
-        <button type="button" (click)="closeModal()" class="w-full sm:w-auto rounded-3xl border border-white/10 bg-white/5 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-white/60 hover:bg-white/10 transition-all">
-          {{ isReadOnly ? 'Close' : 'Cancel' }}
-        </button>
-        <button *ngIf="!isReadOnly" type="submit" form="projectForm" [disabled]="isSubmitting" class="w-full sm:w-auto rounded-3xl bg-[#E53935] px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-white hover:bg-[#d32f2f] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ isEditingMode ? 'Save Project' : 'Create Project' }}
-        </button>
+    <!-- Footer -->
+    <div class="px-10 py-8 border-t border-white/5 shrink-0 bg-[#0A0A0A] relative z-20">
+      <div class="flex items-center gap-8">
+        <div *ngIf="errorMsg" class="flex-1 text-xs font-bold text-red-500 uppercase tracking-widest animate-pulse">{{ errorMsg }}</div>
+        <div class="flex-1" *ngIf="!errorMsg"></div>
+        
+        <div class="flex gap-4">
+          <button type="button" (click)="closeModal()" 
+            class="px-10 py-5 rounded-2xl bg-white/5 text-[11px] font-black text-white/60 uppercase tracking-[0.2em] hover:bg-white/10 transition-all border border-white/5">
+            {{ isReadOnly ? 'CLOSE' : 'CANCEL' }}
+          </button>
+          
+          <button *ngIf="!isReadOnly" type="submit" form="projectForm" [disabled]="isSubmitting"
+            class="px-12 py-5 rounded-2xl bg-[#E53935] text-[11px] font-black text-white uppercase tracking-[0.2em] hover:bg-[#D32F2F] transition-all shadow-[0_8px_32px_rgba(229,57,53,0.3)] disabled:opacity-50 border border-[#E53935]/20">
+            {{ isEditingMode ? 'SAVE PROJECT' : 'START PROJECT' }}
+          </button>
+        </div>
       </div>
     </div>
 
