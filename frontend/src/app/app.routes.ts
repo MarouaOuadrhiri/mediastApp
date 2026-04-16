@@ -15,6 +15,7 @@ export const routes: Routes = [
       { path: 'employees', loadComponent: () => import('./pages/admin/employees/employees.component').then(c => c.EmployeesComponent) },
       { path: 'projects', loadComponent: () => import('./pages/admin/projects/projects.component').then(c => c.ProjectsComponent) },
       { path: 'tasks', loadComponent: () => import('./pages/admin/tasks/tasks.component').then(c => c.TasksComponent) },
+      { path: 'analytics', loadComponent: () => import('./pages/admin/analytics/analytics.component').then(c => c.AnalyticsComponent) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then(c => c.ProfileComponent) }
     ]
   },

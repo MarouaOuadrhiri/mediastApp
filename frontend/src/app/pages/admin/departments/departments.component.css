@@ -127,7 +127,7 @@
   justify-content: center;
   background: linear-gradient(135deg, #FD0000 0%, #FF3B3B 100%);
   flex-shrink: 0;
-  padding: 12px;
+  padding: 15px;
   color: white;
   box-sizing: border-box;
 }
@@ -457,11 +457,11 @@
 }
 
 .dep-icon {
- display: flex;
+  width: 12px;
+  height: 9px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 11.173040390014648;
-  height: 8.749957084655762;
   color: #EF4444;
 }
 

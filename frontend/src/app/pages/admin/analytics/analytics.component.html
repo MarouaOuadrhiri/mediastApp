@@ -1,0 +1,114 @@
+<div class="analytics-container p-8 animate-in">
+  <!-- Header -->
+  <header class="mb-12 flex justify-between items-end">
+    <div>
+      <h1 class="text-4xl font-black text-white tracking-tighter mb-2">EMPLOYEE ANALYTICS</h1>
+      <p class="text-sm text-white/40 uppercase tracking-[0.2em]">Team Performance & Workload Monitoring</p>
+    </div>
+    <div class="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
+      <span class="text-[10px] font-black text-white/20 uppercase tracking-widest block">System Status</span>
+      <span class="text-xs font-bold text-green-500 flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+        REAL-TIME DATA ACTIVE
+      </span>
+    </div>
+  </header>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div class="stat-card glass p-8 rounded-[2.5rem] relative overflow-hidden group">
+      <div class="relative z-10">
+        <span class="text-[10px] font-black text-white/20 uppercase tracking-widest block mb-4">Total Workforce</span>
+        <h2 class="text-5xl font-black text-white mb-2">{{ stats.totalEmployees }}</h2>
+        <p class="text-xs text-white/30 uppercase tracking-widest">Active Members</p>
+      </div>
+      <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-all">
+        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      </div>
+    </div>
+
+    <div class="stat-card glass p-8 rounded-[2.5rem] relative overflow-hidden group">
+       <div class="relative z-10">
+         <span class="text-[10px] font-black text-white/20 uppercase tracking-widest block mb-4">Active Tasks</span>
+         <h2 class="text-5xl font-black text-[#E53935] mb-2">{{ stats.activeTasks }}</h2>
+         <p class="text-xs text-white/30 uppercase tracking-widest">In Pipeline</p>
+       </div>
+       <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-all text-[#E53935]">
+        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+       </div>
+    </div>
+
+    <div class="stat-card glass p-8 rounded-[2.5rem] relative overflow-hidden group border-image-gradient">
+       <div class="relative z-10">
+         <span class="text-[10px] font-black text-white/20 uppercase tracking-widest block mb-4">Goals Reached</span>
+         <h2 class="text-5xl font-black text-white mb-2">{{ stats.completedTasks }}</h2>
+         <p class="text-xs text-white/30 uppercase tracking-widest">Tasks Completed</p>
+       </div>
+       <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-all">
+        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+       </div>
+    </div>
+
+    <div class="stat-card glass p-8 rounded-[2.5rem] relative overflow-hidden group">
+       <div class="relative z-10">
+         <span class="text-[10px] font-black text-white/20 uppercase tracking-widest block mb-4">Efficiency</span>
+         <h2 class="text-5xl font-black text-white mb-2">{{ stats.avgCompletionRate }}%</h2>
+         <p class="text-xs text-white/30 uppercase tracking-widest">Overall Velocity</p>
+       </div>
+       <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-all">
+        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 2c-5.62 0-10.19 4.39-10.47 9.92C3.01 12.03 3.01 12.1 3.01 12.17c.05.3.3.57.62.53.28-.02.48-.25.53-.52.26-5.06 4.45-9.04 9.53-9.04 5.31 0 9.61 4.31 9.61 9.62s-4.3 9.61-9.61 9.61c-1.99 0-3.84-.61-5.38-1.65-.24-.16-.57-.12-.76.1-.19.22-.17.56.04.75 1.7 1.15 3.76 1.8 5.96 1.8 5.8 0 10.5-4.7 10.5-10.5S19.3 2 13.5 2z"/></svg>
+       </div>
+    </div>
+  </div>
+
+  <!-- Detailed Sections -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+    <!-- Department Distribution -->
+    <div class="lg:col-span-2 glass-panel p-10 rounded-[3rem] border border-white/5 bg-white/[0.01]">
+      <div class="flex items-center justify-between mb-10">
+        <div>
+          <h3 class="text-xl font-black text-white uppercase tracking-tight">Department Efficiency</h3>
+          <p class="text-[10px] text-white/20 uppercase tracking-[0.2em] mt-1">Completion rate per unit</p>
+        </div>
+      </div>
+
+      <div class="space-y-8">
+        <div *ngFor="let d of stats.departmentStats" class="group">
+          <div class="flex justify-between items-end mb-3">
+            <span class="text-sm font-bold text-white/80 group-hover:text-white transition-all uppercase tracking-widest">{{ d.name }}</span>
+            <div class="text-right">
+                <span class="text-xs font-black text-white block">{{ d.percent }}%</span>
+                <span class="text-[9px] text-white/20 font-medium uppercase tracking-widest">{{ d.completed }}/{{ d.total }} TASKS</span>
+            </div>
+          </div>
+          <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/[0.02]">
+            <div class="h-full bg-gradient-to-r from-[#E53935] to-[#FF5252] rounded-full transition-all duration-1000 ease-out"
+              [style.width.%]="d.percent"></div>
+          </div>
+        </div>
+        <div *ngIf="stats.departmentStats.length === 0" class="py-20 text-center opacity-20">
+            <p class="text-xs uppercase tracking-[0.3em] font-black">No Data Available</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Performers / Quick Actions -->
+    <div class="glass-panel p-10 rounded-[3rem] border border-white/5 bg-white/[0.01]">
+        <h3 class="text-xl font-black text-white uppercase tracking-tight mb-8">Active Team</h3>
+        <div class="space-y-4 max-h-[480px] overflow-y-auto custom-scrollbar pr-4">
+            <div *ngFor="let u of employees.slice(0, 10)" class="flex items-center gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/5 transition-all group">
+                <div class="w-12 h-12 rounded-full overflow-hidden bg-[#131314] shrink-0 border border-white/5">
+                    <img *ngIf="u.profile_photo || u.photo" [src]="u.profile_photo || u.photo" class="w-full h-full object-cover">
+                    <div *ngIf="!(u.profile_photo || u.photo)" class="w-full h-full flex items-center justify-center text-xs font-black text-white/20">
+                        {{ u.username?.slice(0, 2).toUpperCase() }}
+                    </div>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-bold text-white truncate group-hover:text-[#E53935] transition-colors">{{ u.username }}</p>
+                    <p class="text-[9px] text-white/20 uppercase tracking-widest truncate">{{ u.department_name || 'No Dept' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>

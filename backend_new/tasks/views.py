@@ -5,7 +5,7 @@ from users.authentication import JWTAuthentication
 from users.permissions import IsAdmin
 from users.models import User
 from .models import Task
-from projects.models import Project
+from projects.models import Project, ProjectTask
 from departments.models import Department
 from mongoengine.errors import DoesNotExist
 
@@ -100,6 +100,24 @@ def task_list_create(request):
             is_archived=(request.data.get('status') == 'ARCHIVED' or request.data.get('is_archived', False))
         )
         task.save()
+
+        # Sync with Project if linked
+        if project:
+            status_map = {'IN_PROGRESS': 'IN_PROGRESS', 'DONE': 'DONE'}
+            p_status = status_map.get(task.status, 'TODO')
+            
+            p_task = ProjectTask(
+                title=task.title,
+                description=task.description or '',
+                status=p_status
+            )
+            project.tasks.append(p_task)
+            project.save()
+            
+            # Store the internal ID back to the main task
+            task.source_project_task_id = str(p_task.id)
+            task.save()
+
         return Response(serialize_task(task), status=201)
 
 
@@ -133,10 +151,25 @@ def update_task_status(request, pk):
         task.is_archived = is_archived
         if is_archived:
             task.status = 'ARCHIVED'
-        elif task.status == 'ARCHIVED':
-            task.status = 'DONE' # Default back to DONE if unarchived
-
     task.save()
+
+    # Sync with Project status if linked
+    if getattr(task, 'project', None) and getattr(task, 'source_project_task_id', None):
+        try:
+            proj = Project.objects.get(id=task.project.id)
+            for pt in proj.tasks:
+                if str(pt.id) == str(task.source_project_task_id):
+                    status_map = {'IN_PROGRESS': 'IN_PROGRESS', 'DONE': 'DONE'}
+                    pt.status = status_map.get(task.status, 'TODO')
+                    if pt.status == 'DONE':
+                        pt.completed_by = request.user
+                        from datetime import datetime
+                        pt.completed_at = datetime.utcnow()
+                    break
+            proj.save()
+        except DoesNotExist:
+            pass
+
     return Response(serialize_task(task))
 
 
@@ -160,9 +193,21 @@ def update_task(request, pk):
                 assigned_employees.append(User.objects.get(id=eid))
             except DoesNotExist:
                 continue
-        task.employees = assigned_employees
-
     task.save()
+
+    # Sync metadata with Project
+    if getattr(task, 'project', None) and getattr(task, 'source_project_task_id', None):
+        try:
+            proj = Project.objects.get(id=task.project.id)
+            for pt in proj.tasks:
+                if str(pt.id) == str(task.source_project_task_id):
+                    pt.title = task.title
+                    pt.description = task.description or ''
+                    break
+            proj.save()
+        except DoesNotExist:
+            pass
+
     return Response(serialize_task(task))
 
 @api_view(['PATCH'])

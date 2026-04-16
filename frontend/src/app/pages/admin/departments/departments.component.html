@@ -87,7 +87,7 @@
         <tbody>
           <tr *ngFor="let d of departments">
             <td class="name-col" id="name-col">
-              <img *ngIf="d.image" [src]="'data:image/jpeg;base64,' + d.image" alt="" class="dep-icon">
+              <img *ngIf="d.image" [src]="'data:image/jpeg;base64,' + d.image" alt="" class="dep-icon" style="color: #EF4444;">
               <span>{{d.name}}</span>
             </td>
             <td>
