@@ -189,12 +189,12 @@
 
 /* Progress Section */
 .card-progress-section {
-  margin-bottom: 12px;
+  /* margin-bottom: 12px; */
 }
 
 .hero-card .card-progress-section {
-  margin-top: auto;
-  margin-bottom: 0px;
+  /* margin-top: auto; */
+  /* margin-bottom: 0px; */
 }
 
 .progress-header {
@@ -295,7 +295,7 @@
   align-items: flex-end;
   /* width: 260px; Removed fixed width */
   margin-top: auto;
-  padding-bottom: 10px;
+  /* padding-bottom: 10px; */
 }
 
 .hero-card .card-footer {

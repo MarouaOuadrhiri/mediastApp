@@ -29,7 +29,7 @@ def department_list_create(request):
                 project_tasks.extend(p.tasks)
             
             # Standalone tasks for employees in this department
-            standalone_tasks = Task.objects(employee__in=emp_ids)
+            standalone_tasks = Task.objects(employees__in=emp_ids)
             
             all_tasks = project_tasks + list(standalone_tasks)
             total_tasks = len(all_tasks)

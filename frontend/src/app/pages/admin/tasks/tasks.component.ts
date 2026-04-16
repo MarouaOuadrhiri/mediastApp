@@ -40,7 +40,8 @@ export class TasksComponent implements OnInit {
   // New task form fields
   taskTitle = '';
   taskDesc = '';
-  taskEmployeeId = '';
+  taskEmployeeId = ''; // Keep for single selection compatibility if needed
+  taskEmployeeIds: string[] = [];
   taskProjectId = '';
   taskDepartmentId = '';
   taskPriority = 'MEDIUM';
@@ -48,6 +49,7 @@ export class TasksComponent implements OnInit {
   taskDeadline = '';
   taskProgress = 0;
   assignedMembers: any[] = [];
+  showEmployeeDropdown = false;
 
   editTaskId: string | null = null;
 
@@ -77,7 +79,9 @@ export class TasksComponent implements OnInit {
           priority: t.priority || this.getRandomPriority(),
           progress: t.progress || Math.floor(Math.random() * 100),
           deadline: t.deadline || 'MAY 16',
-          employee_name: t.employee_name || 'Unknown'
+          // Use the first employee's name for compatibility in simple views
+          employee_name: t.employees && t.employees.length > 0 ? t.employees[0].name : 'Unassigned',
+          employee_photo: t.employees && t.employees.length > 0 ? t.employees[0].photo : ''
         }));
         this.groupTasks();
         this.cdr.markForCheck();
@@ -185,6 +189,26 @@ export class TasksComponent implements OnInit {
     }
   }
 
+  toggleEmployee(eId: string) {
+    const idx = this.taskEmployeeIds.indexOf(eId);
+    if (idx === -1) {
+      this.taskEmployeeIds.push(eId);
+    } else {
+      this.taskEmployeeIds.splice(idx, 1);
+    }
+    // Sync single employee ID for any legacy logic
+    this.taskEmployeeId = this.taskEmployeeIds.length > 0 ? this.taskEmployeeIds[0] : '';
+  }
+
+  isEmployeeSelected(eId: string): boolean {
+    return this.taskEmployeeIds.includes(eId);
+  }
+
+  getMembersByDepartment(deptId: string) {
+    if (!deptId) return this.employees;
+    return this.employees.filter(e => e.department_id === deptId);
+  }
+
   // Drag and Drop Handler
   drop(event: CdkDragDrop<any[]>) {
     if (event.previousContainer === event.container) {
@@ -222,18 +246,30 @@ export class TasksComponent implements OnInit {
   openModal() { this.isModalOpen = true; }
   closeModal() { this.isModalOpen = false; this.resetForm(); }
   resetForm() {
-    this.taskTitle = ''; this.taskDesc = ''; this.taskEmployeeId = ''; this.taskProjectId = '';
+    this.taskTitle = ''; this.taskDesc = ''; this.taskEmployeeId = ''; this.taskEmployeeIds = []; this.taskProjectId = '';
     this.taskDepartmentId = ''; this.taskPriority = 'MEDIUM'; this.taskStatus = 'IN PROGRESS';
     this.taskDeadline = ''; this.taskProgress = 0; this.assignedMembers = [];
+    this.showEmployeeDropdown = false;
   }
 
   createTask() {
-    if (!this.taskTitle || !this.taskEmployeeId) { this.errorMsg = 'Please fill all fields.'; return; }
+    if (!this.taskTitle) { this.errorMsg = 'Please provide a title.'; return; }
+    if (this.taskEmployeeIds.length === 0 && !this.taskProjectId) {
+       this.errorMsg = 'Please assign at least one member or a project.';
+       return;
+    }
+    
     this.isSubmitting = true;
     const taskData = {
-      title: this.taskTitle, description: this.taskDesc, employee_id: this.taskEmployeeId,
-      status: this.taskStatus.replace(' ', '_'), priority: this.taskPriority,
-      project_id: this.taskProjectId, deadline: this.taskDeadline, progress: this.taskProgress
+      title: this.taskTitle, 
+      description: this.taskDesc, 
+      employee_ids: this.taskEmployeeIds,
+      status: this.taskStatus.replace(' ', '_'), 
+      priority: this.taskPriority,
+      project_id: this.taskProjectId || undefined, 
+      department_id: this.taskDepartmentId || undefined,
+      deadline: this.taskDeadline, 
+      progress: this.taskProgress
     };
     this.api.createTask(taskData).subscribe({
       next: () => { this.isSubmitting = false; this.closeModal(); this.loadData(); },
@@ -251,6 +287,10 @@ export class TasksComponent implements OnInit {
 
   getSelectedEmployee() {
     return this.employees.find(e => e.id === this.taskEmployeeId);
+  }
+
+  getSelectedEmployees() {
+    return this.employees.filter(e => this.taskEmployeeIds.includes(e.id));
   }
 
   getTaskColor(t: any): string {

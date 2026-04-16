@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, ReferenceField, BooleanField
+from mongoengine import Document, StringField, ReferenceField, BooleanField, ListField
 from users.models import User
 
 class Task(Document):
@@ -7,6 +7,10 @@ class Task(Document):
     title = StringField(required=True, max_length=200)
     description = StringField()
     status = StringField(choices=STATUS_CHOICES, default='BLOCKED')
-    employee = ReferenceField(User, required=True)
+    employees = ListField(ReferenceField(User))
+    project = ReferenceField('Project', null=True)
+    department = ReferenceField('Department', null=True)
     source_project_task_id = StringField()
     is_archived = BooleanField(default=False)
+
+    meta = {'strict': False}

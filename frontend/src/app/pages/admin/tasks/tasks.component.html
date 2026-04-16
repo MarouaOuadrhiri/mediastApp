@@ -101,33 +101,16 @@
                 </svg>
                 <span>{{t.deadline}}</span>
               </div>
-              <div class="assignee-info">
-                <img
-                  [src]="t.employee_photo || ('https://ui-avatars.com/api/?name=' + t.employee_name + '&background=random')"
-                  class="assignee-avatar" [title]="t.employee_name">
+              <div class="avatar-stack-container">
+                  <div class="avatar-stack">
+                    <img *ngFor="let emp of t.employees?.slice(0, 3)"
+                      [src]="emp.photo || ('https://ui-avatars.com/api/?name=' + emp.name + '&background=random')"
+                      class="stacked-avatar" [title]="emp.name">
+                    <div *ngIf="t.employees?.length > 3" class="avatar-stack-more">
+                      +{{t.employees.length - 3}}
+                    </div>
+                  </div>
               </div>
-            </div>
-
-            <!-- Done status specific -->
-            <div class="done-verification" *ngIf="status === 'DONE'">
-              <div class="flex items-center gap-2">
-                <span class="status-badge complete">COMPLETE</span>
-                <div class="verified-tag">
-                  <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 01-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                  <span>VERIFIED</span>
-                </div>
-              </div>
-              
-              <!-- Manual Archive Button for Admin -->
-              <button *ngIf="isAdmin()" (click)="archiveTask(t.id)" class="archive-action-btn" title="Archive Task">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                </svg>
-              </button>
             </div>
           </div>
 
@@ -181,9 +164,11 @@
             </svg>
             <span>{{t.deadline}}</span>
           </div>
-          <img
-            [src]="t.employee_photo || ('https://ui-avatars.com/api/?name=' + t.employee_name + '&background=random')"
-            class="assignee-avatar" [title]="t.employee_name">
+          <div class="avatar-stack list-stack">
+            <img *ngFor="let emp of t.employees?.slice(0, 2)"
+              [src]="emp.photo || ('https://ui-avatars.com/api/?name=' + emp.name)"
+              class="stacked-avatar list-avatar" [title]="emp.name">
+          </div>
         </div>
       </div>
 
@@ -204,14 +189,17 @@
             </div>
           </div>
           <div class="detail-item">
-            <label>Progress</label>
-            <div class="detail-progress">
-              <div class="prog-bar-bg">
-                <div class="prog-bar-fill" [style.width.%]="t.progress" 
-                  [attr.data-priority]="t.priority"
-                  [attr.data-status]="t.status"></div>
-              </div>
-              <span [attr.data-priority]="t.priority">{{t.progress}}%</span>
+            <label>Department</label>
+            <div class="detail-meta">
+              {{ t.department_id ? 'Assigned via Department' : 'Standalone' }}
+            </div>
+          </div>
+          <div class="detail-item">
+            <label>Assignees</label>
+            <div class="tag-list">
+              <span *ngFor="let emp of t.employees" class="member-tag">
+                {{emp.name}}
+              </span>
             </div>
           </div>
         </div>
@@ -226,124 +214,193 @@
   </button>
 
   <!-- Modal Overlay -->
-  <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
-    <div class="modal-content glass" (click)="$event.stopPropagation()">
-      <button class="modal-close" (click)="closeModal()">✕</button>
+  <div class="modal-overlay fixed inset-0 z-[1000] flex items-center justify-center px-4 py-6" *ngIf="isModalOpen" (click)="closeModal()">
+    <div class="modal-panel w-full max-w-[640px] rounded-[32px] overflow-hidden flex flex-col max-h-[92vh] relative glass shadow-2xl" (click)="$event.stopPropagation()">
+      
+      <!-- Close Button -->
+      <button type="button" (click)="closeModal()" 
+        class="absolute top-8 right-8 w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/5 text-white/20 hover:text-white transition-all z-50">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
 
-      <div class="modal-header">
-        <h2>Create New Task</h2>
-        <p>Add a new task to your workflow.</p>
+      <!-- Header -->
+      <div class="px-10 pt-12 pb-8 shrink-0 relative z-10">
+        <h2 class="title-popup uppercase">
+          {{ editTaskId ? 'Update Task' : 'Create New Task' }}
+        </h2>
+        <p class="subtitle">
+          Define task requirements, assign your team, and track progress.
+        </p>
       </div>
 
-      <form (ngSubmit)="createTask()" class="modal-form">
-        <div class="form-row">
-          <div class="form-group full">
-            <label>TASK TITLE</label>
-            <input type="text" [(ngModel)]="taskTitle" name="taskTitle" placeholder="Enter task name..." required>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group full">
-            <label>DESCRIPTION</label>
-            <textarea [(ngModel)]="taskDesc" name="taskDesc" placeholder="Briefly describe the requirements..."
-              rows="3"></textarea>
-          </div>
-        </div>
-
-        <div class="form-row split">
-          <div class="form-group">
-            <label>PROJECT</label>
-            <div class="select-wrapper">
-              <select [(ngModel)]="taskProjectId" name="taskProjectId">
-                <option value="" disabled selected>Select project...</option>
-                <option *ngFor="let p of projects" [value]="p.id" class="text-black">{{p.name}}</option>
-              </select>
+      <!-- Content (Scrollable) -->
+      <div class="px-10 pb-10 overflow-y-auto custom-scrollbar flex-1 relative z-10">
+        <form (ngSubmit)="createTask()" id="taskForm" class="modal-form">
+          
+          <div class="form-row">
+            <div class="form-group full">
+              <label>TASK TITLE</label>
+              <input type="text" [(ngModel)]="taskTitle" name="taskTitle" placeholder="Enter task name..." required>
             </div>
           </div>
-          <div class="form-group">
-            <label>DEPARTMENT</label>
-            <div class="select-wrapper">
-              <select [(ngModel)]="taskDepartmentId" name="taskDepartmentId">
-                <option value="" disabled selected>Select department...</option>
-                <option *ngFor="let d of departments" [value]="d.id" class="text-black">{{d.name}}</option>
-              </select>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label>DESCRIPTION</label>
+              <textarea [(ngModel)]="taskDesc" name="taskDesc" placeholder="Briefly describe the requirements..."
+                rows="3"></textarea>
             </div>
           </div>
-        </div>
 
-        <div class="form-row">
-          <div class="form-group full">
-            <label>PRIORITY</label>
-            <div class="priority-toggle">
-              <button type="button" *ngFor="let p of ['LOW', 'MEDIUM', 'HIGH', 'URGENT']"
-                [class.active]="taskPriority === p" (click)="taskPriority = p">
-                {{p}}
-              </button>
+          <div class="form-row split">
+            <div class="form-group">
+              <label>PROJECT</label>
+              <div class="select-wrapper">
+                <select [(ngModel)]="taskProjectId" name="taskProjectId" (change)="taskDepartmentId = ''">
+                  <option value="" selected>None (Optional)</option>
+                  <option *ngFor="let p of projects" [value]="p.id" class="text-black">{{p.name}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>DEPARTMENT</label>
+              <div class="select-wrapper">
+                <select [(ngModel)]="taskDepartmentId" name="taskDepartmentId" (change)="taskProjectId = ''" class="text-black">
+                  <option value="" selected>None (Optional)</option>
+                  <option *ngFor="let d of departments" [value]="d.id" class="text-black">{{d.name}}</option>
+                </select>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="form-row split">
-          <div class="form-group">
-            <label>STATUS</label>
-            <div class="select-wrapper">
-              <select [(ngModel)]="taskStatus" name="taskStatus">
-                <option *ngFor="let s of ['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE', 'ARCHIVED']" [value]="s" class="text-black">{{s}}</option>
-              </select>
+          <div class="form-row">
+            <div class="form-group full">
+              <label>PRIORITY</label>
+              <div class="priority-toggle">
+                <button type="button" *ngFor="let p of ['LOW', 'MEDIUM', 'HIGH', 'URGENT']"
+                  [class.active]="taskPriority === p" (click)="taskPriority = p">
+                  {{p}}
+                </button>
+              </div>
             </div>
           </div>
-          <div class="form-group">
-            <label>DEADLINE</label>
-            <input type="date" [(ngModel)]="taskDeadline" name="taskDeadline">
-          </div>
-        </div>
 
-        <div class="form-row split">
-          <div class="form-group">
-            <label>ASSIGN MEMBER</label>
-            <div class="member-selector">
-              <div class="selected-members">
-                <ng-container *ngIf="getSelectedEmployee() as selectedEmp">
-                  <img [src]="selectedEmp.profile_photo || ('https://ui-avatars.com/api/?name=' + selectedEmp.username)"
-                    class="avatar-xs">
-                  <span
-                    class="text-[10px] font-bold text-white/50 lowercase tracking-wider">{{selectedEmp.username}}</span>
-                </ng-container>
-                <div *ngIf="!taskEmployeeId" class="flex items-center gap-2">
-                  <div
-                    class="avatar-xs bg-white/5 border border-dashed border-white/20 rounded-full flex items-center justify-center">
-                    <svg class="w-4 h-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
+          <div class="form-row split">
+            <div class="form-group">
+              <label>STATUS</label>
+              <div class="select-wrapper">
+                <select [(ngModel)]="taskStatus" name="taskStatus" class="text-black">
+                  <option *ngFor="let s of ['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE', 'ARCHIVED']" [value]="s" class="text-black">{{s}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>DEADLINE</label>
+              <input type="date" [(ngModel)]="taskDeadline" name="taskDeadline">
+            </div>
+          </div>
+
+          <!-- Assign Team Members (Project Style integration with original layout) -->
+          <div class="form-row">
+            <div class="form-group full relative p-8 rounded-[2rem] bg-white/[0.02] border border-white/5">
+              <div class="flex items-center justify-between">
+                 <div class="flex flex-col gap-1">
+                   <label style="margin-bottom:0px">Assign Members</label>
+                   <span class="text-[9px] font-medium text-white/20 uppercase tracking-widest">{{ taskEmployeeIds.length }} ASSIGNED</span>
+                 </div>
+                 
+                 <div class="flex items-center gap-6">
+                    <!-- Avatar Stack -->
+                    <div class="avatar-stack flex items-center">
+                      <div *ngFor="let e of getSelectedEmployees().slice(0, 4)" class="avatar-item w-10 h-10 rounded-full border-2 border-[#0A0A0A] -ml-3 first:ml-0 overflow-hidden bg-[#1A1A1A]">
+                        <img *ngIf="e.profile_photo || e.photo" [src]="e.profile_photo || e.photo" class="w-full h-full object-cover" />
+                        <div *ngIf="!(e.profile_photo || e.photo)" class="w-full h-full flex items-center justify-center text-[10px] font-black text-white/40">
+                          {{ e.username?.slice(0, 2).toUpperCase() }}
+                        </div>
+                      </div>
+                      <div *ngIf="taskEmployeeIds.length > 4" class="w-10 h-10 rounded-full border-2 border-[#0A0A0A] -ml-3 bg-[#1A1A1A] flex items-center justify-center text-[10px] font-black text-white/20">
+                        +{{ taskEmployeeIds.length - 4 }}
+                      </div>
+                      <div *ngIf="taskEmployeeIds.length === 0" class="w-10 h-10 rounded-full border-2 border-dashed border-white/10 -ml-3 first:ml-0 flex items-center justify-center text-white/10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                      </div>
+                    </div>
+
+                    <button type="button" (click)="showEmployeeDropdown = !showEmployeeDropdown" 
+                      class="flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-widest hover:bg-[#E53935] hover:border-[#E53935] transition-all text-white group">
+                      <svg class="w-3.5 h-3.5 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                      ADD MEMBERS
+                    </button>
+                 </div>
+              </div>
+
+              <!-- Floating Member Selection Dropdown -->
+              <div *ngIf="showEmployeeDropdown" 
+                class="absolute right-8 top-full mt-2 w-[320px] z-[100] bg-[#0A0A0A]/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div class="flex flex-col gap-3">
+                  <div class="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Select Members</div>
+                  <div class="max-h-[280px] overflow-y-auto custom-scrollbar pr-2 space-y-2">
+                    <div *ngFor="let e of getMembersByDepartment(taskDepartmentId)" 
+                      (click)="toggleEmployee(e.id)"
+                      class="flex items-center justify-between p-3 rounded-2xl hover:bg-white/5 transition-all cursor-pointer group"
+                      [class.bg-white/5]="isEmployeeSelected(e.id)">
+                      <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full overflow-hidden bg-[#1A1A1A] border border-white/5">
+                           <img *ngIf="e.profile_photo || e.photo" [src]="e.profile_photo || e.photo" class="w-full h-full object-cover" />
+                           <div *ngIf="!(e.profile_photo || e.photo)" class="w-full h-full flex items-center justify-center text-[10px] font-bold text-white/20">
+                             {{ e.username?.slice(0, 2).toUpperCase() }}
+                           </div>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="text-[12px] font-bold text-white/80 group-hover:text-white">{{ e.username }}</span>
+                          <span class="text-[8px] font-medium text-white/20 uppercase">{{ e.department_name }}</span>
+                        </div>
+                      </div>
+                      <div *ngIf="isEmployeeSelected(e.id)" class="w-5 h-5 rounded-full bg-[#E53935] flex items-center justify-center">
+                        <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                      </div>
+                    </div>
+                    <div *ngIf="getMembersByDepartment(taskDepartmentId).length === 0" class="py-10 text-center text-[10px] font-bold text-white/10 uppercase tracking-widest">
+                      No members available
+                    </div>
                   </div>
-                  <span class="text-[10px] font-bold text-white/10 uppercase tracking-wider">No assignee</span>
+                  <button type="button" (click)="showEmployeeDropdown = false" class="w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-black tracking-widest text-white/40 uppercase transition-all">CLOSE</button>
                 </div>
               </div>
-              <select [(ngModel)]="taskEmployeeId" name="taskEmployeeId" required
-                class="mt-2 text-[10px] bg-transparent border-none text-white/40">
-                <option value="" disabled selected>Assign to...</option>
-                <option *ngFor="let e of employees" [value]="e.id"  class="text-black">{{e.username}}</option>
-              </select>
             </div>
           </div>
-          <div class="form-group">
-            <div class="label-with-value">
-              <label>PROGRESS</label>
-              <span class="value">{{taskProgress}}%</span>
-            </div>
-            <input type="range" [(ngModel)]="taskProgress" name="taskProgress" min="0" max="100" class="progress-range">
-          </div>
-        </div>
 
-        <div class="modal-actions">
-          <button type="button" class="btn-cancel" (click)="closeModal()">CANCEL</button>
-          <button type="submit" class="btn-create" [disabled]="isSubmitting">
-            {{ isSubmitting ? 'CREATING...' : 'CREATE TASK' }}
+          <div class="form-row">
+            <div class="form-group full">
+              <div class="label-with-value">
+                <label>PROGRESS</label>
+                <span class="value">{{taskProgress}}%</span>
+              </div>
+              <input type="range" [(ngModel)]="taskProgress" name="taskProgress" min="0" max="100" class="progress-range">
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-10 py-8 border-t border-white/5 shrink-0 bg-[#0A0A0A] relative z-20">
+        <div class="flex items-center justify-end gap-10">
+          <button type="button" (click)="closeModal()" class="btn-cancel font-black tracking-widest text-[11px] text-white/20 hover:text-white uppercase transition-all">
+            CANCEL
+          </button>
+          <button type="submit" form="taskForm" [disabled]="isSubmitting" 
+            class="px-10 py-4 rounded-full bg-[#E53935] text-white text-[11px] font-black tracking-[0.2em] uppercase hover:bg-[#f44336] transition-all shadow-xl shadow-red-500/10 disabled:opacity-50">
+            {{ isSubmitting ? 'CREATING...' : (editTaskId ? 'UPDATE TASK' : 'CREATE TASK') }}
           </button>
         </div>
-      </form>
+        
+        <!-- Error Message -->
+        <div *ngIf="errorMsg" class="mt-4 text-[10px] font-bold text-red-500 uppercase tracking-widest text-center animate-pulse">
+          {{ errorMsg }}
+        </div>
     </div>
   </div>
+</div>
+ </div>
 </div>

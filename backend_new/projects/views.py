@@ -17,8 +17,7 @@ def serialize_project(p):
         'name': p.name,
         'client': getattr(p, 'client', ''),
         'description': p.description,
-        'owner_id': str(p.owner.id) if getattr(p, 'owner', None) else None,
-        'owner_name': getattr(p.owner, 'username', None) if getattr(p, 'owner', None) else None,
+        'owner': str(p.owner) if getattr(p, 'owner', None) else None,
         'status': getattr(p, 'status', 'Planning'),
         'priority': getattr(p, 'priority', 'MEDIUM'),
         'is_high_priority': getattr(p, 'is_high_priority', False),
@@ -80,7 +79,7 @@ def project_list_create(request):
         tasks_data = request.data.get('tasks', [])
         deadline_str = request.data.get('deadline')
         
-        owner_id = request.data.get('owner_id')
+        owner = request.data.get('owner')
         status = request.data.get('status', 'Planning')
         priority = request.data.get('priority', 'MEDIUM')
         is_high_priority = request.data.get('is_high_priority', False)
@@ -101,12 +100,8 @@ def project_list_create(request):
             except DoesNotExist:
                 return Response({'error': 'Department not found'}, status=404)
 
-        owner = None
-        if owner_id:
-            try:
-                owner = User.objects.get(id=owner_id)
-            except DoesNotExist:
-                pass
+        # Owner is now a string from request.data
+        pass
 
         employees = []
         if employee_ids:
@@ -187,12 +182,9 @@ def project_detail(request, pk):
         project.client = client
         project.description = description
         
-        owner_id = request.data.get('owner_id')
-        if owner_id:
-            try:
-                project.owner = User.objects.get(id=owner_id)
-            except DoesNotExist:
-                pass
+        owner_val = request.data.get('owner')
+        if owner_val is not None:
+            project.owner = owner_val
         
         if 'status' in request.data: project.status = request.data['status']
         if 'priority' in request.data: project.priority = request.data['priority']

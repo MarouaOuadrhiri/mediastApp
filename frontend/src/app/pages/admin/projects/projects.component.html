@@ -83,7 +83,7 @@
           </div>
         </div>
 
-        <div class="mb-6">
+        <div class="">
           <h2 class="project-title">{{ heroProject.name }}</h2>
           <span class="client-label" *ngIf="heroProject.client">CLIENT: {{ heroProject.client }}</span>
           <p class="project-desc">{{ heroProject.description || 'Production of cinematic assets and creative campaigns.'
@@ -104,7 +104,7 @@
           <div class="flex items-center gap-8">
             <div class="avatar-stack">
               <ng-container *ngFor="let m of heroProject.employees?.slice(0, 3)">
-                <img *ngIf="m.profile_photo || m.photo" [src]="m.profile_photo || m.photo" class="avatar hero-avatar" />
+                <img *ngIf="m.profile_photo || m.photo" [src]="m.profile_photo || m.photo" class="avatar " />
                 <div *ngIf="!(m.profile_photo || m.photo)" class="avatar hero-avatar avatar-fallbackSmall">{{
                   m.username?.slice(0,2).toUpperCase() }}</div>
               </ng-container>

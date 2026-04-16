@@ -19,7 +19,7 @@ class Project(Document):
     name = StringField(required=True, max_length=200)
     client = StringField(max_length=200)
     description = StringField()
-    owner = ReferenceField(User, null=True)
+    owner = StringField(max_length=200, null=True)
     status = StringField(choices=('Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled'), default='Planning')
     priority = StringField(choices=('LOW', 'MEDIUM', 'HIGH', 'URGENT'), default='MEDIUM')
     is_high_priority = BooleanField(default=False)

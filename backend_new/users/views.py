@@ -65,7 +65,7 @@ def serialize_user(u, include_department=True):
     last_task = None
     try:
         from tasks.models import Task
-        t = Task.objects(employee=u.id).order_by('-id').first()
+        t = Task.objects(employees=u.id).order_by('-id').first()
         if t:
             last_task = {'title': t.title, 'status': t.status}
     except Exception:
@@ -406,7 +406,7 @@ def get_employee_history(request, pk):
         })
 
     # Standalone Tasks
-    tasks = Task.objects(employee=user.id).order_by('-id')
+    tasks = Task.objects(employees=user.id).order_by('-id')
     task_data = [{
         'id': str(t.id),
         'title': t.title,

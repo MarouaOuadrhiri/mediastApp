@@ -27,10 +27,11 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
   projectDepartmentId = '';
   projectEmployeeIds: string[] = [];
   projectDeadline = '';
+  projectStartDate = '';
   projectTasks: { id?: string, title: string, description?: string, note?: string }[] = [];
 
   // New fields
-  projectOwnerId = '';
+  projectOwner = '';
   projectStatus = 'Planning';
   isHighPriority = false;
   projectBudget = '';
@@ -39,6 +40,7 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
   employees: any[] = [];
   departments: any[] = [];
   filteredEmployees: any[] = [];
+  showEmployeeDropdown = false;
 
   private modalSub: Subscription | null = null;
 
@@ -100,7 +102,8 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
     this.filterEmployees();
     this.projectEmployeeIds = p.employees?.map((e: any) => e.id) || [];
     this.projectDeadline = p.deadline ? p.deadline.slice(0, 16) : '';
-    this.projectOwnerId = p.owner_id || '';
+    this.projectStartDate = p.start_date ? p.start_date.slice(0, 16) : '';
+    this.projectOwner = p.owner || '';
     this.projectStatus = p.status || 'Planning';
     this.isHighPriority = p.is_high_priority || false;
     this.projectBudget = p.budget || '';
@@ -133,8 +136,9 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
     this.projectDepartmentId = '';
     this.projectEmployeeIds = [];
     this.projectDeadline = '';
+    this.projectStartDate = '';
     this.projectTasks = [];
-    this.projectOwnerId = '';
+    this.projectOwner = '';
     this.projectStatus = 'Planning';
     this.isHighPriority = false;
     this.projectBudget = '';
@@ -155,6 +159,33 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
 
   onDepartmentChange() {
     this.filterEmployees();
+    // Auto-select all employees of the selected department
+    if (this.projectDepartmentId) {
+      const deptMembers = this.employees
+        .filter(e => e.department_id === this.projectDepartmentId)
+        .map(e => e.id);
+      
+      // Merge with existing selected IDs, ensuring no duplicates
+      const newSelection = new Set([...this.projectEmployeeIds, ...deptMembers]);
+      this.projectEmployeeIds = Array.from(newSelection);
+    }
+  }
+
+  toggleEmployee(eId: string) {
+    const index = this.projectEmployeeIds.indexOf(eId);
+    if (index === -1) {
+      this.projectEmployeeIds.push(eId);
+    } else {
+      this.projectEmployeeIds.splice(index, 1);
+    }
+  }
+
+  isEmployeeSelected(eId: string): boolean {
+    return this.projectEmployeeIds.includes(eId);
+  }
+
+  getSelectedEmployees() {
+    return this.employees.filter(e => this.projectEmployeeIds.includes(e.id));
   }
 
   addProjectTask() {
@@ -196,8 +227,9 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
       department_id: this.projectDepartmentId || undefined,
       employee_ids: this.projectEmployeeIds,
       deadline: deadlineIso,
+      start_date: this.projectStartDate ? new Date(this.projectStartDate).toISOString() : undefined,
       tasks: validTasks,
-      owner_id: this.projectOwnerId || undefined,
+      owner: this.projectOwner || undefined,
       status: this.projectStatus,
       is_high_priority: this.isHighPriority,
       budget: this.projectBudget,

@@ -1,79 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :host {
-  width: 820;
-  height: 921;
-  top: 189px;
-  left: 230px;
-  border-radius: 24px;
-  background: #FFFFFF0D;
-  border: 1px solid #FFFFFF0D;
+  display: block;
 }
-.title-popup{
-  font-family: 'Space Grotesk',sans-serif;
-  font-weight: 700;
-  font-style: Bold;
-  font-size: 30px;
-  line-height: 32px;
-  letter-spacing: -0.6px;
-  vertical-align: middle;
-  color: white;
-}
-.subtitle{
-  font-family: 'Space Grotesk',sans-serif;
-  font-weight: 400;
-  font-style: Regular;
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: 0px;
-  vertical-align: middle;
-  color: #C6C6CC;
-}
-input ::placeholder{
-  font-family: 'Inter',sans-serif;
-  font-weight: 400;
-  font-style: Regular;
-  font-size: 14px;
-  line-height: 100%;
-  letter-spacing: 0px;
-  vertical-align: middle;
-  text-transform: uppercase;
-  color: #525252;
-}
-input{
-  width: 366;
-  height: 44;
-  border-radius: 15px;
-  opacity: 1;
-  padding-top: 13px;
-  padding-right: 16px;
-  padding-bottom: 14px;
-  padding-left: 16px;
-  background-color: #1C1B1C;
-}
-.label{
-  font-family: 'Space Grotesk',sans-serif;
-  font-weight: 400;
-  font-style: Regular;
-  font-size: 10px;
-  line-height: 15px;
-  letter-spacing: 1px;
-  vertical-align: middle;
-  text-transform: uppercase;
-  color: #A3A3A3;
-}
+
 .modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   animation: backdropFade 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .modal-panel {
   font-family: 'Inter', sans-serif;
+  background: #0A0A0A;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 32px 120px rgba(0, 0, 0, 0.6);
   animation: panelSlide 0.5s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 @keyframes backdropFade {
   from { opacity: 0; backdrop-filter: blur(0); }
-  to { opacity: 1; backdrop-filter: blur(12px); }
+  to { opacity: 1; backdrop-filter: blur(24px); }
 }
 
 @keyframes panelSlide {
@@ -81,94 +29,201 @@ input{
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
+.title-popup {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.subtitle {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 4px;
+}
+
+.label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+input, select, textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 14px 20px;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+input::placeholder, textarea::placeholder {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: rgba(229, 57, 53, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+input:disabled, select:disabled, textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Specific Select Styling */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.2)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.25rem center;
+  background-size: 1rem;
 }
 
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+  background: transparent;
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+select option {
+  background-color: #111111;
+  color: white;
+}
+
+/* Avatar Stack */
+.avatar-stack {
+  display: flex;
+  align-items: center;
+}
+.avatar-item {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.2s ease, z-index 0.2s;
+}
+.avatar-item:hover {
+  transform: translateY(-4px) scale(1.1);
+  z-index: 10;
+}
+.avatar-more {
+  position: relative;
+  z-index: 0;
+}
+
+/* Scrollbar refinements */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.01);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Member Selection refinements */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* Form Styles */
+.member-selection-list {
+  scrollbar-gutter: stable;
+}
+
+/* Glow Effect */
+.glow-effect {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(229, 57, 53, 0.15) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Button overrides */
+.btn-cancel {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+.btn-cancel:hover {
+  color: #FFFFFF;
+}
+
+.btn-primary {
+  background: #E53935;
+  color: #FFFFFF;
+  border-radius: 9999px;
+  padding: 14px 32px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 24px rgba(229, 57, 53, 0.3);
+  transition: all 0.2s;
+}
+.btn-primary:hover {
+  background: #F44336;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px rgba(229, 57, 53, 0.4);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Animations */
+.animate-in {
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Focus states for task inputs */
+.focus-ring-0:focus {
+  outline: none;
+  border-bottom: 1px solid rgba(229, 57, 53, 0.5) !important;
+  background: transparent !important;
+}
+
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
-  opacity: 0.1;
-  cursor: pointer;
-}
-
-input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 0.5;
-}
-
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.2)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1.5rem center;
-  background-size: 1.25rem;
-}
-
-select[multiple] {
-  background-image: none;
-}
-
-/* Member Selector Multi-select Customization */
-select[multiple] option {
-  padding: 12px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.4);
-  font-weight: 600;
-  font-size: 11px;
-  border-radius: 12px;
-  margin-bottom: 4px;
-}
-
-select[multiple] option:checked {
-  background: #E53935 !important;
-  color: white !important;
-  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.3);
-}
-
-/* Labels & Heads */
-h2, h3 {
-  font-family: 'Space Grotesk', sans-serif;
-}
-
-/* Field Group Transitions */
-.group:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Responsive Overrides */
-@media (max-height: 800px) {
-  .modal-panel {
-    max-height: 95vh;
-  }
-  .px-10 {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-  .py-8 {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-  }
+  opacity: 0.2;
 }
