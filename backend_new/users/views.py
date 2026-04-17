@@ -234,7 +234,61 @@ def me_view(request):
 def employee_list_create(request):
     if request.method == 'GET':
         employees = User.objects(role='EMPLOYEE')
-        return Response([serialize_user(e) for e in employees])
+        
+        from projects.models import Project
+        from tasks.models import Task
+        from mongoengine.queryset.visitor import Q
+        
+        response_data = []
+        for e in employees:
+            data = serialize_user(e)
+            uid = e.id
+            
+            filters = [Q(employees=uid), Q(tasks__completed_by=uid)]
+            if e.department:
+                filters.append(Q(department=e.department.id))
+            
+            query = filters[0]
+            for q in filters[1:]:
+                query |= q
+
+            projects = Project.objects.filter(query)
+            
+            total_tasks = 0
+            done_tasks = 0
+            
+            for p in projects:
+                for t in p.tasks:
+                    total_tasks += 1
+                    if t.status == 'DONE':
+                        done_tasks += 1
+                        
+            standalone = Task.objects(employees=uid)
+            for t in standalone:
+                total_tasks += 1
+                if t.status == 'DONE':
+                    done_tasks += 1
+            
+            if total_tasks > 0:
+                progress = int((done_tasks / total_tasks) * 100)
+            else:
+                progress = 0
+                
+            active_tasks = total_tasks - done_tasks
+            
+            if active_tasks == 0:
+                status = "Available"
+            elif active_tasks <= 5:
+                status = "Busy"
+            else:
+                status = "At Capacity"
+                
+            data['workload_progress'] = progress
+            data['workload_status'] = status
+            data['active_tasks'] = active_tasks
+            response_data.append(data)
+            
+        return Response(response_data)
 
     if request.method == 'POST':
         data = request.data

@@ -5,7 +5,7 @@
 }
 
 .modal-overlay {
-  background: rgba(0, 0, 0, 0.4);
+  /* background: rgba(0, 0, 0, 0.4); */
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   animation: backdropFade 0.4s cubic-bezier(0.4, 0, 0.2, 1);

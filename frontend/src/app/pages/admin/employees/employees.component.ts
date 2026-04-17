@@ -16,6 +16,10 @@ export class EmployeesComponent implements OnInit {
   isSubmitting = false;
   errorMsg = '';
 
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 6;
+
   empUsername = '';
   empEmail = '';
   empPassword = '';
@@ -23,6 +27,7 @@ export class EmployeesComponent implements OnInit {
   empSuccess = '';
   empPhoto = '';
 
+  isModalOpen = false;
   showHistoryModal = false;
   selectedHistory: any = null;
 
@@ -68,6 +73,7 @@ export class EmployeesComponent implements OnInit {
         this.empUsername = ''; this.empEmail = ''; this.empPassword = ''; this.empDepartmentId = ''; this.empPhoto = '';
         this.isSubmitting = false; 
         this.loadData(); 
+        this.closeModal();
         setTimeout(() => this.empSuccess = '', 3000);
       },
       error: (err: any) => { this.errorMsg = err.error?.error || 'Failed to create employee.'; this.isSubmitting = false; }
@@ -124,5 +130,48 @@ export class EmployeesComponent implements OnInit {
   closeAttendance() {
     this.showAttendanceModal = false;
     this.selectedAttendanceLogs = [];
+  }
+
+  openModal() {
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+    this.errorMsg = '';
+  }
+
+  // Pagination getters & methods
+  get paginatedEmployees() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.employees.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  get totalPages() {
+    return Math.ceil(this.employees.length / this.itemsPerPage);
+  }
+
+  get pagesArray() {
+    const pages = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  setPage(page: number) {
+    this.currentPage = page;
   }
 }

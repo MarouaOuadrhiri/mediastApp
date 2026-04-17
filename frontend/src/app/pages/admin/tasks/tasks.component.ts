@@ -64,6 +64,9 @@ export class TasksComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
+  expandedStatusGroups = new Set<string>(['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE']);
+  listStatuses = ['IN PROGRESS', 'REVIEW', 'BLOCKED', 'DONE'];
+
   ngOnInit() {
     this.loadData();
   }
@@ -95,6 +98,7 @@ export class TasksComponent implements OnInit {
 
   groupTasks() {
     this.boardTasks = {
+      'TODO': this.tasks.filter(t => t.status === 'TODO' && !t.is_archived),
       'BLOCKED': this.tasks.filter(t => t.status === 'BLOCKED' && !t.is_archived),
       'IN PROGRESS': this.tasks.filter(t => t.status === 'IN PROGRESS' && !t.is_archived),
       'REVIEW': this.tasks.filter(t => t.status === 'REVIEW' && !t.is_archived),
@@ -154,6 +158,12 @@ export class TasksComponent implements OnInit {
     return p ? p.name : 'Unknown Project';
   }
 
+  getDepartmentName(deptId: string): string {
+    if (!deptId) return 'No Department';
+    const d = this.departments.find((dep: any) => dep.id === deptId);
+    return d ? d.name : 'Unknown Department';
+  }
+
   /** Group all tasks by project for the list accordion view */
   get groupedByProject(): { projectId: string; projectName: string; tasks: any[] }[] {
     const map = new Map<string, any[]>();
@@ -178,6 +188,14 @@ export class TasksComponent implements OnInit {
       this.expandedProjects.delete(projectId);
     } else {
       this.expandedProjects.add(projectId);
+    }
+  }
+
+  toggleStatusGroup(status: string) {
+    if (this.expandedStatusGroups.has(status)) {
+      this.expandedStatusGroups.delete(status);
+    } else {
+      this.expandedStatusGroups.add(status);
     }
   }
 

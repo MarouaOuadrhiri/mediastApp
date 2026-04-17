@@ -540,8 +540,7 @@ text-transform: uppercase;
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(16px);
+  background: #00000066;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -588,7 +587,10 @@ text-transform: uppercase;
 }
 
 .modal-panel.glass {
-  background: rgba(10, 10, 10, 0.8);
+  /* background: rgba(10, 10, 10, 0.8); */
+  /* box-shadow: 0px 25px 50px -12px #00000040; */
+  background: #FFFFFF0D;
+  border: 1px solid #FFFFFF1A;
   backdrop-filter: blur(40px);
 }
 

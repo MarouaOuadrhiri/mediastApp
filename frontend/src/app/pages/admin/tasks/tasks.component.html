@@ -126,7 +126,7 @@
   </div>
 
   <!-- List View — Flat list of all tasks with expandable details -->
-  <div class="list-view" *ngIf="viewMode === 'list'">
+  <div class="list-view" *ngIf="viewMode === 'list'" cdkDropListGroup>
 
     <div *ngIf="tasks.length === 0" class="list-empty">
       <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,70 +136,102 @@
       <span>No tasks yet. Use the + button to create one.</span>
     </div>
 
-    <div class="list-row-container" *ngFor="let t of tasks">
-      <!-- Main Row -->
-      <div class="acc-task-row flat" [class.expanded]="expandedTasks.has(t.id)">
-        <div class="acc-row-left">
-          <button class="expand-btn" (click)="toggleTaskDetails(t.id)">
-            <svg class="w-4 h-4 transition-transform" [class.rotate-90]="expandedTasks.has(t.id)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-          <div class="acc-dot" [attr.data-status]="t.status"></div>
-          <span class="acc-task-title">{{t.title}}</span>
-        </div>
+    <!-- Table Headers (Inspired by Design) -->
+    <div class="flex items-center justify-between px-5 pb-3 mb-4 border-b border-white/[0.04] text-[10px] font-bold uppercase tracking-[0.2em] text-[#737373] mt-8" *ngIf="tasks.length > 0">
+      <div class="w-[35%]">Task Details</div>
+      <div class="w-[20%]">Status</div>
+      <div class="w-[15%]">Efficiency Rating</div>
+      <div class="w-[15%]">Team Health</div>
+      <div class="w-[15%] flex justify-end">Assignees</div>
+    </div>
 
-        <div class="acc-row-right">
-          <button *ngIf="isAdmin() && t.status === 'DONE'" (click)="archiveTask(t.id)" class="archive-action-btn mr-4" title="Archive Task">
-            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-          </button>
-          <span class="priority-badge" [attr.data-priority]="t.priority">{{t.priority}}</span>
-          <span class="list-status-badge" [attr.data-status]="t.status">{{t.status}}</span>
-          <div class="date-tag" *ngIf="t.deadline">
-            <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>{{t.deadline}}</span>
-          </div>
-          <div class="avatar-stack list-stack">
-            <img *ngFor="let emp of t.employees?.slice(0, 2)"
-              [src]="emp.photo || ('https://ui-avatars.com/api/?name=' + emp.name)"
-              class="stacked-avatar list-avatar" [title]="emp.name">
-          </div>
+    <div class="status-group mb-6" *ngFor="let status of listStatuses">
+      <!-- Group Header -->
+      <div class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-colors" (click)="toggleStatusGroup(status)">
+        <div class="flex items-center gap-3">
+          <div class="list-status-badge text-sm" [attr.data-status]="status.replace(' ', '_')">{{ status }}</div>
+          <span class="text-xs font-bold text-white/40 bg-white/5 px-2 py-0.5 rounded-full">{{ boardTasks[status]?.length || 0 }}</span>
         </div>
+        <button class="text-white/40 hover:text-white transition-transform duration-200" [class.rotate-180]="expandedStatusGroups.has(status)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
       </div>
 
-      <!-- Detail View (Expands) -->
-      <div class="task-detail-panel animate-fade-in" *ngIf="expandedTasks.has(t.id)">
-        <div class="detail-grid">
-          <div class="detail-item full">
-            <label>Description</label>
-            <p>{{t.description || 'No description provided.'}}</p>
-          </div>
-          <div class="detail-item">
-            <label>Project</label>
-            <div class="detail-meta">
-              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-              </svg>
-              {{getProjectName(t.project_id)}}
+      <!-- Group Content -->
+      <div class="status-group-content space-y-3 p-1 min-h-[100px] transition-all rounded-xl border border-transparent" 
+           [class.border-dashed]="true" [class.border-white/10]="boardTasks[status]?.length === 0"
+           *ngIf="expandedStatusGroups.has(status)"
+           cdkDropList [id]="status" [cdkDropListData]="boardTasks[status]" [cdkDropListConnectedTo]="listStatuses" (cdkDropListDropped)="drop($event)">
+        <div class="list-row-container hover:shadow-[0_0_15px_rgba(255,255,255,0.03)] rounded-xl cursor-grab active:cursor-grabbing" 
+             *ngFor="let t of boardTasks[status]" cdkDrag>
+          
+          <div *cdkDragPlaceholder class="bg-white/5 border border-dashed border-white/20 rounded-xl h-[88px] w-full mb-2"></div>
+          
+          <!-- Unified Table-like Row -->
+          <div class="flex items-center justify-between p-5 bg-[#1C1B1C] hover:bg-[#2A2A2B] border-b border-white/[0.04] transition-colors rounded-xl mb-2 group">
+            
+            <!-- 1. Task Title & Project -->
+            <div class="flex items-center gap-4 w-[35%]">
+              <div class="w-8 h-8 rounded-full bg-white/5 flex flex-col items-center justify-center text-white/50 group-hover:text-white/80 transition-colors shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+              </div>
+              <div class="flex flex-col overflow-hidden">
+                <span class="font-bold text-[15px] font-['Space_Grotesk'] text-white truncate w-full" [title]="t.title">{{ t.title }}</span>
+                <span class="text-[11px] text-[#A3A3A3] font-medium tracking-wide truncate w-full">
+                  {{ t.project_id ? getProjectName(t.project_id) : (t.department_id ? getDepartmentName(t.department_id) : 'Standalone Task') }}
+                </span>
+              </div>
             </div>
-          </div>
-          <div class="detail-item">
-            <label>Department</label>
-            <div class="detail-meta">
-              {{ t.department_id ? 'Assigned via Department' : 'Standalone' }}
-            </div>
-          </div>
-          <div class="detail-item">
-            <label>Assignees</label>
-            <div class="tag-list">
-              <span *ngFor="let emp of t.employees" class="member-tag">
-                {{emp.name}}
+
+            <!-- 2. Status Pill -->
+            <div class="w-[20%]">
+              <span class="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border"
+                    [ngClass]="{
+                      'bg-[#22C55E1A] text-[#4ADE80] border-[#22C55E33]': t.status === 'DONE',
+                      'bg-[#EAB3081A] text-[#FACC15] border-[#EAB30833]': t.status === 'IN PROGRESS' || t.status === 'REVIEW',
+                      'bg-[#EF44441A] text-[#F87171] border-[#EF444433]': t.status === 'BLOCKED',
+                      'bg-white/5 text-white/50 border-white/10': !t.status
+                    }">
+                {{ t.status }}
               </span>
+            </div>
+
+            <!-- 3. Efficiency Rating (Progress) -->
+            <div class="w-[15%] flex items-center">
+               <span class="text-[14px] font-bold font-['Space_Grotesk'] text-[#A3A3A3]">{{ t.progress || 0 }}%</span>
+            </div>
+
+            <!-- 4. Team Health (Priority) -->
+            <div class="w-[15%] flex items-center">
+               <span class="text-[14px] font-bold font-['Space_Grotesk'] text-[#A3A3A3] capitalize">{{ t.priority?.toLowerCase() || 'Normal' }}</span>
+            </div>
+
+            <!-- 5. Assignees & Actions -->
+            <div class="w-[20%] flex items-center justify-end gap-3 min-w-[120px]">
+              
+              <!-- Employee Output -->
+              <div class="flex items-center gap-2" *ngIf="t.employees && t.employees.length > 0">
+                <div class="flex items-center gap-2 bg-white/5 pr-3 pl-1 py-1 rounded-full border border-white/5">
+                  
+                  <img [src]="t.employees[0].photo || ('https://ui-avatars.com/api/?name=' + t.employees[0].name)"
+                    class="w-6 h-6 rounded-full" [title]="t.employees[0].name">
+                  <span class="text-[11px] font-bold text-white/90 truncate max-w-[80px]">{{ t.employees[0].name.split(' ')[0] }}</span>
+                </div>
+                
+                <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-white border-2 border-[#1C1B1C] shrink-0" *ngIf="t.employees.length > 1">
+                  +{{ t.employees.length - 1 }}
+                </div>
+              </div>
+              <span class="text-[11px] font-bold text-white/30" *ngIf="!t.employees || t.employees.length === 0">Unassigned</span>
+
+              <!-- Archive Btn -->
+              <button *ngIf="isAdmin() && t.status === 'DONE'" (click)="archiveTask(t.id)" class="text-white/20 hover:text-white transition-colors" title="Archive Task">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
