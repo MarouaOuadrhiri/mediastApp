@@ -51,34 +51,40 @@ print(f"[OK] {len(departments)} departments ready")
 # 2. USERS
 # ─────────────────────────────────────────────
 user_data = [
-    {"username": "admin_root",    "email": "admin@company.com",    "role": "ADMIN",    "department": None},
-    {"username": "alice_eng",     "email": "alice@company.com",    "role": "EMPLOYEE", "department": departments[0]},  # Engineering
-    {"username": "bob_eng",       "email": "bob@company.com",      "role": "EMPLOYEE", "department": departments[0]},
-    {"username": "carol_mkt",     "email": "carol@company.com",    "role": "EMPLOYEE", "department": departments[1]},  # Marketing
-    {"username": "dave_mkt",      "email": "dave@company.com",     "role": "EMPLOYEE", "department": departments[1]},
-    {"username": "eve_hr",        "email": "eve@company.com",      "role": "EMPLOYEE", "department": departments[2]},  # HR
-    {"username": "frank_hr",      "email": "frank@company.com",    "role": "EMPLOYEE", "department": departments[2]},
-    {"username": "grace_fin",     "email": "grace@company.com",    "role": "EMPLOYEE", "department": departments[3]},  # Finance
-    {"username": "henry_fin",     "email": "henry@company.com",    "role": "EMPLOYEE", "department": departments[3]},
-    {"username": "irene_design",  "email": "irene@company.com",    "role": "EMPLOYEE", "department": departments[4]},  # Design
-    {"username": "james_design",  "email": "james@company.com",    "role": "EMPLOYEE", "department": departments[4]},
-    {"username": "karen_eng",     "email": "karen@company.com",    "role": "ADMIN",    "department": departments[0]},
+    {"email": "admin@company.com",    "role": "ADMIN",    "department": None, "first_name": "Admin", "last_name": "Root"},
+    {"email": "alice@company.com",    "role": "EMPLOYEE", "department": departments[0], "first_name": "Alice", "last_name": "Engine"},
+    {"email": "bob@company.com",      "role": "EMPLOYEE", "department": departments[0], "first_name": "Bob", "last_name": "Build"},
+    {"email": "carol@company.com",    "role": "EMPLOYEE", "department": departments[1], "first_name": "Carol", "last_name": "Market"},
+    {"email": "dave@company.com",     "role": "EMPLOYEE", "department": departments[1], "first_name": "Dave", "last_name": "Growth"},
+    {"email": "eve@company.com",      "role": "EMPLOYEE", "department": departments[2], "first_name": "Eve", "last_name": "People"},
+    {"email": "frank@company.com",    "role": "EMPLOYEE", "department": departments[2], "first_name": "Frank", "last_name": "Culture"},
+    {"email": "grace@company.com",    "role": "EMPLOYEE", "department": departments[3], "first_name": "Grace", "last_name": "Strategy"},
+    {"email": "henry@company.com",    "role": "EMPLOYEE", "department": departments[3], "first_name": "Henry", "last_name": "Budget"},
+    {"email": "irene@company.com",    "role": "EMPLOYEE", "department": departments[4], "first_name": "Irene", "last_name": "Creative"},
+    {"email": "james@company.com",    "role": "EMPLOYEE", "department": departments[4], "first_name": "James", "last_name": "Vision"},
+    {"email": "karen@company.com",    "role": "ADMIN",    "department": departments[0], "first_name": "Karen", "last_name": "Manager"},
 ]
 
 FAKE_PASSWORD = "pbkdf2_sha256$600000$fakesalt$hashedpasswordhere=="  # replace with real hashed pw
 
 users = []
 for u in user_data:
-    user = User.objects(username=u["username"]).first()
+    user = User.objects(email=u["email"]).first()
     if not user:
         user = User(
-            username=u["username"],
             email=u["email"],
+            first_name=u.get("first_name", ""),
+            last_name=u.get("last_name", ""),
             password=FAKE_PASSWORD,
             role=u["role"],
             department=u["department"],
             profile_photo="",
         )
+        user.save()
+    else:
+        # Update existing to have names
+        user.first_name = u.get("first_name", "")
+        user.last_name = u.get("last_name", "")
         user.save()
     users.append(user)
 

@@ -31,6 +31,8 @@ export class AnalyticsComponent implements OnInit {
   
   topPerformer = {
     name: '---',
+    first_name: '',
+    last_name: '',
     performance: '0%',
     tasksClosed: 0,
     avgResponse: '--',
@@ -137,11 +139,13 @@ export class AnalyticsComponent implements OnInit {
     if (topUser) {
       this.topPerformer = {
         name: topUser.full_name || topUser.username,
+        first_name: topUser.first_name || '',
+        last_name: topUser.last_name || '',
         performance: 'Top Tier',
         tasksClosed: max > 0 ? max : 0,
         avgResponse: 'Fast',
         projectsLed: this.projects.filter(p => p.manager === topUser.id).length,
-        photoPath: topUser.profile_image || ''
+        photoPath: topUser.profile_image || topUser.profile_photo || ''
       };
     }
   }

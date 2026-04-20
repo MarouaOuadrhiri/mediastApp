@@ -6,12 +6,18 @@ from mongoengine import Document, StringField, EmailField, ReferenceField, DateT
 from departments.models import Department
 
 class User(Document):
-    username = StringField(required=True, max_length=50, unique=True)
     email = EmailField(required=True, unique=True)
     password = StringField(required=True)
+    first_name = StringField(max_length=50)
+    last_name = StringField(max_length=50)
     role = StringField(choices=('ADMIN', 'EMPLOYEE'), default='EMPLOYEE')
     department = ReferenceField(Department, null=True)
     profile_photo = StringField()
+    
+    meta = {
+        'strict': False,
+        'collection': 'user'
+    }
 
     @property
     def is_authenticated(self):

@@ -53,8 +53,9 @@ def serialize_user(u, include_department=True):
 
     data = {
         'id': str(u.id),
-        'username': u.username,
         'email': u.email,
+        'first_name': getattr(u, 'first_name', ''),
+        'last_name': getattr(u, 'last_name', ''),
         'role': u.role,
         'profile_photo': getattr(u, 'profile_photo', ''),
         'is_online': is_online,
@@ -107,24 +108,26 @@ def serialize_user(u, include_department=True):
 @permission_classes([])
 def register(request):
     data = request.data
-    username = data.get('username')
     email = data.get('email')
     password = data.get('password')
+    first_name = data.get('first_name', '')
+    last_name = data.get('last_name', '')
 
-    if not username or not email or not password:
-        return Response({'error': 'Please provide username, email, and password'}, status=400)
+    if not email or not password:
+        return Response({'error': 'Please provide email and password'}, status=400)
 
     try:
         user = User(
-            username=username, 
             email=email, 
             password=make_password(password),
+            first_name=first_name,
+            last_name=last_name,
             profile_photo=data.get('profile_photo', '')
         )
         user.save()
         return Response({'message': 'User registered successfully', 'user': serialize_user(user)}, status=201)
     except NotUniqueError:
-        return Response({'error': 'Username or email already exists'}, status=400)
+        return Response({'error': 'Email address already exists'}, status=400)
 
 
 @api_view(['POST'])
@@ -132,13 +135,13 @@ def register(request):
 @permission_classes([])
 def login(request):
     data = request.data
-    username = data.get('username')
+    email = data.get('email')
     password = data.get('password')
 
-    if not username or not password:
-        return Response({'error': 'Please provide username and password'}, status=400)
+    if not email or not password:
+        return Response({'error': 'Please provide email and password'}, status=400)
 
-    user = User.objects(username=username).first()
+    user = User.objects(email=email).first()
     if not user or not check_password(password, user.password):
         return Response({'error': 'Invalid credentials'}, status=401)
 
@@ -182,7 +185,7 @@ def protected_view(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def me_view(request):
-    """GET current user info. PATCH to update own profile (username, email, password)."""
+    """GET current user info. PATCH to update own profile (first_name, last_name, email, password)."""
     if request.method == 'GET':
         return Response(serialize_user(request.user))
 
@@ -190,10 +193,11 @@ def me_view(request):
         user = request.user
         data = request.data
 
-        new_username = data.get('username', '').strip()
         new_email = data.get('email', '').strip()
         new_password = data.get('password', '').strip()
         current_password = data.get('current_password', '').strip()
+        new_first_name = data.get('first_name', '').strip()
+        new_last_name = data.get('last_name', '').strip()
 
         # Require current password to make any change
         if not current_password:
@@ -202,10 +206,8 @@ def me_view(request):
         if not check_password(current_password, user.password):
             return Response({'error': 'Current password is incorrect.'}, status=400)
 
-        if new_username and new_username != user.username:
-            if User.objects(username=new_username).first():
-                return Response({'error': 'Username already taken.'}, status=400)
-            user.username = new_username
+        if new_first_name: user.first_name = new_first_name
+        if new_last_name: user.last_name = new_last_name
 
         if new_email and new_email != user.email:
             if User.objects(email=new_email).first():
@@ -223,7 +225,7 @@ def me_view(request):
         try:
             user.save()
         except NotUniqueError:
-            return Response({'error': 'Username or email already exists.'}, status=400)
+            return Response({'error': 'Email address already exists.'}, status=400)
 
         return Response({'message': 'Profile updated successfully.', 'user': serialize_user(user)})
 
@@ -292,13 +294,14 @@ def employee_list_create(request):
 
     if request.method == 'POST':
         data = request.data
-        username = data.get('username')
         email = data.get('email')
         password = data.get('password')
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
         department_id = data.get('department_id')
 
-        if not username or not email or not password or not department_id:
-            return Response({'error': 'username, email, password, and department_id are required'}, status=400)
+        if not email or not password or not department_id:
+            return Response({'error': 'email, password, and department_id are required'}, status=400)
 
         try:
             dep = Department.objects.get(id=department_id)
@@ -307,9 +310,10 @@ def employee_list_create(request):
 
         try:
             user = User(
-                username=username,
                 email=email,
                 password=make_password(password),
+                first_name=first_name,
+                last_name=last_name,
                 role='EMPLOYEE',
                 department=dep,
                 profile_photo=data.get('profile_photo', '')
@@ -317,7 +321,7 @@ def employee_list_create(request):
             user.save()
             return Response({'message': 'Employee created successfully', 'user': serialize_user(user)}, status=201)
         except NotUniqueError:
-            return Response({'error': 'Username or email already exists'}, status=400)
+            return Response({'error': 'Email address already exists'}, status=400)
 
 
 @api_view(['GET', 'PATCH', 'DELETE'])
@@ -352,15 +356,14 @@ def employee_detail(request, pk):
             if not check_password(current_password, employee.password):
                 return Response({'error': 'Current password is incorrect.'}, status=400)
 
-        new_username = data.get('username', '').strip()
         new_email = data.get('email', '').strip()
         new_password = data.get('password', '').strip()
         new_department_id = data.get('department_id', '').strip()
+        new_first_name = data.get('first_name', '').strip()
+        new_last_name = data.get('last_name', '').strip()
 
-        if new_username and new_username != employee.username:
-            if User.objects(username=new_username).first():
-                return Response({'error': 'Username already taken.'}, status=400)
-            employee.username = new_username
+        if new_first_name: employee.first_name = new_first_name
+        if new_last_name: employee.last_name = new_last_name
 
         if new_email and new_email != employee.email:
             if User.objects(email=new_email).first():
@@ -386,7 +389,7 @@ def employee_detail(request, pk):
         try:
             employee.save()
         except NotUniqueError:
-            return Response({'error': 'Username or email already exists.'}, status=400)
+            return Response({'error': 'Email address already exists.'}, status=400)
 
         return Response({'message': 'Profile updated successfully.', 'user': serialize_user(employee)})
 
@@ -454,7 +457,7 @@ def get_employee_history(request, pk):
                     'status': t.status,
                     'progress': 100 if t.status == 'DONE' else 50 if t.status == 'IN_PROGRESS' else 0,
                     # Optimization: if completed by the same user, we already have their name in memory
-                    'completed_by_name': user.username if (getattr(t, 'completed_by', None) and str(t.completed_by.id) == str(uid)) else (t.completed_by.username if getattr(t, 'completed_by', None) else None)
+                    'completed_by_name': f"{user.first_name} {user.last_name}" if (getattr(t, 'completed_by', None) and str(t.completed_by.id) == str(uid)) else (f"{t.completed_by.first_name} {t.completed_by.last_name}" if getattr(t, 'completed_by', None) else None)
                 } for t in p.tasks
             ]
         })

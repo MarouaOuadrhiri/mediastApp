@@ -12,7 +12,8 @@ import { ApiService } from '../../core/api.service';
 })
 export class ProfileComponent implements OnInit {
   user: any = null;
-  username = '';
+  firstName = '';
+  lastName = '';
   email = '';
   password = '';
   currentPassword = '';
@@ -32,7 +33,8 @@ export class ProfileComponent implements OnInit {
     this.api.getMe().subscribe({
       next: (u) => {
         this.user = u;
-        this.username = u.username;
+        this.firstName = u.first_name || '';
+        this.lastName = u.last_name || '';
         this.email = u.email;
         this.profilePhoto = u.profile_photo || '';
       },
@@ -69,7 +71,8 @@ export class ProfileComponent implements OnInit {
 
     const payload: any = {
       current_password: this.currentPassword,
-      username: this.username,
+      first_name: this.firstName,
+      last_name: this.lastName,
       email: this.email,
       profile_photo: this.profilePhoto
     };

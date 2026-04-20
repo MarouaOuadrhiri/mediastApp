@@ -41,7 +41,9 @@
     background: #1C1C1F;
 }
 
-h2, h3, h4 {
+h2,
+h3,
+h4 {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
     color: white;
@@ -57,36 +59,34 @@ h2, h3, h4 {
     text-transform: uppercase;
 }
 
-/* Unified Dashboard Card Styling */
 .dashboard-card {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0) 100%), #131314;
-    backdrop-filter: blur(24px);
-    border-radius: 24px;
-    padding: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    background: #111111;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 2.5rem;
+    padding: 3rem;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    height: 500px;
-    overflow: hidden;
+    min-height: 480px;
+    height: auto;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-separator {
     border-top: 1px solid rgba(255, 255, 255, 0.03);
-    margin: 0 -32px;
+    margin: 0 -24px;
 }
 
 /* Global Completion Rates Figma Spec */
 .chart-card {
-    width: 100%; 
-    height: 500px;
-    padding: 24px;
-    background: #FFFFFF0D;
-    backdrop-filter: blur(16px);
-    border-radius: 24px;
+    width: 100%;
+    min-height: 480px;
+    height: auto;
+    background: #111111;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 2.5rem;
+    padding: 3rem;
     display: flex;
     flex-direction: column;
-    gap: 16px;
 }
 
 .chart-line {
@@ -118,7 +118,8 @@ h2, h3, h4 {
     font-size: 11px;
     letter-spacing: 0.25em;
     text-transform: uppercase;
-    color: #FD0000; /* Standardized to BrandShift Red */
+    color: #FD0000;
+    /* Standardized to BrandShift Red */
     display: block;
     margin-bottom: 4px;
 }
@@ -127,16 +128,18 @@ h2, h3, h4 {
 /* Heatmap Styles */
 .heatmap-grid {
     display: grid;
-    grid-template-columns: repeat(24, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 6px;
     flex: 1;
+    min-width: 0;
 }
 
 .heatmap-cell {
     width: 100%;
-    height: 60px;
+    aspect-ratio: 1 / 1;
+    min-width: 0;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.02);
+    background: #1a1a1a;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -146,11 +149,17 @@ h2, h3, h4 {
     z-index: 10;
 }
 
-.heatmap-cell.level-1 { background: #381414; }
-.heatmap-cell.level-2 { background: #6b1818; }
-.heatmap-cell.level-3 { 
-    background: #FD0000; 
-    box-shadow: 0 0 20px rgba(253, 0, 0, 0.4); 
+.heatmap-cell.level-1 {
+    background: #3c2020;
+}
+
+.heatmap-cell.level-2 {
+    background: #6e3232;
+}
+
+.heatmap-cell.level-3 {
+    background: #ff3b3b;
+    box-shadow: 0 0 20px rgba(255, 59, 59, 0.2);
 }
 
 /* Progress Bars */
@@ -181,10 +190,8 @@ h2, h3, h4 {
 .profile-bg-pattern {
     position: absolute;
     inset: -20px;
-    background: repeating-conic-gradient(
-        #FD0000 0deg 15deg,
-        transparent 15deg 30deg
-    );
+    background: repeating-conic-gradient(#FD0000 0deg 15deg,
+            transparent 15deg 30deg);
     border-radius: 50%;
     opacity: 0.05;
     mask-image: radial-gradient(circle, transparent 40%, black 100%);
@@ -193,8 +200,13 @@ h2, h3, h4 {
 }
 
 @keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .profile-image {
@@ -259,7 +271,7 @@ h2, h3, h4 {
 }
 
 .completion-chart-title {
-  font-family: 'Space Grotesk';
+    font-family: 'Space Grotesk';
     font-weight: 700;
     font-style: Bold;
     font-size: 12px;
@@ -280,6 +292,7 @@ h2, h3, h4 {
     vertical-align: middle;
     color: #FFFFFF;
 }
+
 .avg-completion-rate {
     font-family: 'Space Grotesk';
     font-weight: 700;
@@ -322,6 +335,7 @@ h2, h3, h4 {
     border: 1px solid rgba(253, 0, 0, 0.15);
     padding: 1.25rem;
     border-radius: 1.5rem;
+    margin-bottom: 4px;
 }
 
 .pulse-red {
@@ -329,9 +343,17 @@ h2, h3, h4 {
 }
 
 @keyframes pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(253, 0, 0, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(253, 0, 0, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(253, 0, 0, 0); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(253, 0, 0, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(253, 0, 0, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(253, 0, 0, 0);
+    }
 }
 
 .animate-in {
@@ -339,21 +361,31 @@ h2, h3, h4 {
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(40px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
 }
+
 ::-webkit-scrollbar-track {
     background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: #EF4444;
 }

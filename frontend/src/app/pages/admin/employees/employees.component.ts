@@ -15,12 +15,15 @@ export class EmployeesComponent implements OnInit {
   departments: any[] = [];
   isSubmitting = false;
   errorMsg = '';
+  selectedDepartmentId = '';
+  isDeptDropdownOpen = false;
 
   // Pagination
   currentPage = 1;
   itemsPerPage = 6;
 
-  empUsername = '';
+  empFirstName = '';
+  empLastName = '';
   empEmail = '';
   empPassword = '';
   empDepartmentId = '';
@@ -57,12 +60,13 @@ export class EmployeesComponent implements OnInit {
   }
 
   createEmployee() {
-    if (!this.empUsername || !this.empEmail || !this.empPassword || !this.empDepartmentId) {
+    if (!this.empFirstName || !this.empLastName || !this.empEmail || !this.empPassword || !this.empDepartmentId) {
       this.errorMsg = 'Please fill all fields.'; return;
     }
     this.isSubmitting = true;
     this.api.createEmployee({ 
-      username: this.empUsername, 
+      first_name: this.empFirstName,
+      last_name: this.empLastName,
       email: this.empEmail, 
       password: this.empPassword, 
       department_id: this.empDepartmentId,
@@ -70,7 +74,7 @@ export class EmployeesComponent implements OnInit {
     }).subscribe({
       next: (res: any) => { 
         this.empSuccess = res.id; 
-        this.empUsername = ''; this.empEmail = ''; this.empPassword = ''; this.empDepartmentId = ''; this.empPhoto = '';
+        this.empFirstName = ''; this.empLastName = ''; this.empEmail = ''; this.empPassword = ''; this.empDepartmentId = ''; this.empPhoto = '';
         this.isSubmitting = false; 
         this.loadData(); 
         this.closeModal();
@@ -114,7 +118,7 @@ export class EmployeesComponent implements OnInit {
   }
 
   openAttendance(emp: any) {
-    this.selectedEmpName = emp.username;
+    this.selectedEmpName = emp.first_name ? `${emp.first_name} ${emp.last_name}` : emp.username;
     this.selectedAttendanceLogs = [];
     this.showAttendanceModal = true;
     this.api.getEmployeeAttendance(emp.id).subscribe({
@@ -141,14 +145,21 @@ export class EmployeesComponent implements OnInit {
     this.errorMsg = '';
   }
 
-  // Pagination getters & methods
+  get filteredEmployees() {
+    let list = this.employees;
+    if (this.selectedDepartmentId) {
+      list = list.filter(e => e.department_id === this.selectedDepartmentId);
+    }
+    return list;
+  }
+
   get paginatedEmployees() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    return this.employees.slice(startIndex, startIndex + this.itemsPerPage);
+    return this.filteredEmployees.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
   get totalPages() {
-    return Math.ceil(this.employees.length / this.itemsPerPage);
+    return Math.ceil(this.filteredEmployees.length / this.itemsPerPage);
   }
 
   get pagesArray() {
@@ -157,6 +168,17 @@ export class EmployeesComponent implements OnInit {
       pages.push(i);
     }
     return pages;
+  }
+
+  selectDepartment(id: string) {
+    this.selectedDepartmentId = id;
+    this.currentPage = 1;
+    this.isDeptDropdownOpen = false;
+  }
+
+  getSelectedDeptName() {
+    const dept = this.departments.find(d => d.id === this.selectedDepartmentId);
+    return dept ? dept.name : 'All Departments';
   }
 
   nextPage() {

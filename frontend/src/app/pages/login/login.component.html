@@ -32,14 +32,14 @@
 
       <form (ngSubmit)="login()" class="space-y-4">
         <div>
-          <label class="text-[10px] text-white/30 uppercase tracking-widest font-bold block mb-1.5">Username</label>
+          <label class="text-[10px] text-white/30 uppercase tracking-widest font-bold block mb-1.5">Email ADDRESS</label>
           <input
-            type="text"
-            [(ngModel)]="username"
-            name="username"
-            placeholder="your_username"
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="your@email.com"
             required
-            autocomplete="username"
+            autocomplete="email"
             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:border-[#e53935]/50 focus:bg-white/8 focus:outline-none transition-all text-sm font-medium">
         </div>
 

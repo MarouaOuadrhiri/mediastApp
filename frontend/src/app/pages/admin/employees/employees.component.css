@@ -41,14 +41,11 @@
 }
 
 .btn-filter{
- width: 156px;
+  width: 220px;
   height: 36px;
   opacity: 1;
   border-radius: 24px;
-  /* padding-top: 8px;
-  padding-right: 16px;
-  padding-bottom: 8px;
-  padding-left: 16px; */
+  padding: 0 20px;
   background-color: #2A2A2B;
   font-family: 'Space Grotesk';
   font-weight: 700;
@@ -58,7 +55,10 @@
   letter-spacing: 0px;
   text-align: center;
   vertical-align: middle;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .employee-card{
@@ -447,4 +447,51 @@
 
 .img-upload-area:hover .img-change-overlay {
   opacity: 1;
+}
+
+/* Dropdown Styles */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 220px;
+  background: #1A1A1B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 8px;
+  z-index: 200;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  color: #A3A3A3;
+  font-family: 'Space Grotesk';
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.dropdown-item.active {
+  background: #FD0000;
+  color: #fff;
 }

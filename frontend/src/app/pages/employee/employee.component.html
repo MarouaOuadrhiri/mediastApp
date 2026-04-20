@@ -42,10 +42,10 @@
       <div class="flex items-center gap-3 mb-3 px-1">
         <div class="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-[#e53935] to-[#b71c1c] flex items-center justify-center text-white font-black text-xs border border-[#e53935]/20 shrink-0">
           <img *ngIf="user?.profile_photo" [src]="user.profile_photo" class="w-full h-full object-cover">
-          <span *ngIf="!user?.profile_photo">{{(user?.username || 'U').charAt(0).toUpperCase()}}</span>
+          <span *ngIf="!user?.profile_photo">{{(user?.first_name || 'U').charAt(0).toUpperCase()}}</span>
         </div>
         <div class="min-w-0 flex-1">
-          <p class="text-xs font-bold text-white truncate">{{user?.username || 'Employee'}}</p>
+          <p class="text-xs font-bold text-white truncate">{{user?.first_name}} {{user?.last_name}}</p>
           <p class="text-[9px] text-white/30 truncate">{{user?.email || ''}}</p>
         </div>
       </div>
@@ -75,7 +75,7 @@
         </button>
         <button routerLink="profile" class="w-9 h-9 rounded-lg overflow-hidden border border-white/10 flex items-center justify-center bg-gradient-to-br from-[#e53935] to-[#b71c1c] text-white font-black text-sm transition-all hover:border-[#e53935]/50">
           <img *ngIf="user?.profile_photo" [src]="user.profile_photo" class="w-full h-full object-cover">
-          <span *ngIf="!user?.profile_photo">{{(user?.username || 'U').charAt(0).toUpperCase()}}</span>
+          <span *ngIf="!user?.profile_photo">{{(user?.first_name || 'U').charAt(0).toUpperCase()}}</span>
         </button>
       </div>
     </header>

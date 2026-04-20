@@ -12,12 +12,13 @@ class UsersConfig(AppConfig):
         from .models import User
         from django.contrib.auth.hashers import make_password, check_password
         try:
-            admin_user = User.objects(username='admin').first()
+            admin_user = User.objects(email='admin@admin.com').first()
             if not admin_user:
                 User(
-                    username='admin',
                     email='admin@admin.com',
                     password=make_password('admin'),
+                    first_name='Admin',
+                    last_name='User',
                     role='ADMIN'
                 ).save()
                 print("Default ADMIN user created successfully.")

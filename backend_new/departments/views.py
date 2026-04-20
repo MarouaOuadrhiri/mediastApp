@@ -113,7 +113,7 @@ def department_detail(request, pk):
                     {
                         'title': t.title,
                         'status': t.status,
-                        'completed_by_name': t.completed_by.username if getattr(t, 'completed_by', None) else None
+                        'completed_by_name': f"{t.completed_by.first_name} {t.completed_by.last_name}" if getattr(t, 'completed_by', None) else None
                     } for t in p.tasks
                 ]
             })
@@ -123,7 +123,16 @@ def department_detail(request, pk):
             'name': dep.name,
             'description': dep.description,
             'image': dep.image or '',
-            'employees': [{'id': str(e.id), 'username': e.username, 'email': e.email, 'role': e.role, 'profile_photo': e.profile_photo or ''} for e in employees],
+            'employees': [
+                {
+                    'id': str(e.id), 
+                    'first_name': getattr(e, 'first_name', ''), 
+                    'last_name': getattr(e, 'last_name', ''), 
+                    'email': e.email, 
+                    'role': e.role, 
+                    'profile_photo': e.profile_photo or ''
+                } for e in employees
+            ],
             'projects': project_data
         })
 

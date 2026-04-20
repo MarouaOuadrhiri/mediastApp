@@ -9,10 +9,28 @@
          <span class="">Active Members: {{employees.length}}</span>
       </div>
     </div>
-    <div class="flex items-center gap-3 mt-4">
-      <button class="btn-filter">All Departments</button>
-      <button class="btn-filter">Availability</button>
-    </div>
+      <!-- Filter Controls -->
+      <div class="flex gap-4">
+        <div class="dropdown-container">
+          <button class="btn-filter flex items-center justify-center gap-2 px-6" (click)="isDeptDropdownOpen = !isDeptDropdownOpen">
+            {{ getSelectedDeptName() }}
+            <svg class="w-4 h-4 transition-transform" [class.rotate-180]="isDeptDropdownOpen" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div *ngIf="isDeptDropdownOpen" class="dropdown-menu animate-in fade-in zoom-in-95">
+            <button class="dropdown-item" [class.active]="!selectedDepartmentId" (click)="selectDepartment('')">
+              All Departments
+            </button>
+            <button *ngFor="let dept of departments" class="dropdown-item" [class.active]="selectedDepartmentId === dept.id" (click)="selectDepartment(dept.id)">
+              {{ dept.name }}
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-filter">Availability</button>
+      </div>
   </div>
 
   <div *ngIf="errorMsg" class="mb-8 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl flex items-center justify-between text-sm shadow-lg">
@@ -29,7 +47,9 @@
         <div class="image-container">
           <div class="w-full h-full rounded-full overflow-hidden bg-[#111] flex items-center justify-center relative">
             <img *ngIf="e.profile_photo" [src]="e.profile_photo" class="w-full h-full object-cover rounded-full filter brightness-95">
-            <span *ngIf="!e.profile_photo" class="text-3xl font-black text-white italic">{{e.username.charAt(0).toUpperCase()}}</span>
+            <span *ngIf="!e.profile_photo" class="text-3xl font-black text-white italic">
+              {{(e.first_name || e.username).charAt(0).toUpperCase()}}
+            </span>
           </div>
         </div>
 <!-- It measures the remaining raw "active tasks". If 0, they are "Available". If 1 to 5, they are "Busy". Greater than 5, they are "At Capacity". -->
@@ -45,7 +65,8 @@
 
       <!-- Info Row -->
       <div class="mb-5">
-        <h3 class="username">{{e.username}}</h3>
+        <h3 class="username" *ngIf="e.first_name">{{e.first_name}} {{e.last_name}}</h3>
+        <h3 class="username" *ngIf="!e.first_name">{{e.username}}</h3>
         <p class="email">{{e.email}}</p>
       </div>
 
@@ -141,20 +162,23 @@
         </div>
       </div>
 
-      <div class="form-row">
+      <div class="form-row split">
         <div class="form-group full">
-          <label>USERNAME</label>
-          <input type="text" [(ngModel)]="empUsername" name="empUsername" placeholder="e.g. john_doe" required>
+          <label>FIRST NAME</label>
+          <input type="text" [(ngModel)]="empFirstName" name="empFirstName" placeholder="e.g. John" required>
+        </div>
+        <div class="form-group full">
+          <label>LAST NAME</label>
+          <input type="text" [(ngModel)]="empLastName" name="empLastName" placeholder="e.g. Doe" required>
         </div>
       </div>
 
-      <div class="form-row split">
+      <div class="form-row">
         <div class="form-group full">
           <label>EMAIL ADDRESS</label>
           <input type="email" [(ngModel)]="empEmail" name="empEmail" placeholder="e.g. hello@company.com" required>
         </div>
       </div>
-
       <div class="form-row split">
         <div class="form-group full">
           <label>PASSWORD</label>
@@ -189,12 +213,14 @@
             <div class="w-full h-full rounded-[0.85rem] overflow-hidden bg-[#111] flex items-center justify-center">
               <img *ngIf="selectedHistory?.user?.profile_photo" [src]="selectedHistory.user.profile_photo" class="w-full h-full object-cover">
               <span *ngIf="!selectedHistory?.user?.profile_photo" class="text-xl font-black text-white italic">
-                {{(selectedHistory?.user?.username || 'U').charAt(0).toUpperCase()}}
+                {{(selectedHistory?.user?.first_name || 'U').charAt(0).toUpperCase()}}
               </span>
             </div>
           </div>
           <div>
-            <h3 class="text-xl font-black text-white tracking-tight italic">{{selectedHistory?.user?.username}}</h3>
+            <h3 class="text-xl font-black text-white tracking-tight italic">
+              {{selectedHistory?.user?.first_name ? (selectedHistory.user.first_name + ' ' + selectedHistory.user.last_name) : selectedHistory?.user?.username}}
+            </h3>
             <p class="text-[10px] font-black uppercase tracking-[0.2em] text-[#e53935] mt-1">Personnel Records</p>
           </div>
         </div>

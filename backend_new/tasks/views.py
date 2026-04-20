@@ -16,7 +16,7 @@ def serialize_task(t):
         try:
             employee_data.append({
                 'id': str(emp.id),
-                'name': emp.username,
+                'name': f"{emp.first_name} {emp.last_name}",
                 'photo': getattr(emp, 'profile_photo', '')
             })
         except DoesNotExist:

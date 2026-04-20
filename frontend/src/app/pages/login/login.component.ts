@@ -12,7 +12,7 @@ import { ApiService } from '../../core/api.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  username = '';
+  email = '';
   password = '';
   isLoading = false;
   errorMsg = '';
@@ -24,13 +24,13 @@ export class LoginComponent {
   ) {}
 
   login() {
-    if (!this.username || !this.password) {
+    if (!this.email || !this.password) {
       this.errorMsg = 'Please enter your credentials.';
       return;
     }
     this.isLoading = true;
     this.errorMsg = '';
-    this.api.login({ username: this.username, password: this.password }).subscribe({
+    this.api.login({ email: this.email, password: this.password }).subscribe({
       next: (res: any) => {
         if (isPlatformBrowser(this.platformId)) {
           localStorage.setItem('token', res.token);

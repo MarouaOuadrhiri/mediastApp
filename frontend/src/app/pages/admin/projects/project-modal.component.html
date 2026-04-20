@@ -83,7 +83,7 @@
                    <div *ngFor="let e of getSelectedEmployees().slice(0, 4)" class="avatar-item w-10 h-10 rounded-full border-2 border-[#0A0A0A] -ml-3 first:ml-0 overflow-hidden bg-[#1A1A1A]">
                      <img *ngIf="e.profile_photo || e.photo" [src]="e.profile_photo || e.photo" class="w-full h-full object-cover" />
                      <div *ngIf="!(e.profile_photo || e.photo)" class="w-full h-full flex items-center justify-center text-[10px] font-black text-white/40">
-                       {{ e.username.slice(0, 2).toUpperCase() }}
+                       {{ (e.first_name || e.name || 'U').slice(0, 2).toUpperCase() }}
                      </div>
                    </div>
                    <div *ngIf="projectEmployeeIds.length > 4" class="w-10 h-10 rounded-full border-2 border-[#0A0A0A] -ml-3 bg-[#1A1A1A] flex items-center justify-center text-[10px] font-black text-white/20">
@@ -116,11 +116,11 @@
                      <div class="w-8 h-8 rounded-full overflow-hidden bg-[#1A1A1A] border border-white/5">
                         <img *ngIf="e.profile_photo || e.photo" [src]="e.profile_photo || e.photo" class="w-full h-full object-cover" />
                         <div *ngIf="!(e.profile_photo || e.photo)" class="w-full h-full flex items-center justify-center text-[10px] font-bold text-white/20">
-                          {{ e.username.slice(0, 2).toUpperCase() }}
+                          {{ (e.first_name || e.name || 'U').slice(0, 2).toUpperCase() }}
                         </div>
                      </div>
                      <div class="flex flex-col">
-                       <span class="text-[12px] font-bold text-white/80 group-hover:text-white">{{ e.username }}</span>
+                       <span class="text-[12px] font-bold text-white/80 group-hover:text-white">{{ e.first_name }} {{ e.last_name }}</span>
                        <span class="text-[8px] font-medium text-white/20 uppercase">{{ e.department_name }}</span>
                      </div>
                    </div>

@@ -94,14 +94,14 @@ class ListMeetingsView(APIView):
                 try:
                     # Format date safely — avoid double-timezone suffix
                     dt_str = m.date_time.strftime('%Y-%m-%dT%H:%M:%SZ') if m.date_time else None
-                    created_by_name = m.created_by.username if m.created_by else 'Unknown'
+                    created_by_name = f"{m.created_by.first_name} {m.created_by.last_name}" if m.created_by else 'Unknown'
                     result.append({
                         'id': str(m.id),
                         'title': m.title,
                         'description': m.description or '',
                         'date_time': dt_str,
                         'departments': [{'id': str(d.id), 'name': d.name} for d in (m.departments or [])],
-                        'employees': [{'id': str(e.id), 'name': e.username} for e in (m.employees or [])],
+                        'employees': [{'id': str(e.id), 'name': f"{e.first_name} {e.last_name}"} for e in (m.employees or [])],
                         'created_by': created_by_name,
                     })
                 except Exception:

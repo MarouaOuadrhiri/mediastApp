@@ -106,7 +106,7 @@
               <ng-container *ngFor="let m of heroProject.employees?.slice(0, 3)">
                 <img *ngIf="m.profile_photo || m.photo" [src]="m.profile_photo || m.photo" class="avatar " />
                 <div *ngIf="!(m.profile_photo || m.photo)" class="avatar hero-avatar avatar-fallbackSmall">{{
-                  m.username?.slice(0,2).toUpperCase() }}</div>
+                  (m.first_name || m.name || 'U').slice(0,2).toUpperCase() }}</div>
               </ng-container>
             </div>
             <div class="hero-team-label">
@@ -345,7 +345,7 @@
         <ng-container *ngFor="let m of p.employees?.slice(0, 3)">
           <img *ngIf="m.profile_photo || m.photo" [src]="m.profile_photo || m.photo" class="avatar" />
           <div *ngIf="!(m.profile_photo || m.photo)" class="avatar avatar-fallback">{{
-            m.username?.slice(0,2).toUpperCase() }}</div>
+            (m.first_name || m.name || 'U').slice(0,2).toUpperCase() }}</div>
         </ng-container>
         <span *ngIf="p.employees?.length > 3" class="avatar avatar-fallback bg-white/5 border-white/5 text-white/20">+{{
           p.employees.length - 3 }}</span>
