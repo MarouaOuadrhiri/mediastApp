@@ -1,114 +1,254 @@
-<div class="analytics-container p-8 animate-in">
-  <!-- Header -->
-  <header class="mb-12 flex justify-between items-end">
-    <div>
-      <h1 class="text-4xl font-black text-white tracking-tighter mb-2">EMPLOYEE ANALYTICS</h1>
-      <p class="text-sm text-white/40 uppercase tracking-[0.2em]">Team Performance & Workload Monitoring</p>
+<div class="analytics-container animate-in">
+  <!-- Top Navigation/Header -->
+  <header class="flex justify-between items-start mb-6">
+    <div class="max-w-lg">
+      <h1 class="title">Performance Engine</h1>
+      <p class="description">
+       Track project completion, team efficiency, and operational performance across BrandShift.
+      </p>
     </div>
-    <div class="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
-      <span class="text-[10px] font-black text-white/20 uppercase tracking-widest block">System Status</span>
-      <span class="text-xs font-bold text-green-500 flex items-center gap-2">
-        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-        REAL-TIME DATA ACTIVE
-      </span>
+    <div class="flex gap-4">
+      <button class="btn-pill">
+        <svg width="11" height="12" viewBox="0 0 11 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.16667 11.6667C0.845833 11.6667 0.571181 11.5524 0.342708 11.324C0.114236 11.0955 0 10.8208 0 10.5V2.33333C0 2.0125 0.114236 1.73785 0.342708 1.50937C0.571181 1.2809 0.845833 1.16667 1.16667 1.16667H1.75V0H2.91667V1.16667H7.58333V0H8.75V1.16667H9.33333C9.65417 1.16667 9.92882 1.2809 10.1573 1.50937C10.3858 1.73785 10.5 2.0125 10.5 2.33333V10.5C10.5 10.8208 10.3858 11.0955 10.1573 11.324C9.92882 11.5524 9.65417 11.6667 9.33333 11.6667H1.16667ZM1.16667 10.5H9.33333V4.66667H1.16667V10.5ZM1.16667 3.5H9.33333V2.33333H1.16667V3.5ZM1.16667 3.5V2.33333V3.5Z" fill="#EF4444"/>
+        </svg>
+        <span>LAST 30 DAYS</span>
+      </button>
+      <button class="btn-pill">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4.66667 7L1.75 4.08333L2.56667 3.2375L4.08333 4.75417V0H5.25V4.75417L6.76667 3.2375L7.58333 4.08333L4.66667 7ZM1.16667 9.33333C0.845833 9.33333 0.571181 9.2191 0.342708 8.99063C0.114236 8.76215 0 8.4875 0 8.16667V6.41667H1.16667V8.16667H8.16667V6.41667H9.33333V8.16667C9.33333 8.4875 9.2191 8.76215 8.99063 8.99063C8.76215 9.2191 8.4875 9.33333 8.16667 9.33333H1.16667Z" fill="#EF4444"/>
+        </svg>
+        <span>EXPORT REPORT</span>
+      </button>
     </div>
   </header>
 
-  <!-- Stats Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-    <div class="stat-card glass p-8 rounded-[2.5rem] relative overflow-hidden group">
-      <div class="relative z-10">
-        <span class="text-[10px] font-black text-white/20 uppercase tracking-widest block mb-4">Total Workforce</span>
-        <h2 class="text-5xl font-black text-white mb-2">{{ stats.totalEmployees }}</h2>
-        <p class="text-xs text-white/30 uppercase tracking-widest">Active Members</p>
+  <!-- Main Grid -->
+  <div class="grid grid-cols-12 gap-8 mb-8">
+    <!-- Global Completion Rates (Chart) -->
+    <div class="col-span-8 chart-card">
+      <div class="flex justify-between items-start">
+        <div>
+          <span class="card-label-top">Project Completion</span>
+          <h2 class="card-title-main mt-2">Global Completion Rates</h2>
+        </div>
+        <div class="text-right">
+          <div class="avg-completion-rate">{{ stats.avgCompletionRate }}%</div>
+          <div class="text-[11px] font-bold flex items-center justify-end gap-1">
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0.7 6L0 5.3L3.7 1.575L5.7 3.575L8.3 1H7V0H10V3H9V1.7L5.7 5L3.7 3L0.7 6Z" fill="#4ADE80"/>
+            </svg>
+            <span class="text-[#4ADE80]">{{ stats.avgCompletionChange }} vs prev</span>
+          </div>
+        </div>
       </div>
-      <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-all">
-        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+
+      <div class="card-separator"></div>
+
+      <div class="flex-1 relative flex flex-col">
+        <!-- SVG Grid Lines -->
+        <div class="absolute inset-0 flex flex-col justify-between opacity-10 pointer-events-none">
+          <div class="border-t border-white w-full"></div>
+          <div class="border-t border-white w-full"></div>
+          <div class="border-t border-white w-full"></div>
+          <div class="border-t border-white w-full"></div>
+        </div>
+
+        <svg width="100%" height="180" viewBox="0 0 557 180" preserveAspectRatio="none" class="relative z-10">
+          <defs>
+            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FD0000" stop-opacity="0.3" />
+              <stop offset="100%" stop-color="#FD0000" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <path class="chart-line" [attr.d]="chartLinePath" />
+          <path class="chart-gradient" [attr.d]="chartFillPath" />
+        </svg>
+      </div>
+
+      <div class="flex justify-between w-full label-xs text-white/20 mt-8 px-1">
+        <span>WK 01</span>
+        <span>WK 02</span>
+        <span>WK 03</span>
+        <span>WK 04</span>
+        <span>WK 05</span>
+        <span>WK 06</span>
+        <span>WK 07</span>
       </div>
     </div>
 
-    <div class="stat-card glass p-8 rounded-[2.5rem] relative overflow-hidden group">
-       <div class="relative z-10">
-         <span class="text-[10px] font-black text-white/20 uppercase tracking-widest block mb-4">Active Tasks</span>
-         <h2 class="text-5xl font-black text-[#E53935] mb-2">{{ stats.activeTasks }}</h2>
-         <p class="text-xs text-white/30 uppercase tracking-widest">In Pipeline</p>
-       </div>
-       <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-all text-[#E53935]">
-        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-       </div>
-    </div>
+    <!-- Team Efficiency -->
+    <div class="col-span-4 dashboard-card">
+      <div>
+        <span class="card-label-top">Resource Allocation</span>
+        <h2 class="card-title-main mt-2">Team Efficiency</h2>
+      </div>
 
-    <div class="stat-card glass p-8 rounded-[2.5rem] relative overflow-hidden group border-image-gradient">
-       <div class="relative z-10">
-         <span class="text-[10px] font-black text-white/20 uppercase tracking-widest block mb-4">Goals Reached</span>
-         <h2 class="text-5xl font-black text-white mb-2">{{ stats.completedTasks }}</h2>
-         <p class="text-xs text-white/30 uppercase tracking-widest">Tasks Completed</p>
-       </div>
-       <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-all">
-        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-       </div>
-    </div>
+      <div class="card-separator"></div>
 
-    <div class="stat-card glass p-8 rounded-[2.5rem] relative overflow-hidden group">
-       <div class="relative z-10">
-         <span class="text-[10px] font-black text-white/20 uppercase tracking-widest block mb-4">Efficiency</span>
-         <h2 class="text-5xl font-black text-white mb-2">{{ stats.avgCompletionRate }}%</h2>
-         <p class="text-xs text-white/30 uppercase tracking-widest">Overall Velocity</p>
-       </div>
-       <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-all">
-        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 2c-5.62 0-10.19 4.39-10.47 9.92C3.01 12.03 3.01 12.1 3.01 12.17c.05.3.3.57.62.53.28-.02.48-.25.53-.52.26-5.06 4.45-9.04 9.53-9.04 5.31 0 9.61 4.31 9.61 9.62s-4.3 9.61-9.61 9.61c-1.99 0-3.84-.61-5.38-1.65-.24-.16-.57-.12-.76.1-.19.22-.17.56.04.75 1.7 1.15 3.76 1.8 5.96 1.8 5.8 0 10.5-4.7 10.5-10.5S19.3 2 13.5 2z"/></svg>
-       </div>
+      <div class="space-y-8 flex-1">
+        <div *ngFor="let dept of stats.departmentStats">
+          <div class="flex justify-between mb-3 items-end">
+            <span class="text-xs font-bold text-white/50 tracking-wide uppercase">{{ dept.name }}</span>
+            <span class="text-sm font-bold text-white">{{ dept.percent }}%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-fill" [style.width.%]="dept.percent"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert-box">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#EF4444] pulse-red"></span>
+          <span class="card-label-top !text-[10px] mb-0">System Alert</span>
+        </div>
+        <p class="text-[10px] text-white/40 leading-relaxed font-bold uppercase tracking-widest">
+          Creative Studio workload increased. Recommend assigning additional support.
+        </p>
+      </div>
     </div>
   </div>
 
-  <!-- Detailed Sections -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-    <!-- Department Distribution -->
-    <div class="lg:col-span-2 glass-panel p-10 rounded-[3rem] border border-white/5 bg-white/[0.01]">
-      <div class="flex items-center justify-between mb-10">
+  <div class="grid grid-cols-12 gap-8 mb-8">
+    <!-- Active Pulse -->
+    <div class="col-span-4 dashboard-card">
+      <div class="flex justify-between items-center">
         <div>
-          <h3 class="text-xl font-black text-white uppercase tracking-tight">Department Efficiency</h3>
-          <p class="text-[10px] text-white/20 uppercase tracking-[0.2em] mt-1">Completion rate per unit</p>
+          <h2 class="card-title-main mt-2">Active Pulse</h2>
+        </div>
+        <button class="text-white/20 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+        </button>
+      </div>
+
+      <div class="card-separator"></div>
+   
+      <div class="space-y-6 flex-1">
+        <div *ngFor="let project of activePulse" class="flex items-center gap-6 group cursor-pointer">
+          <!-- Status Icon Container -->
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center transition-all shrink-0"
+               [style.background]="project.status === 'DONE' ? '#262626' : (project.status === 'IN PROGRESS' ? '#2563EB1A' : '#F59E0B1A')"
+               [style.border]="project.status === 'DONE' ? '1px solid #FFFFFF0D' : (project.status === 'IN PROGRESS' ? '1px solid #2563EB33' : '1px solid #F59E0B33')">
+            
+            <!-- IN PROGRESS Icon (Rocket) -->
+            <svg *ngIf="project.status === 'IN PROGRESS'" width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3.6 7.99556L5.55 8.82056C5.78333 8.3539 6.025 7.9039 6.275 7.47056C6.525 7.03723 6.8 6.6039 7.1 6.17056L5.7 5.89556L3.6 7.99556ZM7.15 10.0706L10 12.8956C10.7 12.6289 11.45 12.2206 12.25 11.6706C13.05 11.1206 13.8 10.4956 14.5 9.79556C15.6667 8.6289 16.5792 7.33306 17.2375 5.90806C17.8958 4.48306 18.1833 3.17056 18.1 1.97056C16.9 1.88723 15.5833 2.17473 14.15 2.83306C12.7167 3.4914 11.4167 4.4039 10.25 5.57056C9.55 6.27056 8.925 7.02056 8.375 7.82056C7.825 8.62056 7.41667 9.37056 7.15 10.0706ZM11.6 8.44556C11.2167 8.06223 11.025 7.5914 11.025 7.03306C11.025 6.47473 11.2167 6.0039 11.6 5.62056C11.9833 5.23723 12.4583 5.04556 13.025 5.04556C13.5917 5.04556 14.0667 5.23723 14.45 5.62056C14.8333 6.0039 15.025 6.47473 15.025 7.03306C15.025 7.5914 14.8333 8.06223 14.45 8.44556C14.0667 8.8289 13.5917 9.02056 13.025 9.02056C12.4583 9.02056 11.9833 8.8289 11.6 8.44556ZM12.075 16.4706L14.175 14.3706L13.9 12.9706C13.4667 13.2706 13.0333 13.5414 12.6 13.7831C12.1667 14.0247 11.7167 14.2622 11.25 14.4956L12.075 16.4706ZM19.9 0.145565C20.2167 2.16223 20.0208 4.12473 19.3125 6.03306C18.6042 7.9414 17.3833 9.76223 15.65 11.4956L16.15 13.9706C16.2167 14.3039 16.2 14.6289 16.1 14.9456C16 15.2622 15.8333 15.5372 15.6 15.7706L11.4 19.9706L9.3 15.0456L5.025 10.7706L0.1 8.67056L4.275 4.47056C4.50833 4.23723 4.7875 4.07056 5.1125 3.97056C5.4375 3.87056 5.76667 3.8539 6.1 3.92056L8.575 4.42056C10.3083 2.68723 12.125 1.46223 14.025 0.745565C15.925 0.0288979 17.8833 -0.171102 19.9 0.145565ZM1.875 13.9456C2.45833 13.3622 3.17083 13.0664 4.0125 13.0581C4.85417 13.0497 5.56667 13.3372 6.15 13.9206C6.73333 14.5039 7.02083 15.2164 7.0125 16.0581C7.00417 16.8997 6.70833 17.6122 6.125 18.1956C5.70833 18.6122 5.0125 18.9706 4.0375 19.2706C3.0625 19.5706 1.71667 19.8372 0 20.0706C0.233333 18.3539 0.5 17.0081 0.8 16.0331C1.1 15.0581 1.45833 14.3622 1.875 13.9456ZM3.3 15.3456C3.13333 15.5122 2.96667 15.8164 2.8 16.2581C2.63333 16.6997 2.51667 17.1456 2.45 17.5956C2.9 17.5289 3.34583 17.4164 3.7875 17.2581C4.22917 17.0997 4.53333 16.9372 4.7 16.7706C4.9 16.5706 5.00833 16.3289 5.025 16.0456C5.04167 15.7622 4.95 15.5206 4.75 15.3206C4.55 15.1206 4.30833 15.0247 4.025 15.0331C3.74167 15.0414 3.5 15.1456 3.3 15.3456Z" fill="#2563EB"/>
+            </svg>
+
+            <!-- DONE Icon (Compass/Tool) -->
+            <svg *ngIf="project.status === 'DONE'" width="11" height="18" viewBox="0 0 11 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0.25 18L0 15.8L2.85 7.95C3.1 8.18333 3.37083 8.37917 3.6625 8.5375C3.95417 8.69583 4.26667 8.81667 4.6 8.9L1.85 16.45L0.25 18ZM10.75 18L9.15 16.45L6.4 8.9C6.73333 8.81667 7.04583 8.69583 7.3375 8.5375C7.62917 8.37917 7.9 8.18333 8.15 7.95L11 15.8L10.75 18ZM5.5 8C4.66667 8 3.95833 7.70833 3.375 7.125C2.79167 6.54167 2.5 5.83333 2.5 5C2.5 4.35 2.6875 3.77083 3.0625 3.2625C3.4375 2.75417 3.91667 2.4 4.5 2.2V0H6.5V2.2C7.08333 2.4 7.5625 2.75417 7.9375 3.2625C8.3125 3.77083 8.5 4.35 8.5 5C8.5 5.83333 8.20833 6.54167 7.625 7.125C7.04167 7.70833 6.33333 8 5.5 8ZM5.5 6C5.78333 6 6.02083 5.90417 6.2125 5.7125C6.40417 5.52083 6.5 5.28333 6.5 5C6.5 4.71667 6.40417 4.47917 6.2125 4.2875C6.02083 4.09583 5.78333 4 5.5 4C5.21667 4 4.97917 4.09583 4.7875 4.2875C4.59583 4.47917 4.5 4.71667 4.5 5C4.5 5.28333 4.59583 5.52083 4.7875 5.7125C4.97917 5.90417 5.21667 6 5.5 6Z" fill="#A3A3A3"/>
+            </svg>
+
+            <!-- PENDING Icon (Cloud) -->
+            <svg *ngIf="project.status === 'PENDING'" width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 16V14H2.725C1.875 13.2667 1.20833 12.3833 0.725 11.35C0.241667 10.3167 0 9.2 0 8C0 6.13333 0.566667 4.4875 1.7 3.0625C2.83333 1.6375 4.26667 0.7 6 0.25V2.35C4.83333 2.76667 3.875 3.4875 3.125 4.5125C2.375 5.5375 2 6.7 2 8C2 8.9 2.17917 9.72917 2.5375 10.4875C2.89583 11.2458 3.38333 11.9 4 12.45V10H6V16H0ZM11 16C10.1667 16 9.45833 15.7083 8.875 15.125C8.29167 14.5417 8 13.8333 8 13C8 12.2 8.275 11.5125 8.825 10.9375C9.375 10.3625 10.05 10.0583 10.85 10.025C11.1333 9.425 11.5542 8.9375 12.1125 8.5625C12.6708 8.1875 13.3 8 14 8C14.8833 8 15.6458 8.2875 16.2875 8.8625C16.9292 9.4375 17.3167 10.15 17.45 11C18.15 11 18.75 11.2417 19.25 11.725C19.75 12.2083 20 12.7917 20 13.475C20 14.175 19.7583 14.7708 19.275 15.2625C18.7917 15.7542 18.2 16 17.5 16H11ZM13.9 7C13.7833 6.31667 13.5583 5.68333 13.225 5.1C12.8917 4.51667 12.4833 4 12 3.55V6H10V0H16V2H13.275C13.9917 2.63333 14.5792 3.375 15.0375 4.225C15.4958 5.075 15.7917 6 15.925 7H13.9ZM11 14H17.5C17.6333 14 17.75 13.95 17.85 13.85C17.95 13.75 18 13.6333 18 13.5C18 13.3667 17.95 13.25 17.85 13.15C17.75 13.05 17.6333 13 17.5 13H15.75V11.75C15.75 11.2667 15.5792 10.8542 15.2375 10.5125C14.8958 10.1708 14.4833 10 14 10C13.5167 10 13.1042 10.1708 12.7625 10.5125C12.4208 10.8542 12.25 11.2667 12.25 11.75V12H11C10.7167 12 10.4792 12.0958 10.2875 12.2875C10.0958 12.4792 10 12.7167 10 13C10 13.2833 10.0958 13.5208 10.2875 13.7125C10.4792 13.9042 10.7167 14 11 14Z" fill="#F59E0B"/>
+            </svg>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-bold text-white/90 group-hover:text-white transition-colors truncate">{{ project.title }}</h4>
+            <span class="text-[10px] text-white/30 font-medium block mt-1">{{ project.deadline }}</span>
+          </div>
+
+          <!-- Status Label (Stacked) -->
+          <div class="text-[10px] font-bold tracking-widest text-right leading-[1.2] w-20 shrink-0" 
+               [style.color]="project.status === 'DONE' ? '#A3A3A3' : (project.status === 'IN PROGRESS' ? '#2563EB' : '#F59E0B')">
+            {{ project.status }}
+          </div>
         </div>
       </div>
 
-      <div class="space-y-8">
-        <div *ngFor="let d of stats.departmentStats" class="group">
-          <div class="flex justify-between items-end mb-3">
-            <span class="text-sm font-bold text-white/80 group-hover:text-white transition-all uppercase tracking-widest">{{ d.name }}</span>
-            <div class="text-right">
-                <span class="text-xs font-black text-white block">{{ d.percent }}%</span>
-                <span class="text-[9px] text-white/20 font-medium uppercase tracking-widest">{{ d.completed }}/{{ d.total }} TASKS</span>
-            </div>
-          </div>
-          <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/[0.02]">
-            <div class="h-full bg-gradient-to-r from-[#E53935] to-[#FF5252] rounded-full transition-all duration-1000 ease-out"
-              [style.width.%]="d.percent"></div>
-          </div>
+      <button class="w-full py-4 rounded-xl bg-white/[0.03] border border-white/5 text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/10 transition-all">
+        View All Projects
+      </button>
+    </div>
+
+    <!-- Activity Distribution -->
+    <div class="col-span-8 dashboard-card">
+      <div class="flex justify-between items-center mb-1">
+        <div>
+          <span class="card-label-top">Engagement Map</span>
+          <h2 class="card-title-main mt-1">Peak Performance Hours</h2>
         </div>
-        <div *ngIf="stats.departmentStats.length === 0" class="py-20 text-center opacity-20">
-            <p class="text-xs uppercase tracking-[0.3em] font-black">No Data Available</p>
+        <div class="flex gap-2 items-center">
+          <div class="w-2 h-2 rounded-full bg-white/5"></div>
+          <div class="w-2 h-2 rounded-full bg-[#451a1a]"></div>
+          <div class="w-2 h-2 rounded-full bg-[#7f1d1d]"></div>
+          <div class="w-2 h-2 rounded-full bg-[#FF3B30]"></div>
+        </div>
+      </div>
+
+      <div class="card-separator"></div>
+
+      <div class="heatmap-grid mb-2">
+        <div *ngFor="let cell of performanceHours" 
+             class="heatmap-cell" 
+             [class.level-1]="cell === 1"
+             [class.level-2]="cell === 2"
+             [class.level-3]="cell === 3">
+        </div>
+      </div>
+
+      <div class="flex justify-between text-[10px] text-white/20 font-bold uppercase tracking-widest mt-4">
+        <span>12 AM</span>
+        <span>4 AM</span>
+        <span>8 AM</span>
+        <span>12 PM</span>
+        <span>4 PM</span>
+        <span>8 PM</span>
+        <span>12 AM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Performer -->
+  <div class="dashboard-card !flex-row !p-12 items-center gap-16">
+    <div class="profile-image-container">
+      <div class="profile-bg-pattern"></div>
+      <div class="profile-image overflow-hidden">
+        <img *ngIf="topPerformer.photoPath; else initialsTemplate" 
+             [src]="topPerformer.photoPath" 
+             class="w-full h-full object-cover">
+        <ng-template #initialsTemplate>
+          <div class="text-5xl font-bold text-white/10 uppercase tracking-tighter">
+            {{ getTopPerformerInitials() }}
+          </div>
+        </ng-template>
+      </div>
+      <div class="badge-mvp">MVP WEEK 12</div>
+    </div>
+
+    <div class="flex-1">
+      <span class="card-label-top mb-4">Internal Spotlight</span>
+      <h2 class="text-6xl font-bold mb-8 tracking-tighter text-white">{{ topPerformer.name }}</h2>
+      
+      <p class="text-xl text-white/50 mb-10 max-w-2xl leading-relaxed">
+        Maintaining a <span class="text-white font-bold">{{ topPerformer.performance }} engineering rate</span> this quarter. Supporting structural architecture and accelerating internal operations.
+      </p>
+
+      <div class="flex gap-16 border-t border-white/5 pt-10">
+        <div>
+          <h3 class="text-4xl font-bold text-white mb-2">{{ topPerformer.tasksClosed }}</h3>
+          <div class="text-[10px] text-white/30 font-bold uppercase tracking-widest">Tasks Closed</div>
+        </div>
+        <div>
+          <h3 class="text-4xl font-bold text-white mb-2">{{ topPerformer.avgResponse }}</h3>
+          <div class="text-[10px] text-white/30 font-bold uppercase tracking-widest">Avg Response</div>
+        </div>
+        <div>
+          <h3 class="text-4xl font-bold text-white mb-2">{{ topPerformer.projectsLed }}</h3>
+          <div class="text-[10px] text-white/30 font-bold uppercase tracking-widest">Projects Led</div>
         </div>
       </div>
     </div>
 
-    <!-- Top Performers / Quick Actions -->
-    <div class="glass-panel p-10 rounded-[3rem] border border-white/5 bg-white/[0.01]">
-        <h3 class="text-xl font-black text-white uppercase tracking-tight mb-8">Active Team</h3>
-        <div class="space-y-4 max-h-[480px] overflow-y-auto custom-scrollbar pr-4">
-            <div *ngFor="let u of employees.slice(0, 10)" class="flex items-center gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/5 transition-all group">
-                <div class="w-12 h-12 rounded-full overflow-hidden bg-[#131314] shrink-0 border border-white/5">
-                    <img *ngIf="u.profile_photo || u.photo" [src]="u.profile_photo || u.photo" class="w-full h-full object-cover">
-                    <div *ngIf="!(u.profile_photo || u.photo)" class="w-full h-full flex items-center justify-center text-xs font-black text-white/20">
-                        {{ u.username?.slice(0, 2).toUpperCase() }}
-                    </div>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <p class="text-sm font-bold text-white truncate group-hover:text-[#E53935] transition-colors">{{ u.username }}</p>
-                    <p class="text-[9px] text-white/20 uppercase tracking-widest truncate">{{ u.department_name || 'No Dept' }}</p>
-                </div>
-            </div>
-        </div>
+    <div class="shrink-0">
+      <button class="btn-profile">
+        VIEW PROFILE
+        <svg class="w-4 h-4 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
+      </button>
     </div>
   </div>
 </div>
