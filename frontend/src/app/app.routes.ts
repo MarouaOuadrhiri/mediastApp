@@ -26,6 +26,9 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', loadComponent: () => import('./pages/employee/dashboard/dashboard.component').then(c => c.DashboardComponent) },
+      { path: 'projects', loadComponent: () => import('./pages/employee/projects/projects.component').then(c => c.ProjectsComponent) },
+      { path: 'tasks', loadComponent: () => import('./pages/employee/tasks/tasks.component').then(c => c.TasksComponent) },
+      { path: 'team', loadComponent: () => import('./pages/employee/team/team.component').then(c => c.TeamComponent) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then(c => c.ProfileComponent) }
     ]
   }

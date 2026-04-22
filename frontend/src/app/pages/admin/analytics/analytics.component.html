@@ -31,53 +31,103 @@
   <div class="grid grid-cols-12 gap-8 mb-8">
     <!-- Global Completion Rates (Chart) -->
     <div class="col-span-8 chart-card">
-      <div class="flex justify-between items-start">
-        <div>
-          <span class="card-label-top">Project Completion</span>
-          <h2 class="card-title-main mt-2">Global Completion Rates</h2>
+      <div class="flex justify-between items-start mb-2">
+        <div class="flex flex-col">
+          <span class="card-label-top ">Project Completion</span>
+          <h2 class="card-title-main  leading-tight">Global Completion Rates</h2>
         </div>
-        <div class="text-right">
+        <div class="text-right mb-5">
           <div class="avg-completion-rate">{{ stats.avgCompletionRate }}%</div>
-          <div class="text-[11px] font-bold flex items-center justify-end gap-1">
+          <div class="flex items-center justify-end gap-1.5 growth-indicator">
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M0.7 6L0 5.3L3.7 1.575L5.7 3.575L8.3 1H7V0H10V3H9V1.7L5.7 5L3.7 3L0.7 6Z" fill="#4ADE80" />
             </svg>
-            <span class="text-[#4ADE80]">{{ stats.avgCompletionChange }} vs prev</span>
+            <span class="text-[#4ADE80] text-xs font-bold">{{ stats.avgCompletionChange }} vs prev</span>
           </div>
         </div>
       </div>
 
       <!-- <div class="card-separator"></div> -->
 
-      <div class="flex-1 relative flex flex-col">
+      <div class="flex-1 relative flex flex-col px-1">
         <!-- SVG Grid Lines -->
-        <div class="absolute inset-0 flex flex-col justify-between opacity-10 pointer-events-none">
+        <div class="absolute inset-x-0 inset-y-0 flex flex-col justify-between opacity-[0.03] pointer-events-none">
           <div class="border-t border-white w-full"></div>
           <div class="border-t border-white w-full"></div>
           <div class="border-t border-white w-full"></div>
           <div class="border-t border-white w-full"></div>
         </div>
 
-        <svg width="100%" height="180" viewBox="0 0 557 180" preserveAspectRatio="none" class="relative z-10">
+        <svg width="100%" height="200" viewBox="0 0 557 200" preserveAspectRatio="none"
+          class="relative z-10 mt-4 cursor-pointer overflow-visible" (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
           <defs>
             <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#FD0000" stop-opacity="0.3" />
-              <stop offset="100%" stop-color="#FD0000" stop-opacity="0" />
+              <stop offset="0%" stop-color="#FD0000" stop-opacity="0" />
+              <stop offset="100%" stop-color="#FD0000" stop-opacity="0.2" />
             </linearGradient>
           </defs>
           <path class="chart-line" [attr.d]="chartLinePath" />
           <path class="chart-gradient" [attr.d]="chartFillPath" />
+
+          <!-- Hover Pin & Tooltip Group -->
+          <g *ngIf="hoveredPoint" class="chart-hover-group">
+            <!-- The Pin Marker (Teardrop shape + Logo) -->
+            <g class="chart-marker-pin cursor-pointer"
+              [attr.transform]="'translate(' + hoveredPoint.x + ',' + hoveredPoint.y + ')'"
+              (mouseenter)="showTooltip = true" (mouseleave)="showTooltip = false">
+
+              <!-- Teardrop/Pin Background -->
+              <path d="M0 0 C-10 -15 -15 -25 -15 -35 A15 15 0 1 1 15 -35 C15 -25 10 -15 0 0 Z" fill="white"
+                class="drop-shadow-lg" />
+
+              <!-- Logo Circle inside Pin -->
+              <circle cx="0" cy="-35" r="11" fill="#111" />
+              <text x="0" y="-31" text-anchor="middle" fill="white" font-size="9" font-weight="900"
+                font-family="Space Grotesk">
+                {{ getTopPerformerInitials() }}
+              </text>
+
+              <!-- Transparent hit area to make hovering easier -->
+              <circle cx="0" cy="-25" r="25" fill="transparent" />
+            </g>
+
+            <!-- Tooltip (Only shown when pin is hovered) -->
+            <foreignObject *ngIf="showTooltip" [attr.x]="hoveredPoint.x + 20" [attr.y]="hoveredPoint.y - 110"
+              width="260" height="120" class="pointer-events-none">
+              <div class="chart-tooltip-container">
+                <div class="flex items-start gap-3">
+                  <div class="tooltip-avatar">
+                    <img *ngIf="topPerformer.photoPath" [src]="topPerformer.photoPath"
+                      class="w-full h-full rounded-full object-cover">
+                    <span *ngIf="!topPerformer.photoPath" class="text-[10px] font-bold">{{ getTopPerformerInitials() }}</span>
+                  </div>
+                  <div class="flex flex-col">
+                    <div class="flex items-center gap-2 mb-0.5">
+                      <span class="tooltip-name">{{ topPerformer.name === '---' ? 'System Analyst' : topPerformer.name }}</span>
+                      <span class="tooltip-time">{{ hoveredPoint.label }} 2 days ago</span>
+                    </div>
+                    <span class="tooltip-message">Performance benchmark reached {{ hoveredPoint.value }}% completion.</span>
+                  </div>
+                </div>
+              </div>
+            </foreignObject>
+          </g>
         </svg>
       </div>
 
-      <div class="flex justify-between w-full label-xs text-white/20 mt-8 px-1">
-        <span>WK 01</span>
-        <span>WK 02</span>
-        <span>WK 03</span>
-        <span>WK 04</span>
-        <span>WK 05</span>
-        <span>WK 06</span>
-        <span>WK 07</span>
+      <div class="flex justify-between w-full label-xs text-white/20 px-0 opacity-40">
+        <span [class.text-red-500]="hoveredPoint?.index === 0" [class.opacity-100]="hoveredPoint?.index === 0">WK
+          01</span>
+        <span [class.text-red-500]="hoveredPoint?.index === 1" [class.opacity-100]="hoveredPoint?.index === 1">WK
+          02</span>
+        <span [class.text-red-500]="hoveredPoint?.index === 2" [class.opacity-100]="hoveredPoint?.index === 2">WK
+          03</span>
+        <span [class.text-red-500]="hoveredPoint?.index === 3" [class.opacity-100]="hoveredPoint?.index === 3">WK
+          04</span>
+        <span [class.text-red-500]="hoveredPoint?.index === 4" [class.opacity-100]="hoveredPoint?.index === 4">WK
+          05</span>
+        <span [class.text-red-500]="hoveredPoint?.index === 5" [class.opacity-100]="hoveredPoint?.index === 5">WK
+          06</span>
       </div>
     </div>
 
@@ -121,37 +171,48 @@
       <div class="flex justify-between items-center px-2">
         <h2 class="card-title-main !text-2xl mt-1">Active Pulse</h2>
         <button class="text-white/20 hover:text-white transition-colors">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+          </svg>
         </button>
       </div>
 
       <div class="flex flex-col gap-8 flex-1 mt-6">
-        <div *ngFor="let project of activePulse; let i = index" class="flex items-center gap-6 group cursor-pointer px-1">
+        <div *ngFor="let project of activePulse; let i = index"
+          class="flex items-center gap-6 group cursor-pointer px-1">
           <!-- Status Icon Container (Circular like design) -->
-          <div class="pulse-icon-container" 
-               [style.background]="project.type === 'DONE' ? 'rgba(255,255,255,0.03)' : (project.type === 'IN_PROGRESS' ? 'rgba(239,68,68,0.08)' : 'rgba(239,68,68,0.05)')">
-            
-            <svg *ngIf="project.type === 'IN_PROGRESS'" width="22" height="22" viewBox="0 0 24 24" fill="none" class="text-[#FD0000]">
-              <path d="M13.13 14.71L8.26 20.48L2 15.54L7.84 11.82L13.13 14.71ZM19.74 3.26C19.19 2.71 18.25 2.5 17.5 3.26L14.71 6.05L17.95 9.29L20.74 6.5C21.5 5.75 21.29 4.81 20.74 4.26L19.74 3.26ZM12.19 12.31L13.63 10.87L13.13 8.35L11.69 9.79L12.19 12.31ZM9.15 15.4L10.59 13.96L10.09 11.44L8.65 12.88L9.15 15.4Z" fill="currentColor"/>
-            </svg>
+          <div class="pulse-icon-container"
+            [style.background]="project.type === 'DONE' ? '#262626' : (project.type === 'IN_PROGRESS' ? '#DC26261A' : '#DC26261A')">
 
-            <svg *ngIf="project.type === 'DONE'" width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-white/20">
-              <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 16H9V14H11V16ZM11 12H9V7H11V12Z" fill="currentColor"/>
+            <svg *ngIf="project.type === 'IN_PROGRESS'" width="21" height="21" viewBox="0 0 21 21" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M3.6 7.99556L5.55 8.82056C5.78333 8.3539 6.025 7.9039 6.275 7.47056C6.525 7.03723 6.8 6.6039 7.1 6.17056L5.7 5.89556L3.6 7.99556ZM7.15 10.0706L10 12.8956C10.7 12.6289 11.45 12.2206 12.25 11.6706C13.05 11.1206 13.8 10.4956 14.5 9.79556C15.6667 8.6289 16.5792 7.33306 17.2375 5.90806C17.8958 4.48306 18.1833 3.17056 18.1 1.97056C16.9 1.88723 15.5833 2.17473 14.15 2.83306C12.7167 3.4914 11.4167 4.4039 10.25 5.57056C9.55 6.27056 8.925 7.02056 8.375 7.82056C7.825 8.62056 7.41667 9.37056 7.15 10.0706ZM11.6 8.44556C11.2167 8.06223 11.025 7.5914 11.025 7.03306C11.025 6.47473 11.2167 6.0039 11.6 5.62056C11.9833 5.23723 12.4583 5.04556 13.025 5.04556C13.5917 5.04556 14.0667 5.23723 14.45 5.62056C14.8333 6.0039 15.025 6.47473 15.025 7.03306C15.025 7.5914 14.8333 8.06223 14.45 8.44556C14.0667 8.8289 13.5917 9.02056 13.025 9.02056C12.4583 9.02056 11.9833 8.8289 11.6 8.44556ZM12.075 16.4706L14.175 14.3706L13.9 12.9706C13.4667 13.2706 13.0333 13.5414 12.6 13.7831C12.1667 14.0247 11.7167 14.2622 11.25 14.4956L12.075 16.4706ZM19.9 0.145565C20.2167 2.16223 20.0208 4.12473 19.3125 6.03306C18.6042 7.9414 17.3833 9.76223 15.65 11.4956L16.15 13.9706C16.2167 14.3039 16.2 14.6289 16.1 14.9456C16 15.2622 15.8333 15.5372 15.6 15.7706L11.4 19.9706L9.3 15.0456L5.025 10.7706L0.1 8.67056L4.275 4.47056C4.50833 4.23723 4.7875 4.07056 5.1125 3.97056C5.4375 3.87056 5.76667 3.8539 6.1 3.92056L8.575 4.42056C10.3083 2.68723 12.125 1.46223 14.025 0.745565C15.925 0.0288979 17.8833 -0.171102 19.9 0.145565ZM1.875 13.9456C2.45833 13.3622 3.17083 13.0664 4.0125 13.0581C4.85417 13.0497 5.56667 13.3372 6.15 13.9206C6.73333 14.5039 7.02083 15.2164 7.0125 16.0581C7.00417 16.8997 6.70833 17.6122 6.125 18.1956C5.70833 18.6122 5.0125 18.9706 4.0375 19.2706C3.0625 19.5706 1.71667 19.8372 0 20.0706C0.233333 18.3539 0.5 17.0081 0.8 16.0331C1.1 15.0581 1.45833 14.3622 1.875 13.9456ZM3.3 15.3456C3.13333 15.5122 2.96667 15.8164 2.8 16.2581C2.63333 16.6997 2.51667 17.1456 2.45 17.5956C2.9 17.5289 3.34583 17.4164 3.7875 17.2581C4.22917 17.0997 4.53333 16.9372 4.7 16.7706C4.9 16.5706 5.00833 16.3289 5.025 16.0456C5.04167 15.7622 4.95 15.5206 4.75 15.3206C4.55 15.1206 4.30833 15.0247 4.025 15.0331C3.74167 15.0414 3.5 15.1456 3.3 15.3456Z"
+                fill="#EF4444" />
             </svg>
-
-            <svg *ngIf="project.type === 'PENDING'" width="22" height="22" viewBox="0 0 24 24" fill="none" class="text-[#FD0000] opacity-50">
-               <path d="M17.5 19C15.01 19 13 16.99 13 14.5C13 12.01 15.01 10 17.5 10C19.99 10 22 12.01 22 14.5C22 16.99 19.99 19 17.5 19ZM17.5 12C16.12 12 15 13.12 15 14.5C15 15.88 16.12 17 17.5 17C18.88 17 20 15.88 20 14.5C20 13.12 18.88 12 17.5 12ZM11 16H3V14H11V16ZM11 10H3V8H11V10Z" fill="currentColor"/>
+            <svg *ngIf="project.type === 'DONE'" width="11" height="18" viewBox="0 0 11 18" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M0.25 18L0 15.8L2.85 7.95C3.1 8.18333 3.37083 8.37917 3.6625 8.5375C3.95417 8.69583 4.26667 8.81667 4.6 8.9L1.85 16.45L0.25 18ZM10.75 18L9.15 16.45L6.4 8.9C6.73333 8.81667 7.04583 8.69583 7.3375 8.5375C7.62917 8.37917 7.9 8.18333 8.15 7.95L11 15.8L10.75 18ZM5.5 8C4.66667 8 3.95833 7.70833 3.375 7.125C2.79167 6.54167 2.5 5.83333 2.5 5C2.5 4.35 2.6875 3.77083 3.0625 3.2625C3.4375 2.75417 3.91667 2.4 4.5 2.2V0H6.5V2.2C7.08333 2.4 7.5625 2.75417 7.9375 3.2625C8.3125 3.77083 8.5 4.35 8.5 5C8.5 5.83333 8.20833 6.54167 7.625 7.125C7.04167 7.70833 6.33333 8 5.5 8ZM5.5 6C5.78333 6 6.02083 5.90417 6.2125 5.7125C6.40417 5.52083 6.5 5.28333 6.5 5C6.5 4.71667 6.40417 4.47917 6.2125 4.2875C6.02083 4.09583 5.78333 4 5.5 4C5.21667 4 4.97917 4.09583 4.7875 4.2875C4.59583 4.47917 4.5 4.71667 4.5 5C4.5 5.28333 4.59583 5.52083 4.7875 5.7125C4.97917 5.90417 5.21667 6 5.5 6Z"
+                fill="#A3A3A3" />
+            </svg>
+            <svg *ngIf="project.type === 'PENDING'" width="20" height="16" viewBox="0 0 20 16" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M0 16V14H2.725C1.875 13.2667 1.20833 12.3833 0.725 11.35C0.241667 10.3167 0 9.2 0 8C0 6.13333 0.566667 4.4875 1.7 3.0625C2.83333 1.6375 4.26667 0.7 6 0.25V2.35C4.83333 2.76667 3.875 3.4875 3.125 4.5125C2.375 5.5375 2 6.7 2 8C2 8.9 2.17917 9.72917 2.5375 10.4875C2.89583 11.2458 3.38333 11.9 4 12.45V10H6V16H0ZM11 16C10.1667 16 9.45833 15.7083 8.875 15.125C8.29167 14.5417 8 13.8333 8 13C8 12.2 8.275 11.5125 8.825 10.9375C9.375 10.3625 10.05 10.0583 10.85 10.025C11.1333 9.425 11.5542 8.9375 12.1125 8.5625C12.6708 8.1875 13.3 8 14 8C14.8833 8 15.6458 8.2875 16.2875 8.8625C16.9292 9.4375 17.3167 10.15 17.45 11C18.15 11 18.75 11.2417 19.25 11.725C19.75 12.2083 20 12.7917 20 13.475C20 14.175 19.7583 14.7708 19.275 15.2625C18.7917 15.7542 18.2 16 17.5 16H11ZM13.9 7C13.7833 6.31667 13.5583 5.68333 13.225 5.1C12.8917 4.51667 12.4833 4 12 3.55V6H10V0H16V2H13.275C13.9917 2.63333 14.5792 3.375 15.0375 4.225C15.4958 5.075 15.7917 6 15.925 7H13.9ZM11 14H17.5C17.6333 14 17.75 13.95 17.85 13.85C17.95 13.75 18 13.6333 18 13.5C18 13.3667 17.95 13.25 17.85 13.15C17.75 13.05 17.6333 13 17.5 13H15.75V11.75C15.75 11.2667 15.5792 10.8542 15.2375 10.5125C14.8958 10.1708 14.4833 10 14 10C13.5167 10 13.1042 10.1708 12.7625 10.5125C12.4208 10.8542 12.25 11.2667 12.25 11.75V12H11C10.7167 12 10.4792 12.0958 10.2875 12.2875C10.0958 12.4792 10 12.7167 10 13C10 13.2833 10.0958 13.5208 10.2875 13.7125C10.4792 13.9042 10.7167 14 11 14Z"
+                fill="#EF4444" />
             </svg>
           </div>
-
+          <!-- text-[17px] font-bold text-white group-hover:text-white transition-colors truncate tracking-tight -->
           <div class="flex-1 min-w-0">
-            <h4 class="text-[17px] font-bold text-white group-hover:text-white transition-colors truncate tracking-tight">{{ project.title }}</h4>
-            <span class="text-[11px] text-white/30 font-semibold block mt-1 tracking-wide">{{ i === 0 ? '3 days to launch' : (i === 1 ? 'Reviewing assets' : 'Migration in progress') }}</span>
+            <h4 class="title-project">{{ project.title }}</h4>
+            <span class="text-[11px] text-white/30 font-semibold block mt-1 tracking-wide">{{ i === 0 ? '3 days to
+              launch' : (i === 1 ? 'Reviewing assets' : 'Migration in progress') }}</span>
           </div>
 
           <!-- Status Label -->
-          <div class="text-[10px] font-black tracking-widest text-right leading-none w-20 shrink-0 italic" 
-               [style.color]="project.type === 'DONE' ? '#22C55E' : (project.type === 'IN_PROGRESS' ? '#3B82F6' : '#F59E0B')">
+          <div class="text-[10px] font-black tracking-widest text-right leading-none w-20 shrink-0 italic"
+            [style.color]="project.type === 'DONE' ? '#10B981' : (project.type === 'IN_PROGRESS' ? '#3B82F6' : '#F59E0B')">
             {{ project.status }}
           </div>
         </div>
@@ -166,7 +227,8 @@
     <div class="col-span-8 dashboard-card">
       <div class="flex justify-between items-start mb-8">
         <div>
-          <span class="card-label-top !text-[#737373] !mb-2 uppercase tracking-[0.2em] font-black opacity-60">Activity Distribution</span>
+          <span class="card-label-top !text-[#737373] !mb-2 uppercase tracking-[0.2em] font-black opacity-60">Activity
+            Distribution</span>
           <h2 class="card-title-main !text-3xl tracking-tight">Peak Performance Hours</h2>
         </div>
         <div class="flex gap-2 items-center mt-6">
@@ -179,16 +241,14 @@
 
       <div class="flex-1 flex flex-col justify-center min-w-0">
         <div class="heatmap-grid grid-rows-4 gap-2">
-          <div *ngFor="let cell of performanceHours.slice(0, 48)" 
-               class="heatmap-cell" 
-               [class.level-1]="cell === 1"
-               [class.level-2]="cell === 2"
-               [class.level-3]="cell === 3">
+          <div *ngFor="let cell of performanceHours.slice(0, 48)" class="heatmap-cell" [class.level-1]="cell === 1"
+            [class.level-2]="cell === 2" [class.level-3]="cell === 3">
           </div>
         </div>
       </div>
 
-      <div class="flex justify-between text-[10px] text-white/30 font-bold uppercase tracking-widest mt-10 px-1 opacity-70">
+      <div
+        class="flex justify-between text-[10px] text-white/30 font-bold uppercase tracking-widest mt-10 px-1 opacity-70">
         <span>12 AM</span>
         <span>4 AM</span>
         <span>8 AM</span>
@@ -218,7 +278,8 @@
 
     <div class="flex-1">
       <span class="card-label-top mb-4">Internal Spotlight</span>
-      <h2 class="text-6xl font-bold mb-8 tracking-tighter text-white">{{ topPerformer.first_name }} {{ topPerformer.last_name }}</h2>
+      <h2 class="text-6xl font-bold mb-8 tracking-tighter text-white">{{ topPerformer.first_name }} {{
+        topPerformer.last_name }}</h2>
 
       <p class="text-xl text-white/50 mb-10 max-w-2xl leading-relaxed">
         Maintaining a <span class="text-white font-bold">{{ topPerformer.performance }} engineering rate</span> this
@@ -242,12 +303,71 @@
     </div>
 
     <div class="shrink-0">
-      <button class="btn-profile">
+      <button class="btn-profile" (click)="toggleProfileModal()">
         VIEW PROFILE
         <svg class="w-4 h-4 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
         </svg>
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Details Modal -->
+<div class="modal-overlay" *ngIf="showProfileModal" (click)="toggleProfileModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="toggleProfileModal()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2.5" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    <div class="modal-header">
+      <div class="profile-image-large overflow-hidden">
+        <img *ngIf="topPerformer.photoPath; else modalInitialsTemplate" [src]="topPerformer.photoPath"
+          class="w-full h-full object-cover">
+        <ng-template #modalInitialsTemplate>
+          <div class="text-7xl font-bold text-white/5 uppercase tracking-tighter">
+            {{ getTopPerformerInitials() }}
+          </div>
+        </ng-template>
+      </div>
+      <div class="text-center mt-8">
+        <span class="card-label-top !text-red-500 mb-2">Team Member Spotlight</span>
+        <h2 class="text-5xl font-bold text-white tracking-tighter leading-none">{{ topPerformer.first_name }} {{
+          topPerformer.last_name }}</h2>
+        <div
+          class="performance-badge mt-6 inline-flex items-center gap-2 px-6 py-2 bg-red-500/10 border border-red-500/20 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-red-500">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-500 pulse-red"></span>
+          {{ topPerformer.performance }}
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-content mt-12">
+      <div class="grid grid-cols-3 gap-6">
+        <div class="stat-box-large">
+          <span class="stat-large-value">{{ topPerformer.tasksClosed }}</span>
+          <span class="stat-large-label">Tasks Finished</span>
+        </div>
+        <div class="stat-box-large">
+          <span class="stat-large-value">{{ topPerformer.avgResponse }}</span>
+          <span class="stat-large-label">Response Time</span>
+        </div>
+        <div class="stat-box-large">
+          <span class="stat-large-value">{{ topPerformer.projectsLed }}</span>
+          <span class="stat-large-label">Projects Led</span>
+        </div>
+      </div>
+
+      <div class="modal-bio mt-12 pt-10 border-t border-white/5">
+        <h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 mb-6">Professional Intelligence</h4>
+        <p class="text-white/40 text-xl leading-relaxed font-medium">
+          A relentless driver of architectural excellence within BrandShift. Currently maintaining a peak performance
+          baseline while accelerating cross-departmental operations and structural integrity.
+        </p>
+      </div>
     </div>
   </div>
 </div>

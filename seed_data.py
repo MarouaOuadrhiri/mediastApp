@@ -33,6 +33,16 @@ dept_data = [
     {"name": "Design",         "subtitle": "Create & Inspire",       "description": "Crafts UI/UX and visual assets across all products.",            "icon": "palette",     "image": ""},
 ]
 
+# Add 200 more departments
+for i in range(200):
+    dept_data.append({
+        "name": f"Department {i+6}",
+        "subtitle": f"Strategic Unit {i+6}",
+        "description": f"Handling specialized operations for unit {i+6}.",
+        "icon": random.choice(["layers", "trello", "cpu", "database", "shield", "truck", "anchor", "briefcase"]),
+        "image": ""
+    })
+
 departments = []
 for d in dept_data:
     dept = Department.objects(name=d["name"]).first()
@@ -65,7 +75,18 @@ user_data = [
     {"email": "karen@company.com",    "role": "ADMIN",    "department": departments[0], "first_name": "Karen", "last_name": "Manager"},
 ]
 
-FAKE_PASSWORD = "pbkdf2_sha256$600000$fakesalt$hashedpasswordhere=="  # replace with real hashed pw
+# Add 200 more users
+for i in range(200):
+    user_data.append({
+        "email": f"employee{i+13}@company.com",
+        "role": "EMPLOYEE",
+        "department": random.choice(departments),
+        "first_name": f"User_{i+13}",
+        "last_name": f"Last_{i+13}"
+    })
+
+from django.contrib.auth.hashers import make_password
+FAKE_PASSWORD = make_password("password123")
 
 users = []
 for u in user_data:
@@ -215,6 +236,26 @@ projects_data = [
     },
 ]
 
+# Add 200 more projects
+for i in range(200):
+    projects_data.append({
+        "name": f"Expansion Project {i+6}",
+        "client": random.choice(["Global Solutions", "Tech Innovators", "Nexa Corp", "Internal"]),
+        "description": f"Automated scaling project for sector {i+6}.",
+        "owner": random.choice(["karen_eng", "carol_mkt", "eve_hr", "grace_fin", "irene_design"]),
+        "status": random.choice(["In Progress", "Pending", "On Hold"]),
+        "priority": random.choice(["LOW", "MEDIUM", "HIGH", "URGENT"]),
+        "is_high_priority": random.choice([True, False]),
+        "budget": f"${random.randint(20, 500)},000",
+        "duration": f"{random.randint(2, 18)} months",
+        "tags": random.sample(["cloud", "ai", "security", "infrastructure", "mobile", "analytics"], 3),
+        "employees": random.sample(users, random.randint(2, 5)),
+        "department": random.choice(departments),
+        "start_date": now - datetime.timedelta(days=random.randint(0, 60)),
+        "deadline": future(random.randint(60, 300)),
+        "task_indices": random.sample(range(len(project_tasks_pool)), random.randint(2, 4)),
+    })
+
 projects = []
 for pd in projects_data:
     embedded_tasks = []
@@ -268,6 +309,16 @@ task_data = [
     {"title": "Set up staging environment",       "description": "Mirror production on a separate VPS for QA.",            "status": "REVIEW",      "employees": [users[1], users[2]], "department": departments[0]},
     {"title": "Icon library audit",               "description": "Remove duplicates and document usage guidelines.",       "status": "ARCHIVED",    "employees": [users[10]],         "department": departments[4]},
 ]
+
+# Add 200 more tasks
+for i in range(200):
+    task_data.append({
+        "title": f"Automated Task {i+11}",
+        "description": f"Standard operational task for sequence {i+11}.",
+        "status": random.choice(["IN_PROGRESS", "REVIEW", "DONE", "BLOCKED", "ARCHIVED"]),
+        "employees": random.sample(users, random.randint(1, 2)),
+        "department": random.choice(departments)
+    })
 
 tasks = []
 for td in task_data:
@@ -338,6 +389,17 @@ meeting_data = [
         "created_by": users[5],
     },
 ]
+
+# Add 200 more meetings
+for i in range(200):
+    meeting_data.append({
+        "title": f"Sync Meeting #{i+7}",
+        "description": f"Coordination and alignment for squad {i+7}.",
+        "date_time": now + datetime.timedelta(days=random.randint(-5, 15), hours=random.randint(9, 17)),
+        "departments": random.sample(departments, random.randint(1, 2)),
+        "employees": random.sample(users, random.randint(3, 8)),
+        "created_by": random.choice(users),
+    })
 
 meetings = []
 for md in meeting_data:

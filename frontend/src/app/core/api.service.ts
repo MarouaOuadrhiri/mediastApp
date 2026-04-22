@@ -19,6 +19,7 @@ export class ApiService {
   updateEmployee(id: string, data: any): Observable<any> { return this.http.patch(`${this.baseUrl}/users/employees/${id}/`, data); }
   deleteEmployee(id: string): Observable<any> { return this.http.delete(`${this.baseUrl}/users/employees/${id}/`); }
   getEmployeeHistory(id: string): Observable<any> { return this.http.get(`${this.baseUrl}/users/employees/${id}/history/`); }
+  getMyTeam(): Observable<any> { return this.http.get(`${this.baseUrl}/users/my-team/`); }
 
   // Departments
   getDepartments(): Observable<any> { return this.http.get(`${this.baseUrl}/departments/`); }

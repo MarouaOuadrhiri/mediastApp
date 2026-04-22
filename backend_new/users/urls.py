@@ -13,4 +13,5 @@ urlpatterns = [
     path('attendance/start/', views.start_attendance, name='start_attendance'),
     path('attendance/end/', views.end_attendance, name='end_attendance'),
     path('attendance/current/', views.get_current_attendance, name='get_current_attendance'),
+    path('my-team/', views.my_team, name='my_team'),
 ]

@@ -60,7 +60,8 @@ h4 {
 }
 
 .dashboard-card {
-    background: #111111;
+    background: #FFFFFF0D;
+    backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 2.5rem;
     padding: 3rem;
@@ -72,58 +73,89 @@ h4 {
 }
 
 .card-separator {
-    border-top: 1px solid rgba(255, 255, 255, 0.03);
-    margin: 0 -24px;
+    /* border-top: 1px solid rgba(255, 255, 255, 0.05); */
+    margin: 1.5rem 0 0.5rem 0;
+    width: 100%;
 }
 
 /* Global Completion Rates Figma Spec */
 .chart-card {
     width: 100%;
+    height: 500px;
     min-height: 480px;
-    height: auto;
-    background: #111111;
+    /* background: #111111; */
+    background: #FFFFFF0D;
+
+    backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 2.5rem;
-    padding: 3rem;
+    padding: 2.5rem 3rem;
+    /* Slightly reduced top/bottom padding */
     display: flex;
     flex-direction: column;
+    position: relative;
+    z-index: 20;
 }
 
 .chart-line {
     stroke: #FD0000;
-    stroke-width: 8.13;
+    stroke-width: 6;
     fill: none;
-    filter: drop-shadow(0px 8px 20px rgba(253, 0, 0, 0.3));
+    filter: drop-shadow(0px 0px 15px rgba(253, 0, 0, 0.4));
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
 .chart-gradient {
     fill: url(#chartGradient);
-    opacity: 0.12;
+    opacity: 1;
+    filter: blur(4px);
 }
 
 .card-title-main {
     font-family: 'Space Grotesk';
-    font-weight: 600;
-    font-size: 28px;
-    line-height: 1.1;
     color: white;
-    letter-spacing: -0.02em;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 32px;
+    vertical-align: middle;
+    margin-bottom: 10px;
 }
 
 .card-label-top {
     font-family: 'Space Grotesk';
     font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 0.25em;
+    font-size: 12px;
+    font-style: Bold;
+    line-height: 16px;
+    letter-spacing: 2.4px;
+    vertical-align: middle;
     text-transform: uppercase;
-    color: #FD0000;
-    /* Standardized to BrandShift Red */
+    color: #EF4444;
     display: block;
-    margin-bottom: 4px;
 }
 
+.pulse-icon-container {
+    border: 1px solid #FFFFFF0D;
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.title-project {
+    font-family: Space Grotesk;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 12px;
+    line-height: 20px;
+    vertical-align: middle;
+    text-align: start;
+    color: #FFFFFF;
+
+}
 
 /* Heatmap Styles */
 .heatmap-grid {
@@ -296,10 +328,13 @@ h4 {
 .avg-completion-rate {
     font-family: 'Space Grotesk';
     font-weight: 700;
-    font-size: 64px;
-    line-height: 1;
+    font-size: 30px;
     color: white;
-    letter-spacing: -0.04em;
+    line-height: 36px;
+    /* Fixed overlap issue */
+    letter-spacing: 0;
+    text-align: right;
+    margin-bottom: 4px;
 }
 
 .btn-profile {
@@ -323,6 +358,13 @@ h4 {
     color: white;
     transform: translateY(-4px) scale(1.02);
     box-shadow: 0 15px 40px rgba(253, 0, 0, 0.3);
+}
+
+.text {
+    width: 97px;
+    height: 16px;
+    opacity: 1;
+    gap: 4px;
 }
 
 /* Utility & Overrides */
@@ -388,4 +430,264 @@ h4 {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #EF4444;
+}
+
+/* Profile Modal Styles */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(24px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-card {
+    background: #0A0A0A;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 3rem;
+    padding: 4rem;
+    width: 100%;
+    max-width: 800px;
+    position: relative;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+    animation: modalIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-close {
+    position: absolute;
+    top: 2.5rem;
+    right: 2.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: rgba(253, 0, 0, 0.1);
+    border-color: rgba(253, 0, 0, 0.2);
+    transform: rotate(90deg);
+}
+
+.profile-image-large {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+}
+
+.stat-box-large {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    padding: 2.5rem 1.5rem;
+    border-radius: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-box-large:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-5px);
+}
+
+.stat-large-value {
+    display: block;
+    font-family: 'Space Grotesk';
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.04em;
+}
+
+.stat-large-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.pulse-red-small {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #FD0000;
+    border-radius: 50%;
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Chart Hover & Tooltip */
+.chart-hover-group {
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+.chart-hover-group > .chart-marker-pin {
+    pointer-events: auto;
+}
+
+.chart-tooltip-container {
+    background: white;
+    padding: 1rem 1.25rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    position: relative;
+    animation: tooltipIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chart-tooltip-container::after {
+    display: none; /* Removed the arrow to match the design in the second pic */
+}
+
+@keyframes tooltipIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.tooltip-avatar {
+    width: 32px;
+    height: 32px;
+    background: #111;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.tooltip-name {
+    font-family: 'Space Grotesk';
+    font-weight: 700;
+    font-size: 13px;
+    color: #111;
+}
+
+.tooltip-time {
+    font-family: 'Inter';
+    font-size: 11px;
+    color: #888;
+}
+
+.tooltip-data {
+    display: none;
+}
+
+.tooltip-message {
+    font-family: 'Inter';
+    font-size: 13px;
+    color: #404040;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.chart-hover-group circle {
+    filter: drop-shadow(0 0 10px rgba(253, 0, 0, 0.5));
+}
+
+.chart-marker-pin {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.chart-marker-pin-content {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.chart-marker-pin:hover .chart-marker-pin-content {
+    transform: scale(1.1) translateY(-2px);
+}
+
+.chart-marker-pin path {
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+}
+
+.chart-tooltip-container {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 2rem;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    display: inline-block;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    backdrop-filter: none;
+}
+
+.tooltip-name {
+    font-family: 'Space Grotesk';
+    font-weight: 700;
+    font-size: 14px;
+    color: #111111;
+    line-height: 1;
+}
+
+.tooltip-time {
+    font-family: 'Inter';
+    font-weight: 500;
+    font-size: 11px;
+    color: #A3A3A3;
+}
+
+.tooltip-data {
+    display: none;
+}
+
+.tooltip-avatar {
+    width: 36px;
+    height: 36px;
+    background: #171717;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }

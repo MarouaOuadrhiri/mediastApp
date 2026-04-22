@@ -229,6 +229,18 @@ def me_view(request):
 
         return Response({'message': 'Profile updated successfully.', 'user': serialize_user(user)})
 
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def my_team(request):
+    """Returns employees in the same department as the current user."""
+    user = request.user
+    if not user.department:
+        return Response([serialize_user(user)])
+    
+    team = User.objects(department=user.department)
+    return Response([serialize_user(u) for u in team])
+
 
 @api_view(['GET', 'POST'])
 @authentication_classes([JWTAuthentication])

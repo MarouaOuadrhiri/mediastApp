@@ -22,7 +22,7 @@ export class AnalyticsComponent implements OnInit {
     completedTasks: 0,
     avgCompletionRate: 0,
     avgCompletionChange: '0%',
-    weeklyData: [0, 0, 0, 0, 0, 0, 0],
+    weeklyData: [0, 0, 0, 0, 0, 0],
     departmentStats: [] as any[]
   };
 
@@ -39,6 +39,8 @@ export class AnalyticsComponent implements OnInit {
     projectsLed: 0,
     photoPath: ''
   };
+  
+  showProfileModal = false;
 
   constructor(private api: ApiService) {}
 
@@ -94,7 +96,6 @@ export class AnalyticsComponent implements OnInit {
       Math.max(0, rate - 25),
       Math.max(0, rate - 10),
       Math.max(0, rate - 5),
-      Math.max(0, rate - 2),
       rate
     ];
   }
@@ -152,14 +153,59 @@ export class AnalyticsComponent implements OnInit {
 
   // Helper for dynamic initials
   getTopPerformerInitials(): string {
-    if (!this.topPerformer.name || this.topPerformer.name === '---') return '??';
+    if (!this.topPerformer.name || this.topPerformer.name === '---') return 'SA';
     return this.topPerformer.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  }
+
+  toggleProfileModal() {
+    this.showProfileModal = !this.showProfileModal;
+  }
+
+  hoveredPoint: any = null;
+  showTooltip = false;
+
+  onMouseMove(event: MouseEvent) {
+    const svg = event.currentTarget as SVGElement;
+    const rect = svg.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    
+    const svgWidth = 557;
+    const clientWidth = rect.width;
+    
+    // Map client X to SVG X
+    const svgX = (x / clientWidth) * svgWidth;
+    
+    const dataPointsCount = this.stats.weeklyData.length;
+    if (dataPointsCount < 2) return;
+
+    const index = Math.round((svgX / svgWidth) * (dataPointsCount - 1));
+    const finalIndex = Math.max(0, Math.min(dataPointsCount - 1, index));
+    
+    const pointX = (finalIndex / (dataPointsCount - 1)) * svgWidth;
+    const val = this.stats.weeklyData[finalIndex];
+    const height = 200;
+    const padding = 20;
+    const actualHeight = height - padding * 2;
+    const pointY = height - (val / 100) * actualHeight - padding;
+
+    this.hoveredPoint = {
+      index: finalIndex,
+      x: pointX,
+      y: pointY,
+      value: val,
+      label: `WK 0${finalIndex + 1}`
+    };
+  }
+
+  onMouseLeave() {
+    this.hoveredPoint = null;
+    this.showTooltip = false;
   }
 
   get chartLinePath(): string {
     if (!this.stats.weeklyData || this.stats.weeklyData.length < 2) return '';
     const width = 557;
-    const height = 180;
+    const height = 200;
     const padding = 20;
     const actualHeight = height - padding * 2;
     const points = this.stats.weeklyData.map((val, i) => ({
@@ -182,6 +228,6 @@ export class AnalyticsComponent implements OnInit {
   get chartFillPath(): string {
     const linePath = this.chartLinePath;
     if (!linePath) return '';
-    return `${linePath} V 180 H 0 Z`;
+    return `${linePath} V 200 H 0 Z`;
   }
 }
