@@ -96,6 +96,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       window.addEventListener('employee-show-meeting-panel', this.employeeShowPanelListener);
 
       this.checkStoredEmployeeShowPanel();
+      this.restoreTimerState();
     }
   }
 
@@ -159,9 +160,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
       this.api.getCurrentAttendance().subscribe({
         next: (session: any) => this.runInZone(() => {
-          if (session) {
+          if (session && session.start_time) {
             this.attendanceSession = session;
+            this.timerRunning = true;
             this.startTimer(session.start_time);
+          } else if (!this.isLunchBreak) {
+            this.attendanceSession = null;
+            this.timerRunning = false;
+            this.timerValue = '00:00:00';
+            this.elapsedTime = '00:00:00';
           }
           this.cdr.detectChanges();
         }),
@@ -252,26 +259,134 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return diffMs >= 0 && diffMs <= 60 * 60 * 1000; // within 1 hour
   }
 
+  timerRunning = false;
+  isLunchBreak = false;
+  lunchBreakOver = false;
+  lunchSecondsLeft = 3600;
+  sessionStartTime: string | null = null;
+  timerValue = '00:00:00';
+
+  private restoreTimerState() {
+    const sessionType = localStorage.getItem('employee_timer_mode');
+    const startTime = localStorage.getItem('employee_timer_start');
+    if (sessionType === 'LUNCH' && startTime) {
+      this.isLunchBreak = true;
+      this.timerRunning = false;
+      const startTs = parseInt(startTime);
+      const elapsed = Math.floor((Date.now() - startTs) / 1000);
+      this.lunchSecondsLeft = Math.max(0, 3600 - elapsed);
+      if (this.lunchSecondsLeft === 0) {
+        this.lunchBreakOver = true;
+        this.timerValue = 'LUNCH OVER';
+      }
+      this.startTimer(new Date().toISOString()); // start timer loop to handle lunch
+    }
+  }
+
   startTimer(startTime: string) {
     if (!isPlatformBrowser(this.platformId)) return;
-    const start = new Date(startTime).getTime();
+    this.sessionStartTime = startTime;
+    if (!this.isLunchBreak) this.timerRunning = true;
+    
     if (this.timerInterval) clearInterval(this.timerInterval);
     if (!this.zone) return;
 
     this.zone.runOutsideAngular(() => {
       this.timerInterval = setInterval(() => {
-        const now = new Date().getTime();
-        const diff = now - start;
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
+        const nowTs = new Date().getTime();
+        
+        if (this.isLunchBreak) {
+          const lunchStart = localStorage.getItem('employee_timer_start');
+          if (lunchStart) {
+            const startTs = parseInt(lunchStart);
+            const elapsed = Math.floor((nowTs - startTs) / 1000);
+            this.lunchSecondsLeft = Math.max(0, 3600 - elapsed);
+            if (this.lunchSecondsLeft > 0) {
+              const m = Math.floor(this.lunchSecondsLeft / 60);
+              const s = this.lunchSecondsLeft % 60;
+              this.zone.run(() => {
+                this.timerValue = `LUNCH ${this.pad(m)}:${this.pad(s)}`;
+                this.elapsedTime = this.timerValue;
+                this.cdr.detectChanges();
+              });
+            } else {
+              this.zone.run(() => {
+                this.lunchBreakOver = true;
+                this.timerValue = 'LUNCH OVER';
+                this.elapsedTime = this.timerValue;
+                this.cdr.detectChanges();
+              });
+            }
+          }
+        } else if (this.timerRunning && this.sessionStartTime) {
+          const start = new Date(this.sessionStartTime).getTime();
+          let prevSecs = 0;
+          if (this.user && this.user.total_work_today) {
+            const parts = this.user.total_work_today.split(':');
+            if (parts.length === 3) prevSecs = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+          }
+          const diff = (nowTs - start) + (prevSecs * 1000);
+          const h = Math.floor(diff / 3600000);
+          const m = Math.floor((diff % 3600000) / 60000);
+          const s = Math.floor((diff % 60000) / 1000);
 
-        this.zone.run(() => {
-          this.elapsedTime = `${this.pad(h)}:${this.pad(m)}:${this.pad(s)}`;
-          this.cdr.detectChanges();
-        });
+          this.zone.run(() => {
+            this.elapsedTime = `${this.pad(h)}:${this.pad(m)}:${this.pad(s)}`;
+            this.timerValue = this.elapsedTime;
+            this.cdr.detectChanges();
+          });
+        }
       }, 1000);
     });
+  }
+
+  toggleTimer() {
+    if (this.isLunchBreak) {
+      this.isLunchBreak = false;
+      this.lunchBreakOver = false;
+      localStorage.removeItem('employee_timer_mode');
+      localStorage.removeItem('employee_timer_start');
+      this.timerValue = '00:00:00';
+      this.elapsedTime = '00:00:00';
+    }
+    
+    if (this.timerRunning) {
+      this.api.endAttendance().subscribe(() => {
+        this.timerRunning = false;
+        this.sessionStartTime = null;
+        this.attendanceSession = null;
+        this.timerValue = '00:00:00';
+        this.elapsedTime = '00:00:00';
+        this.loadData();
+      });
+    } else {
+      this.api.startAttendance().subscribe(() => {
+        this.timerRunning = true;
+        this.sessionStartTime = new Date().toISOString();
+        this.loadData();
+      });
+    }
+  }
+
+  startLunchBreak() {
+    if (this.isLunchBreak) return;
+    if (this.timerRunning) {
+      this.api.endAttendance().subscribe(() => {
+        const startTs = Date.now();
+        localStorage.setItem('employee_timer_mode', 'LUNCH');
+        localStorage.setItem('employee_timer_start', startTs.toString());
+        this.timerRunning = false;
+        this.isLunchBreak = true;
+        this.startTimer(new Date().toISOString());
+        this.loadData();
+      });
+    } else {
+      const startTs = Date.now();
+      localStorage.setItem('employee_timer_mode', 'LUNCH');
+      localStorage.setItem('employee_timer_start', startTs.toString());
+      this.isLunchBreak = true;
+      this.startTimer(new Date().toISOString());
+    }
   }
 
   private pad(n: number): string {
@@ -335,11 +450,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   updateStandaloneTaskStatus(taskId: string, status: string) {
     this.api.updateTaskStatus(taskId, status).subscribe({
-      next: () => { this.loadData(); },
+      next: () => {
+        // Optimistic update already performed in drop(), no need to reload all data
+        this.runInZone(() => { this.cdr.detectChanges(); });
+      },
       error: () => {
-        this.runInZone(() => { this.errorMsg = 'Failed to update task status.'; this.cdr.detectChanges(); });
+        this.runInZone(() => {
+          this.errorMsg = 'Failed to update task status.';
+          this.loadData(); // Revert UI on error
+          this.cdr.detectChanges();
+        });
       }
     });
+  }
+
+  trackById(index: number, item: any): string {
+    return item.id || index.toString();
   }
 
   getTotalActiveTasks(): number {
@@ -426,6 +552,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
       const task = event.previousContainer.data[event.previousIndex];
+      // Optimistic update to prevent snapping back
+      task.status = targetStatus;
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
