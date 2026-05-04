@@ -136,13 +136,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadData(isRefresh = false) {
+    if (this.isDragging || (isRefresh && this.isUpdating)) return;
     this.api.getMyProjects().subscribe({
-      next: (r: any) => this.runInZone(() => { this.projects = r || []; this.updateTaskLists(); this.cdr.detectChanges(); }),
+      next: (r: any) => {
+        if (this.isDragging || this.isUpdating) return;
+        this.runInZone(() => { this.projects = r || []; this.updateTaskLists(); this.cdr.detectChanges(); });
+      },
       error: () => { if (!isRefresh) this.errorMsg = 'Failed to load project data.'; }
     });
 
     this.api.getTasks().subscribe({
-      next: (r: any) => this.runInZone(() => { this.standaloneTasks = r || []; this.updateTaskLists(); this.cdr.detectChanges(); }),
+      next: (r: any) => {
+        if (this.isDragging || this.isUpdating) return;
+        this.runInZone(() => { this.standaloneTasks = r || []; this.updateTaskLists(); this.cdr.detectChanges(); });
+      },
       error: () => { if (!isRefresh) this.errorMsg = 'Failed to load tasks.'; }
     });
 
@@ -286,6 +293,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   lunchSecondsLeft = 3600;
   sessionStartTime: string | null = null;
   timerValue = '00:00:00';
+  isDragging = false;
+  isUpdating = false;
 
   private restoreTimerState() {
     if (isPlatformBrowser(this.platformId)) {
@@ -579,8 +588,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
       const task = event.previousContainer.data[event.previousIndex];
+      // Map frontend status to backend expected status
+      const apiStatus = targetStatus === 'TODO' || targetStatus === 'IN PROGRESS' ? 
+                       (targetStatus === 'TODO' ? 'BLOCKED' : 'IN_PROGRESS') : 
+                       targetStatus;
+
       // Optimistic update to prevent snapping back
-      task.status = targetStatus;
+      task.status = apiStatus;
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
@@ -588,8 +602,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         event.currentIndex,
       );
       
-      this.updateStandaloneTaskStatus(task.id, targetStatus);
+      this.isUpdating = true;
+      this.updateStandaloneTaskStatus(task.id, apiStatus);
+      // Give backend 3 seconds to stabilize before allowing background refreshes
+      setTimeout(() => { this.isUpdating = false; }, 3000);
     }
+    this.isDragging = false;
+    this.runInZone(() => { this.cdr.detectChanges(); });
+  }
+
+  onDragStarted() {
+    this.isDragging = true;
   }
 
   getPriorityTasks(): any[] {

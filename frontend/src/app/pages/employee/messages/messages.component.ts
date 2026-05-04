@@ -25,18 +25,31 @@ export class MessagesComponent implements OnInit {
 
   ngOnInit() {
     this.api.getMe().subscribe({
-      next: (r: any) => { this.user = r; },
-      error: () => {}
+      next: (r: any) => { 
+        this.user = r; 
+        this.loadTeamMembers();
+      },
+      error: () => {
+        this.loadTeamMembers(); // Try anyway
+      }
     });
-    this.loadTeamMembers();
   }
 
   loadTeamMembers() {
     this.api.getMyTeam().subscribe({
       next: (res: any) => {
-        this.teamMembers = Array.isArray(res) ? res : (res.results || []);
+        const members = Array.isArray(res) ? res : (res.results || []);
+        // Filter out current user from team list
+        this.teamMembers = members.filter((m: any) => m.id !== this.user?.id);
+        
+        // Auto-select first member if we have team and none selected
+        if (this.teamMembers.length > 0 && !this.selectedMember) {
+          this.selectMember(this.teamMembers[0]);
+        }
       },
-      error: () => {}
+      error: () => {
+        console.error('Failed to load team members');
+      }
     });
   }
 

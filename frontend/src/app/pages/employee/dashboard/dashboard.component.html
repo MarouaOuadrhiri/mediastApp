@@ -135,19 +135,22 @@
       <!-- KANBAN VIEW -->
       <div class="flex gap-4 overflow-x-auto lg:overflow-hidden pb-4 lg:pb-0 custom-scrollbar" style="scroll-snap-type: x mandatory;" cdkDropListGroup *ngIf="viewMode === 'kanban'">
         <!-- TO DO -->
-        <div class="min-w-[280px] lg:min-w-0 flex-1" style="scroll-snap-align: start;">
-          <div class="flex items-center gap-2 mb-4">
+        <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col" style="scroll-snap-align: start;">
+          <div class="flex items-center gap-2 mb-4 shrink-0">
             <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #2563EB;">
               To Do
             </span> 
             <span
               style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #2563EB33; background: #1A1A1C; font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{todoTasks.length}}</span>
           </div>
-          <div class="space-y-3 min-h-[100px]"
+          <div class="space-y-3 min-h-[150px] flex-1 pb-20"
+               id="todoList"
                cdkDropList
                [cdkDropListData]="todoTasks"
-               (cdkDropListDropped)="drop($event, 'BLOCKED')">
-            <div *ngFor="let t of todoTasks; trackBy: trackById" class="task-card todo-card border border-[#2563EB52] cursor-grab active:cursor-grabbing" cdkDrag [cdkDragData]="t">
+               [cdkDropListConnectedTo]="['inProgressList', 'reviewList', 'doneList']"
+               (cdkDropListDropped)="drop($event, 'TODO')">
+            <div *ngFor="let t of todoTasks; trackBy: trackById" class="task-card todo-card border border-[#2563EB52] cursor-grab active:cursor-grabbing" 
+                 cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
               <div class="flex items-start justify-between gap-2">
                 <div>
                   <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
@@ -173,19 +176,22 @@
         </div>
 
         <!-- IN PROGRESS -->
-        <div class="min-w-[280px] lg:min-w-0 flex-1" style="scroll-snap-align: start;">
-          <div class="flex items-center gap-2 mb-4">
+        <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col" style="scroll-snap-align: start;">
+          <div class="flex items-center gap-2 mb-4 shrink-0">
             <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #FFFFFF;">
               In Progress
             </span>
             <span
               style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #FFFFFF33;background: #1A1A1C;font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{inProgressTasks.length}}</span>
           </div>
-          <div class="space-y-3 min-h-[100px]"
+          <div class="space-y-3 min-h-[150px] flex-1 pb-20"
+               id="inProgressList"
                cdkDropList
                [cdkDropListData]="inProgressTasks"
+               [cdkDropListConnectedTo]="['todoList', 'reviewList', 'doneList']"
                (cdkDropListDropped)="drop($event, 'IN_PROGRESS')">
-            <div *ngFor="let t of inProgressTasks; trackBy: trackById" class="task-card inprogress-card border border-[#FFFFFF52] cursor-grab active:cursor-grabbing" cdkDrag [cdkDragData]="t">
+            <div *ngFor="let t of inProgressTasks; trackBy: trackById" class="task-card inprogress-card border border-[#FFFFFF52] cursor-grab active:cursor-grabbing" 
+                 cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
               <div class="flex items-start justify-between gap-2">
                 <div>
                   <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
@@ -211,19 +217,22 @@
         </div>
 
         <!-- REVIEW -->
-        <div class="min-w-[280px] lg:min-w-0 flex-1" style="scroll-snap-align: start;">
-          <div class="flex items-center gap-2 mb-4">
+        <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col" style="scroll-snap-align: start;">
+          <div class="flex items-center gap-2 mb-4 shrink-0">
             <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #F59E0B;">
               Review
             </span>
             <span
               style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #F59E0B33;background: #1A1A1C;font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{reviewTasks.length}}</span>
           </div>
-          <div class="space-y-3 min-h-[100px]"
+          <div class="space-y-3 min-h-[150px] flex-1 pb-20"
+               id="reviewList"
                cdkDropList
                [cdkDropListData]="reviewTasks"
+               [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'doneList']"
                (cdkDropListDropped)="drop($event, 'REVIEW')">
-            <div *ngFor="let t of reviewTasks; trackBy: trackById" class="task-card review-card border border-[#F59E0B52] cursor-grab active:cursor-grabbing" cdkDrag [cdkDragData]="t">
+            <div *ngFor="let t of reviewTasks; trackBy: trackById" class="task-card review-card border border-[#F59E0B52] cursor-grab active:cursor-grabbing" 
+                 cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
               <div class="flex items-start justify-between gap-2">
                 <div>
                   <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
@@ -249,19 +258,22 @@
         </div>
 
         <!-- DONE -->
-        <div class="min-w-[280px] lg:min-w-0 flex-1" style="scroll-snap-align: start;">
-          <div class="flex items-center gap-2 mb-4">
+        <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col" style="scroll-snap-align: start;">
+          <div class="flex items-center gap-2 mb-4 shrink-0">
             <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #10B981;">
               Done
             </span>
             <span
               style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #10B98152;background: #1A1A1C;font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{doneTasks.length}}</span>
           </div>
-          <div class="space-y-3 min-h-[100px]"
+          <div class="space-y-3 min-h-[150px] flex-1 pb-20"
+               id="doneList"
                cdkDropList
                [cdkDropListData]="doneTasks"
+               [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'reviewList']"
                (cdkDropListDropped)="drop($event, 'DONE')">
-            <div *ngFor="let t of doneTasks; trackBy: trackById" class="task-card done-card border border-[#10B98152] cursor-grab active:cursor-grabbing" cdkDrag [cdkDragData]="t">
+            <div *ngFor="let t of doneTasks; trackBy: trackById" class="task-card done-card border border-[#10B98152] cursor-grab active:cursor-grabbing" 
+                 cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
               <div class="flex items-start justify-between gap-2">
                 <div>
                   <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
@@ -311,8 +323,8 @@
 
           <!-- Group Content -->
           <div class="space-y-2 min-h-[20px]" *ngIf="expandedStatusGroups.has(status)"
-               cdkDropList [cdkDropListData]="getTasksByListStatus(status)" (cdkDropListDropped)="drop($event, status === 'IN PROGRESS' ? 'IN_PROGRESS' : status)">
-            <div *ngFor="let t of getTasksByListStatus(status); trackBy: trackById" cdkDrag
+               cdkDropList [cdkDropListData]="getTasksByListStatus(status)" (cdkDropListDropped)="drop($event, status)">
+            <div *ngFor="let t of getTasksByListStatus(status); trackBy: trackById" cdkDrag (cdkDragStarted)="onDragStarted()"
                  class="flex items-center justify-between p-4 bg-[#1C1C1E] hover:bg-[#252529] border border-white/[0.03] rounded-xl transition-all cursor-grab active:cursor-grabbing group">
               
               <div *cdkDragPlaceholder class="bg-white/5 border border-dashed border-white/10 rounded-xl h-16 w-full"></div>
