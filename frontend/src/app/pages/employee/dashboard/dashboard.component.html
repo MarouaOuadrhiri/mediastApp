@@ -109,27 +109,31 @@
       <!-- Task Board Header -->
       <div class="flex items-center justify-between">
 
-        <h2 class="relative inline-block" style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 20px; line-height: 28px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
-          <span class="nav-indicator"></span>My Tasks Board
+        <h2 class="relative inline-block pl-4" style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 20px; line-height: 28px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
+          <span class="nav-indicator" style="left: 0;"></span>My Tasks Board
         </h2>
         <div class="flex items-center gap-2">
-          <button
-            class="w-8 h-8 rounded-lg  flex items-center justify-center text-white/30 hover:text-white transition-all">
+          <button (click)="viewMode = 'kanban'"
+            [class.!text-white]="viewMode === 'kanban'"
+            [class.bg-white/5]="viewMode === 'kanban'"
+            class="w-8 h-8 rounded-lg flex items-center justify-center text-white/30 hover:text-white transition-all">
             <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 12V10H11V12H7ZM3 7V5H15V7H3ZM0 2V0H18V2H0Z" fill="#A1A1AA"/>
+              <path d="M7 12V10H11V12H7ZM3 7V5H15V7H3ZM0 2V0H18V2H0Z" fill="currentColor"/>
             </svg>
           </button>
-          <button
+          <button (click)="viewMode = 'list'"
+            [class.!text-white]="viewMode === 'list'"
+            [class.bg-white/5]="viewMode === 'list'"
             class="w-8 h-8 rounded-lg flex items-center justify-center text-white/30 hover:text-white transition-all">
             <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2 16C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14C0 13.45 0.195833 12.9792 0.5875 12.5875C0.979167 12.1958 1.45 12 2 12C2.55 12 3.02083 12.1958 3.4125 12.5875C3.80417 12.9792 4 13.45 4 14C4 14.55 3.80417 15.0208 3.4125 15.4125C3.02083 15.8042 2.55 16 2 16ZM2 10C1.45 10 0.979167 9.80417 0.5875 9.4125C0.195833 9.02083 0 8.55 0 8C0 7.45 0.195833 6.97917 0.5875 6.5875C0.979167 6.19583 1.45 6 2 6C2.55 6 3.02083 6.19583 3.4125 6.5875C3.80417 6.97917 4 7.45 4 8C4 8.55 3.80417 9.02083 3.4125 9.4125C3.02083 9.80417 2.55 10 2 10ZM2 4C1.45 4 0.979167 3.80417 0.5875 3.4125C0.195833 3.02083 0 2.55 0 2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0C2.55 0 3.02083 0.195833 3.4125 0.5875C3.80417 0.979167 4 1.45 4 2C4 2.55 3.80417 3.02083 3.4125 3.4125C3.02083 3.80417 2.55 4 2 4Z" fill="#A1A1AA"/>
+              <path d="M2 16C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14C0 13.45 0.195833 12.9792 0.5875 12.5875C0.979167 12.1958 1.45 12 2 12C2.55 12 3.02083 12.1958 3.4125 12.5875C3.80417 12.9792 4 13.45 4 14C4 14.55 3.80417 15.0208 3.4125 15.4125C3.02083 15.8042 2.55 16 2 16ZM2 10C1.45 10 0.979167 9.80417 0.5875 9.4125C0.195833 9.02083 0 8.55 0 8C0 7.45 0.195833 6.97917 0.5875 6.5875C0.979167 6.19583 1.45 6 2 6C2.55 6 3.02083 6.19583 3.4125 6.5875C3.80417 6.97917 4 7.45 4 8C4 8.55 3.80417 9.02083 3.4125 9.4125C3.02083 9.80417 2.55 10 2 10ZM2 4C1.45 4 0.979167 3.80417 0.5875 3.4125C0.195833 3.02083 0 2.55 0 2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0C2.55 0 3.02083 0.195833 3.4125 0.5875C3.80417 0.979167 4 1.45 4 2C4 2.55 3.80417 3.02083 3.4125 3.4125C3.02083 3.80417 2.55 4 2 4Z" fill="currentColor"/>
             </svg>
           </button>
         </div>
       </div>
 
-      <!-- Kanban Columns -->
-      <div class="flex gap-4 overflow-x-auto lg:overflow-hidden pb-4 lg:pb-0 custom-scrollbar" style="scroll-snap-type: x mandatory;" cdkDropListGroup>
+      <!-- KANBAN VIEW -->
+      <div class="flex gap-4 overflow-x-auto lg:overflow-hidden pb-4 lg:pb-0 custom-scrollbar" style="scroll-snap-type: x mandatory;" cdkDropListGroup *ngIf="viewMode === 'kanban'">
         <!-- TO DO -->
         <div class="min-w-[280px] lg:min-w-0 flex-1" style="scroll-snap-align: start;">
           <div class="flex items-center gap-2 mb-4">
@@ -149,17 +153,7 @@
                   <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
                   <p class="text-[11px] text-white/30 mt-1">{{t.description || ''}}</p>
                 </div>
-                <!-- <select [ngModel]="t.status === 'TODO' || t.status === 'BLOCKED' ? 'BLOCKED' : t.status" (ngModelChange)="updateStandaloneTaskStatus(t.id, $event)" class="text-[9px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/70 outline-none cursor-pointer rounded px-1.5 py-1" (click)="$event.stopPropagation()">
-                  <option value="BLOCKED">To Do</option>
-                  <option value="IN_PROGRESS">In Prog</option>
-                  <option value="REVIEW">Review</option>
-                  <option value="DONE">Done</option>
-                </select> -->
               </div>
-              <!-- <span class="inline-block mt-2 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg"
-                [ngClass]="{'text-red-400': t.priority === 'high', 'text-yellow-400': t.priority === 'medium', 'text-green-400': t.priority === 'low' || !t.priority}">
-                {{t.priority || 'medium'}}
-              </span> -->
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-[9px] text-white/20 uppercase">Deadline</p>
@@ -197,17 +191,7 @@
                   <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
                   <p class="text-[11px] text-white/30 mt-1">Project: {{t.project_name || 'BrandShift'}}</p>
                 </div>
-                <!-- <select [ngModel]="t.status === 'TODO' || t.status === 'BLOCKED' ? 'BLOCKED' : t.status" (ngModelChange)="updateStandaloneTaskStatus(t.id, $event)" class="text-[9px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/70 outline-none cursor-pointer rounded px-1.5 py-1" (click)="$event.stopPropagation()">
-                  <option value="BLOCKED">To Do</option>
-                  <option value="IN_PROGRESS">In Prog</option>
-                  <option value="REVIEW">Review</option>
-                  <option value="DONE">Done</option>
-                </select> -->
               </div>
-              <!-- <span class="inline-block mt-2 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg"
-                [ngClass]="{'text-red-400': t.priority === 'high', 'text-yellow-400': t.priority === 'medium', 'text-green-400': t.priority === 'low' || !t.priority}">
-                {{t.priority || 'medium'}}
-              </span> -->
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-[9px] text-white/20 uppercase">Deadline</p>
@@ -245,17 +229,7 @@
                   <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
                   <p class="text-[11px] text-white/30 mt-1">Project: {{t.project_name || 'BrandShift'}}</p>
                 </div>
-                <!-- <select [ngModel]="t.status === 'TODO' || t.status === 'BLOCKED' ? 'BLOCKED' : t.status" (ngModelChange)="updateStandaloneTaskStatus(t.id, $event)" class="text-[9px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/70 outline-none cursor-pointer rounded px-1.5 py-1" (click)="$event.stopPropagation()">
-                  <option value="BLOCKED">To Do</option>
-                  <option value="IN_PROGRESS">In Prog</option>
-                  <option value="REVIEW">Review</option>
-                  <option value="DONE">Done</option>
-                </select> -->
               </div>
-              <!-- <span class="inline-block mt-2 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg"
-                [ngClass]="{'text-red-400': t.priority === 'high', 'text-yellow-400': t.priority === 'medium', 'text-green-400': t.priority === 'low' || !t.priority}">
-                {{t.priority || 'medium'}}
-              </span> -->
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-[9px] text-white/20 uppercase">Deadline</p>
@@ -293,17 +267,7 @@
                   <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
                   <p class="text-[11px] text-white/30 mt-1">Project: {{t.project_name || 'BrandShift'}}</p>
                 </div>
-                <!-- <select [ngModel]="t.status === 'TODO' || t.status === 'BLOCKED' ? 'BLOCKED' : t.status" (ngModelChange)="updateStandaloneTaskStatus(t.id, $event)" class="text-[9px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/70 outline-none cursor-pointer rounded px-1.5 py-1" (click)="$event.stopPropagation()">
-                  <option value="BLOCKED">To Do</option>
-                  <option value="IN_PROGRESS">In Prog</option>
-                  <option value="REVIEW">Review</option>
-                  <option value="DONE">Done</option>
-                </select> -->
               </div>
-              <!-- <span
-                class="inline-block mt-2 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg text-[#10B981]">
-                done
-              </span> -->
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-[9px] text-white/20 uppercase">Deadline</p>
@@ -317,6 +281,79 @@
               </div>
               <div class="h-1 bg-white/5 rounded-full mt-2 overflow-hidden">
                 <div class="h-full bg-[#10B981] rounded-full" style="width:100%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIST VIEW -->
+      <div class="space-y-6" *ngIf="viewMode === 'list'" cdkDropListGroup>
+        <!-- Table Headers -->
+        <div class="flex items-center justify-between px-5 pb-3 border-b border-white/[0.04] text-[10px] font-bold uppercase tracking-[0.2em] text-[#737373]">
+          <div class="w-[45%]">Task Details</div>
+          <div class="w-[20%]">Status</div>
+          <div class="w-[15%]">Deadline</div>
+          <div class="w-[20%] text-right">Progress</div>
+        </div>
+
+        <div class="status-group" *ngFor="let status of listStatuses">
+          <!-- Group Header -->
+          <div class="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-colors mb-2" (click)="toggleStatusGroup(status)">
+            <div class="flex items-center gap-3">
+              <span class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border border-white/10 text-white/60">{{ status }}</span>
+              <span class="text-xs font-bold text-white/20">{{ getTasksByListStatus(status).length }}</span>
+            </div>
+            <svg class="w-4 h-4 text-white/20 transition-transform" [class.rotate-180]="expandedStatusGroups.has(status)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+
+          <!-- Group Content -->
+          <div class="space-y-2 min-h-[20px]" *ngIf="expandedStatusGroups.has(status)"
+               cdkDropList [cdkDropListData]="getTasksByListStatus(status)" (cdkDropListDropped)="drop($event, status === 'IN PROGRESS' ? 'IN_PROGRESS' : status)">
+            <div *ngFor="let t of getTasksByListStatus(status); trackBy: trackById" cdkDrag
+                 class="flex items-center justify-between p-4 bg-[#1C1C1E] hover:bg-[#252529] border border-white/[0.03] rounded-xl transition-all cursor-grab active:cursor-grabbing group">
+              
+              <div *cdkDragPlaceholder class="bg-white/5 border border-dashed border-white/10 rounded-xl h-16 w-full"></div>
+
+              <!-- 1. Task Title & Project -->
+              <div class="flex items-center gap-3 w-[45%]">
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/30 group-hover:text-white/60 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="font-bold text-sm text-white truncate">{{ t.title }}</span>
+                  <span class="text-[10px] text-white/30 truncate">{{ t.project_name || 'BrandShift' }}</span>
+                </div>
+              </div>
+
+              <!-- 2. Status Pill -->
+              <div class="w-[20%]">
+                <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md border"
+                      [ngClass]="{
+                        'bg-green-500/10 text-green-400 border-green-500/20': t.status === 'DONE',
+                        'bg-blue-500/10 text-blue-400 border-blue-500/20': t.status === 'IN_PROGRESS',
+                        'bg-yellow-500/10 text-yellow-400 border-yellow-500/20': t.status === 'REVIEW',
+                        'bg-red-500/10 text-red-400 border-red-500/20': t.status === 'BLOCKED' || t.status === 'TODO'
+                      }">
+                  {{ t.status }}
+                </span>
+              </div>
+
+              <!-- 3. Deadline -->
+              <div class="w-[15%]">
+                <span class="text-xs text-white/40 font-medium">{{ t.deadline ? (t.deadline | date:'MMM dd') : 'N/A' }}</span>
+              </div>
+
+              <!-- 4. Progress -->
+              <div class="w-[20%] text-right">
+                <div class="flex flex-col items-end gap-1.5">
+                  <span class="text-[11px] font-bold text-white/60">{{ t.status === 'DONE' ? '100%' : (t.status === 'IN_PROGRESS' ? '40%' : '0%') }}</span>
+                  <div class="w-16 h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-white/20" [style.width]="t.status === 'DONE' ? '100%' : (t.status === 'IN_PROGRESS' ? '40%' : '0%')"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -417,10 +454,10 @@
   <div class="grid lg:grid-cols-12 gap-6">
     <!-- My Projects Table -->
     <div class="lg:col-span-9">
-      <div class="flex items-center gap-3 mb-6">
-        <span class="w-1 h-5 bg-[#FF1A1A] rounded-full"></span>
-        <h2 class="text-lg font-bold text-white">My Projects</h2>
-      </div>
+      <h2 class="text-lg font-bold text-white mb-6 relative pl-4">
+        <span class="nav-indicator" style="left: 0;"></span>
+        My Projects
+      </h2>
       <div class="overflow-hidden" style="border: 1px solid #2A2A2D; background: linear-gradient(118.95deg, #1C1C1E 0%, #121214 100%); width: 100%; height: 243px; border-radius: 24px;">
         <table class="w-full text-left">
           <thead>
@@ -483,7 +520,10 @@
 
     <!-- Performance Snapshot -->
     <div class="lg:col-span-3">
-      <h2 class="text-lg font-bold text-white mb-6">Performance Snapshot</h2>
+      <h2 class="text-lg font-bold text-white mb-6 relative pl-4">
+        <span class="nav-indicator" style="left: 0;"></span>
+        Performance Snapshot
+      </h2>
       <div class="grid grid-cols-2 gap-4">
         <div class="flex flex-col justify-center items-start text-left" style="width: 100%; height: 108px; gap: 4px; border-radius: 12px; padding: 16px; background: linear-gradient(151.54deg, #1C1C1E 0%, #121214 100%); border: 1px solid #2A2A2D;">
           <div class="flex items-center gap-3">

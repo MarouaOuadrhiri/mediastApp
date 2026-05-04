@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import { UiService } from '../../core/ui.service';
@@ -35,6 +35,13 @@ export class ProfileComponent implements OnInit {
   isResultsModalOpen = false;
   modalTitle = '';
 
+  isAdmin(): boolean {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('role') === 'ADMIN';
+    }
+    return false;
+  }
+
   scrollToSection(sectionId: string) {
     this.activeTab = sectionId;
     const element = document.getElementById(sectionId);
@@ -54,7 +61,11 @@ export class ProfileComponent implements OnInit {
   activeSessions: any[] = [];
   showSessionsList = false;
 
-  constructor(private api: ApiService, private ui: UiService) { }
+  constructor(
+    private api: ApiService, 
+    private ui: UiService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) { }
 
   ngOnInit() {
     this.loadProfile();

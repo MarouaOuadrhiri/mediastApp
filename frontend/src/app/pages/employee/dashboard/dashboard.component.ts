@@ -110,15 +110,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private loadSeenMeetingIds() {
-    if (!isPlatformBrowser(this.platformId)) return;
-    try {
+    if (isPlatformBrowser(this.platformId)) {
       const raw = localStorage.getItem(this.meetingSeenStorageKey);
       if (raw) {
-        const ids = JSON.parse(raw) as string[];
-        this.lastSeenMeetingIds = new Set(ids || []);
+        try {
+          const ids = JSON.parse(raw);
+          if (Array.isArray(ids)) this.lastSeenMeetingIds = new Set(ids);
+        } catch (e) {}
       }
-    } catch {
-      this.lastSeenMeetingIds = new Set();
     }
   }
 
@@ -226,18 +225,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private checkStoredEmployeeShowPanel() {
-    try {
-      const raw = localStorage.getItem(this.employeeShowPanelActionKey);
-      if (!raw) return;
-      const payload = JSON.parse(raw);
-      if (payload?.action === 'open') {
-        const eventTime = new Date(payload.ts).getTime();
-        if (!isNaN(eventTime) && Date.now() - eventTime < 20000) {
-          this.handleEmployeeShowPanel();
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        const raw = localStorage.getItem(this.employeeShowPanelActionKey);
+        if (!raw) return;
+        const payload = JSON.parse(raw);
+        if (payload?.action === 'open') {
+          const eventTime = new Date(payload.ts).getTime();
+          if (!isNaN(eventTime) && Date.now() - eventTime < 20000) {
+            this.handleEmployeeShowPanel();
+          }
         }
-      }
-    } catch {
-      // ignore invalid payload
+      } catch (e) {}
     }
   }
 
@@ -259,6 +258,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return diffMs >= 0 && diffMs <= 60 * 60 * 1000; // within 1 hour
   }
 
+  viewMode: 'kanban' | 'list' = 'kanban';
+  listStatuses = ['TODO', 'IN PROGRESS', 'REVIEW', 'DONE'];
+  expandedStatusGroups: Set<string> = new Set(['TODO', 'IN PROGRESS', 'REVIEW', 'DONE']);
+
+  toggleStatusGroup(status: string) {
+    if (this.expandedStatusGroups.has(status)) {
+      this.expandedStatusGroups.delete(status);
+    } else {
+      this.expandedStatusGroups.add(status);
+    }
+  }
+
+  getTasksByListStatus(status: string): any[] {
+    switch (status) {
+      case 'TODO': return this.todoTasks;
+      case 'IN PROGRESS': return this.inProgressTasks;
+      case 'REVIEW': return this.reviewTasks;
+      case 'DONE': return this.doneTasks;
+      default: return [];
+    }
+  }
+
   timerRunning = false;
   isLunchBreak = false;
   lunchBreakOver = false;
@@ -267,19 +288,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   timerValue = '00:00:00';
 
   private restoreTimerState() {
-    const sessionType = localStorage.getItem('employee_timer_mode');
-    const startTime = localStorage.getItem('employee_timer_start');
-    if (sessionType === 'LUNCH' && startTime) {
-      this.isLunchBreak = true;
-      this.timerRunning = false;
-      const startTs = parseInt(startTime);
-      const elapsed = Math.floor((Date.now() - startTs) / 1000);
-      this.lunchSecondsLeft = Math.max(0, 3600 - elapsed);
-      if (this.lunchSecondsLeft === 0) {
-        this.lunchBreakOver = true;
-        this.timerValue = 'LUNCH OVER';
+    if (isPlatformBrowser(this.platformId)) {
+      const sessionType = localStorage.getItem('employee_timer_mode');
+      const startTime = localStorage.getItem('employee_timer_start');
+      if (sessionType === 'LUNCH' && startTime) {
+        this.isLunchBreak = true;
+        this.timerRunning = false;
+        const startTs = parseInt(startTime);
+        const elapsed = Math.floor((Date.now() - startTs) / 1000);
+        this.lunchSecondsLeft = Math.max(0, 3600 - elapsed);
+        if (this.lunchSecondsLeft === 0) {
+          this.lunchBreakOver = true;
+          this.timerValue = 'LUNCH OVER';
+        }
+        this.startTimer(new Date().toISOString()); // start timer loop to handle lunch
       }
-      this.startTimer(new Date().toISOString()); // start timer loop to handle lunch
     }
   }
 
@@ -404,7 +427,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     };
 
-    const isAdmin = localStorage.getItem('role') === 'admin';
+    let isAdmin = false;
+    if (isPlatformBrowser(this.platformId)) {
+      isAdmin = localStorage.getItem('role') === 'ADMIN';
+    }
+
     if (isAdmin) {
       finalizeLogout();
     } else {
