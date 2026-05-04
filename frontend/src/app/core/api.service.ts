@@ -65,5 +65,8 @@ export class ApiService {
   getSessions(): Observable<any> { return this.http.get(`${this.baseUrl}/users/me/sessions/`); }
   revokeSession(sessionId: string): Observable<any> { return this.http.post(`${this.baseUrl}/users/me/sessions/revoke/`, { session_id: sessionId }); }
 
+  getConversation(otherUserId: string): Observable<any> { return this.http.get(`${this.baseUrl}/users/messages/${otherUserId}/`); }
+  sendMessage(receiverId: string, text: string): Observable<any> { return this.http.post(`${this.baseUrl}/users/messages/`, { receiver_id: receiverId, text }); }
+
   verifyPassword(password: string): Observable<any> { return this.http.post(`${this.baseUrl}/users/verify-password/`, { password }); }
 }

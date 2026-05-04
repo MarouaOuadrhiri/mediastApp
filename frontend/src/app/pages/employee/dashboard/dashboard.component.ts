@@ -136,7 +136,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadData(isRefresh = false) {
-    if (this.isDragging || (isRefresh && this.isUpdating)) return;
+    if (this.isDragging || this.isUpdating) return;
     this.api.getMyProjects().subscribe({
       next: (r: any) => {
         if (this.isDragging || this.isUpdating) return;
@@ -154,30 +154,39 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     this.api.getMeetings().subscribe({
-      next: (r: any) => this.runInZone(() => { this.processMeetings(r || [], isRefresh); this.cdr.detectChanges(); }),
+      next: (r: any) => {
+        if (this.isDragging || this.isUpdating) return;
+        this.runInZone(() => { this.processMeetings(r || [], isRefresh); this.cdr.detectChanges(); });
+      },
       error: () => {}
     });
 
     if (!isRefresh) {
       this.api.getMe().subscribe({
-        next: (r: any) => this.runInZone(() => { this.user = r; this.cdr.detectChanges(); }),
+        next: (r: any) => {
+          if (this.isDragging || this.isUpdating) return;
+          this.runInZone(() => { this.user = r; this.cdr.detectChanges(); });
+        },
         error: () => {}
       });
 
       this.api.getCurrentAttendance().subscribe({
-        next: (session: any) => this.runInZone(() => {
-          if (session && session.start_time) {
-            this.attendanceSession = session;
-            this.timerRunning = true;
-            this.startTimer(session.start_time);
-          } else if (!this.isLunchBreak) {
-            this.attendanceSession = null;
-            this.timerRunning = false;
-            this.timerValue = '00:00:00';
-            this.elapsedTime = '00:00:00';
-          }
-          this.cdr.detectChanges();
-        }),
+        next: (session: any) => {
+          if (this.isDragging || this.isUpdating) return;
+          this.runInZone(() => {
+            if (session && session.start_time) {
+              this.attendanceSession = session;
+              this.timerRunning = true;
+              this.startTimer(session.start_time);
+            } else if (!this.isLunchBreak) {
+              this.attendanceSession = null;
+              this.timerRunning = false;
+              this.timerValue = '00:00:00';
+              this.elapsedTime = '00:00:00';
+            }
+            this.cdr.detectChanges();
+          });
+        },
         error: () => {}
       });
     }
@@ -295,6 +304,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   timerValue = '00:00:00';
   isDragging = false;
   isUpdating = false;
+  private updateTimeout: any;
 
   private restoreTimerState() {
     if (isPlatformBrowser(this.platformId)) {
@@ -487,12 +497,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   updateStandaloneTaskStatus(taskId: string, status: string) {
     this.api.updateTaskStatus(taskId, status).subscribe({
       next: () => {
-        // Optimistic update already performed in drop(), no need to reload all data
         this.runInZone(() => { this.cdr.detectChanges(); });
       },
       error: () => {
         this.runInZone(() => {
           this.errorMsg = 'Failed to update task status.';
+          this.isUpdating = false;
           this.loadData(); // Revert UI on error
           this.cdr.detectChanges();
         });
@@ -593,6 +603,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                        (targetStatus === 'TODO' ? 'BLOCKED' : 'IN_PROGRESS') : 
                        targetStatus;
 
+      // Immediately mutate the status on the task object inside standaloneTasks[] directly
+      const sourceTask = this.standaloneTasks.find(t => t.id === task.id);
+      if (sourceTask) {
+        sourceTask.status = apiStatus;
+      }
+
       // Optimistic update to prevent snapping back
       task.status = apiStatus;
       transferArrayItem(
@@ -604,8 +620,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       
       this.isUpdating = true;
       this.updateStandaloneTaskStatus(task.id, apiStatus);
-      // Give backend 3 seconds to stabilize before allowing background refreshes
-      setTimeout(() => { this.isUpdating = false; }, 3000);
+      
+      if (this.updateTimeout) clearTimeout(this.updateTimeout);
+      this.updateTimeout = setTimeout(() => { 
+        this.isUpdating = false; 
+        this.cdr.detectChanges();
+      }, 5000);
     }
     this.isDragging = false;
     this.runInZone(() => { this.cdr.detectChanges(); });

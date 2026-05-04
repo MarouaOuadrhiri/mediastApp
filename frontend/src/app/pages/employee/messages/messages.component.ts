@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
@@ -10,7 +10,8 @@ import { ApiService } from '../../../core/api.service';
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.css']
 })
-export class MessagesComponent implements OnInit {
+export class MessagesComponent implements OnInit, OnDestroy {
+  private pollingInterval: any;
   user: any = null;
   teamMembers: any[] = [];
   selectedMember: any = null;
@@ -20,6 +21,7 @@ export class MessagesComponent implements OnInit {
 
   constructor(
     private api: ApiService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -33,6 +35,20 @@ export class MessagesComponent implements OnInit {
         this.loadTeamMembers(); // Try anyway
       }
     });
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.pollingInterval = setInterval(() => {
+        if (this.selectedMember) {
+          this.loadConversation(this.selectedMember.id, true);
+        }
+      }, 3000);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
   }
 
   loadTeamMembers() {
@@ -63,23 +79,55 @@ export class MessagesComponent implements OnInit {
 
   selectMember(member: any) {
     this.selectedMember = member;
-    // Placeholder messages - would connect to real messaging API
-    this.messages = [
-      { from: member, text: 'Hey! How is the project going?', time: '10:30 AM', incoming: true },
-      { from: this.user, text: 'Going great! Almost done with the design phase.', time: '10:32 AM', incoming: false },
-      { from: member, text: 'Awesome, let me know if you need any help.', time: '10:33 AM', incoming: true }
-    ];
+    this.messages = [];
+    this.loadConversation(member.id);
+  }
+
+  loadConversation(memberId: string, isSilent = false) {
+    this.api.getConversation(memberId).subscribe({
+      next: (res: any) => {
+        const mapped = res.map((m: any) => ({
+          id: m.id,
+          text: m.text,
+          time: new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          incoming: m.sender_id !== this.user?.id,
+          is_read: m.is_read
+        }));
+        
+        // Only update if data changed to avoid flickering
+        if (JSON.stringify(mapped) !== JSON.stringify(this.messages)) {
+          this.messages = mapped;
+          this.cdr.detectChanges();
+          if (!isSilent) this.scrollToBottom();
+        }
+      },
+      error: () => {
+        if (!isSilent) console.error('Failed to load conversation');
+      }
+    });
   }
 
   sendMessage() {
-    if (!this.newMessage.trim()) return;
-    this.messages.push({
-      from: this.user,
-      text: this.newMessage,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      incoming: false
-    });
+    if (!this.newMessage.trim() || !this.selectedMember) return;
+    
+    const text = this.newMessage;
     this.newMessage = '';
+
+    this.api.sendMessage(this.selectedMember.id, text).subscribe({
+      next: () => {
+        this.loadConversation(this.selectedMember.id, true);
+      },
+      error: () => {
+        console.error('Failed to send message');
+      }
+    });
+  }
+
+  scrollToBottom() {
+    setTimeout(() => {
+      const feed = document.querySelector('.chat-feed');
+      if (feed) feed.scrollTop = feed.scrollHeight;
+    }, 100);
   }
 
   getInitial(member: any): string {
