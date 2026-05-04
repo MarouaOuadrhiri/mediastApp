@@ -20,6 +20,7 @@ from users.models import User, AttendanceRecord
 from tasks.models import Task
 from projects.models import Project, ProjectTask
 from meetings.models import Meeting
+from discussions.models import DiscussionMessage
 import bson
 
 # ─────────────────────────────────────────────
@@ -30,17 +31,18 @@ AttendanceRecord.objects.delete()
 Task.objects.delete()
 Project.objects.delete()
 Meeting.objects.delete()
+DiscussionMessage.objects.delete()
 print("[OK] Cleanup finished\n")
 
 # ─────────────────────────────────────────────
 # 1. DEPARTMENTS
 # ─────────────────────────────────────────────
 dept_data = [
-    {"name": "Engineering",    "subtitle": "Build & Innovate",       "description": "Responsible for all software development and infrastructure.", "icon": "code",        "image": ""},
-    {"name": "Marketing",      "subtitle": "Grow & Engage",          "description": "Handles brand, campaigns, and customer outreach.",               "icon": "megaphone",   "image": ""},
-    {"name": "Human Resources","subtitle": "People & Culture",       "description": "Manages hiring, onboarding, and employee wellbeing.",            "icon": "users",       "image": ""},
-    {"name": "Finance",        "subtitle": "Numbers & Strategy",     "description": "Oversees budgeting, payroll, and financial reporting.",          "icon": "chart-bar",   "image": ""},
-    {"name": "Design",         "subtitle": "Create & Inspire",       "description": "Crafts UI/UX and visual assets across all products.",            "icon": "palette",     "image": ""},
+    {"name": "Engineering",    "subtitle": "Build & Innovate",       "description": "Responsible for all software development and infrastructure.", "icon": "code",        "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800"},
+    {"name": "Marketing",      "subtitle": "Grow & Engage",          "description": "Handles brand, campaigns, and customer outreach.",               "icon": "megaphone",   "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800"},
+    {"name": "Human Resources","subtitle": "People & Culture",       "description": "Manages hiring, onboarding, and employee wellbeing.",            "icon": "users",       "image": "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=800"},
+    {"name": "Finance",        "subtitle": "Numbers & Strategy",     "description": "Oversees budgeting, payroll, and financial reporting.",          "icon": "chart-bar",   "image": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=800"},
+    {"name": "Design",         "subtitle": "Create & Inspire",       "description": "Crafts UI/UX and visual assets across all products.",            "icon": "palette",     "image": "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=800"},
 ]
 
 # Add 200 more departments
@@ -109,13 +111,14 @@ for u in user_data:
             password=FAKE_PASSWORD,
             role=u["role"],
             department=u["department"],
-            profile_photo="",
+            profile_photo=f"https://i.pravatar.cc/150?u={u['email']}",
         )
         user.save()
     else:
-        # Update existing to have names
+        # Update existing to have names and photo
         user.first_name = u.get("first_name", "")
         user.last_name = u.get("last_name", "")
+        user.profile_photo = f"https://i.pravatar.cc/150?u={u['email']}"
         user.save()
     users.append(user)
 
@@ -491,11 +494,37 @@ for md in meeting_data:
 
 print(f"[OK] {len(meetings)} meetings created")
 
-# ─────────────────────────────────────────────
-print("\n[OK] Seed complete!")
-print(f"   Departments : {len(departments)}")
-print(f"   Users       : {len(users)}")
-print(f"   Attendance  : {len(attendance_records)}")
-print(f"   Projects    : {len(projects)}")
 print(f"   Tasks       : {len(tasks)}")
 print(f"   Meetings    : {len(meetings)}")
+
+# ─────────────────────────────────────────────
+# 7. CONVERSATIONS
+# ─────────────────────────────────────────────
+print("\nSeeding initial conversations...")
+messages_count = 0
+for i in range(len(users) // 2):
+    u1 = users[i*2]
+    u2 = users[i*2 + 1]
+    
+    chat_lines = [
+        "Hello! How is the project going?",
+        "It's going well, we are ahead of schedule.",
+        "Great to hear! Let me know if you need any help.",
+        "Will do. Talk to you later!",
+        "Salam, chno khdemti?",
+        "Walo, baki kantsena l'audit.",
+        "Ok, tsebber chwia."
+    ]
+    
+    for line in random.sample(chat_lines, 3):
+        msg = DiscussionMessage(
+            sender=u1,
+            receiver=u2,
+            text=line,
+            timestamp=now - datetime.timedelta(minutes=random.randint(5, 500))
+        )
+        msg.save()
+        messages_count += 1
+
+print(f"[OK] {messages_count} messages seeded")
+print("\n[OK] Everything is ready!")

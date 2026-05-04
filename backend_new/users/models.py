@@ -39,20 +39,9 @@ class UserSession(Document):
         'collection': 'user_sessions',
         'indexes': ['token', 'user']
     }
+
 class AttendanceRecord(Document):
     user = ReferenceField(User, required=True)
     start_time = DateTimeField(required=True)
     end_time = DateTimeField()
     status = StringField(choices=('ACTIVE', 'COMPLETED'), default='ACTIVE')
-
-class Message(Document):
-    sender = ReferenceField(User, required=True)
-    receiver = ReferenceField(User, required=True)
-    text = StringField(required=True)
-    timestamp = DateTimeField(default=datetime.datetime.utcnow)
-    is_read = BooleanField(default=False)
-    
-    meta = {
-        'collection': 'messages',
-        'indexes': ['sender', 'receiver', 'timestamp']
-    }

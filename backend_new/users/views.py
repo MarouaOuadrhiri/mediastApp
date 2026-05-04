@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .authentication import JWTAuthentication
-from .models import User, AttendanceRecord, UserSession, Message
+from .models import User, AttendanceRecord, UserSession
 from django.contrib.auth.hashers import make_password, check_password
 import jwt
 import datetime
@@ -656,62 +656,4 @@ def revoke_session(request):
         return Response({'message': 'Session revoked successfully'})
     except DoesNotExist:
         return Response({'error': 'Session not found'}, status=404)
-
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def get_conversation(request, other_user_id):
-    """Fetch messages between current user and another user."""
-    try:
-        other_user = User.objects.get(id=ObjectId(other_user_id))
-    except (DoesNotExist, InvalidId):
-        return Response({'error': 'Recipient not found'}, status=404)
-    
-    # Query messages where (sender=me AND receiver=other) OR (sender=other AND receiver=me)
-    from mongoengine.queryset.visitor import Q
-    q = (Q(sender=request.user) & Q(receiver=other_user)) | (Q(sender=other_user) & Q(receiver=request.user))
-    messages = Message.objects(q).order_by('timestamp')
-    
-    # Mark incoming messages as read
-    Message.objects(sender=other_user, receiver=request.user, is_read=False).update(set__is_read=True)
-    
-    return Response([{
-        'id': str(m.id),
-        'sender_id': str(m.sender.id),
-        'receiver_id': str(m.receiver.id),
-        'text': m.text,
-        'timestamp': m.timestamp.isoformat() + 'Z',
-        'is_read': m.is_read
-    } for m in messages])
-
-@api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def send_message(request):
-    """Send a new message."""
-    receiver_id = request.data.get('receiver_id')
-    text = request.data.get('text', '').strip()
-    
-    if not receiver_id or not text:
-        return Response({'error': 'receiver_id and text are required'}, status=400)
-    
-    try:
-        receiver = User.objects.get(id=ObjectId(receiver_id))
-    except (DoesNotExist, InvalidId):
-        return Response({'error': 'Recipient not found'}, status=404)
-    
-    msg = Message(
-        sender=request.user,
-        receiver=receiver,
-        text=text
-    )
-    msg.save()
-    
-    return Response({
-        'id': str(msg.id),
-        'sender_id': str(msg.sender.id),
-        'receiver_id': str(msg.receiver.id),
-        'text': msg.text,
-        'timestamp': msg.timestamp.isoformat() + 'Z',
-        'is_read': msg.is_read
-    }, status=201)
+        return Response({'error': 'Session not found'}, status=404)

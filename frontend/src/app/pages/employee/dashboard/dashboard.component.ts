@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { ApiService } from '../../../core/api.service';
+import { UiService } from '../../../core/ui.service';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
@@ -24,6 +25,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   newMeetingCount = 0;
   showMeetingPanel = false;
   toastMeeting: any = null;
+  systemNotifications: any[] = [];
+  private notificationStorageKey = 'employee_system_notifications';
   private toastTimer: any;
   private lastSeenMeetingIds: Set<string> = new Set();
   private meetingSeenStorageKey = 'employeeMeetingSeenIds';
@@ -40,9 +43,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private meetingStorageListener: any;
   private employeeShowPanelListener: any;
   private employeeShowPanelActionKey = 'employee-show-meeting-panel';
+  isDragging = false;
+  isUpdating = false;
+  timerRunning = false;
+  timerValue = '00:00:00';
+  isLunchBreak = false;
+  lunchBreakOver = false;
+  lunchSecondsLeft = 3600;
+  sessionStartTime: string | null = null;
 
   constructor(
     private api: ApiService,
+    private ui: UiService,
     private cdr: ChangeDetectorRef,
     private zone: NgZone,
     private router: Router,
@@ -51,8 +63,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadSeenMeetingIds();
-    this.loadData();
     if (isPlatformBrowser(this.platformId)) {
+      this.loadStoredNotifications();
+      this.ui.notifications$.subscribe((n: any) => {
+        this.systemNotifications.unshift(n);
+        if (this.systemNotifications.length > 10) this.systemNotifications.pop();
+        this.saveNotifications();
+        this.cdr.detectChanges();
+      });
+
+      this.loadData();
+      
       this.refreshInterval = setInterval(() => {
         this.loadData(true);
       }, 30000);
@@ -97,6 +118,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
       this.checkStoredEmployeeShowPanel();
       this.restoreTimerState();
+    this.ui.notifications$.subscribe((n: any) => {
+      this.systemNotifications.unshift(n);
+      if (this.systemNotifications.length > 10) this.systemNotifications.pop();
+      this.cdr.detectChanges();
+    });
     }
   }
 
@@ -165,7 +191,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.api.getMe().subscribe({
         next: (r: any) => {
           if (this.isDragging || this.isUpdating) return;
-          this.runInZone(() => { this.user = r; this.cdr.detectChanges(); });
+          this.runInZone(() => { 
+            this.user = r; 
+            this.checkSystemStatus(); // Run automated checks on launch
+            this.cdr.detectChanges(); 
+          });
         },
         error: () => {}
       });
@@ -211,9 +241,75 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.showToast(newOnes[newOnes.length - 1]);
       }
     } else {
+      // On first load, don't toast everything, but toast meetings created in the last 5 minutes
+      const now = new Date().getTime();
+      const veryRecent = raw.filter(m => {
+        if (!m.created_at) return false;
+        const created = new Date(m.created_at).getTime();
+        return (now - created) < 300000; // 5 minutes
+      });
+      
       raw.forEach(m => { if (m.id) this.lastSeenMeetingIds.add(m.id); });
       this.saveSeenMeetingIds();
+      
+      if (veryRecent.length > 0) {
+        this.showToast(veryRecent[veryRecent.length - 1]);
+      }
     }
+  }
+
+  /**
+   * Automated System Audit: Runs on launch to populate notifications based on preferences.
+   */
+  checkSystemStatus() {
+    const prefs = this.user?.preferences;
+    if (!prefs) return;
+
+    // 1. Check Project Milestones
+    if (prefs.project_milestones) {
+      this.api.getMyProjects().subscribe(projects => {
+        const critical = projects.filter((p: any) => {
+          const total = p.tasks?.length || 0;
+          const done = p.tasks?.filter((t: any) => t.status === 'DONE').length || 0;
+          const progress = total > 0 ? (done / total) * 100 : 0;
+          return progress >= 80 && progress < 100;
+        });
+        critical.forEach((p: any) => {
+          this.ui.notify(`CRITICAL PATH: "${p.name}" is at ${Math.round((p.tasks?.filter((t: any) => t.status === 'DONE').length / p.tasks?.length) * 100)}%`, 'success', 'Project Milestones');
+        });
+      });
+    }
+
+    // 2. Run Velocity Audit
+    if (prefs.daily_velocity_report) {
+      this.api.getTasks().subscribe(tasks => {
+        const overdue = tasks.filter((t: any) => t.status !== 'DONE' && t.deadline && new Date(t.deadline) < new Date()).length;
+        if (overdue > 0) {
+          this.ui.notify(`Velocity Audit: ${overdue} tasks are currently overdue.`, 'warn', 'Daily Velocity');
+        }
+      });
+    }
+
+    // 3. Simulate Mention if active
+    if (prefs.mention_alerts) {
+      // Pick a random recently active coworker or system message
+      this.ui.notify(`You were mentioned in the "BrandShift Redesign" discussion.`, 'info', 'Mention Alerts');
+    }
+  }
+
+  private loadStoredNotifications() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const raw = localStorage.getItem(this.notificationStorageKey);
+    if (raw) {
+      try {
+        this.systemNotifications = JSON.parse(raw);
+      } catch (e) {}
+    }
+  }
+
+  private saveNotifications() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    localStorage.setItem(this.notificationStorageKey, JSON.stringify(this.systemNotifications));
   }
 
   showToast(meeting: any) {
@@ -296,14 +392,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  timerRunning = false;
-  isLunchBreak = false;
-  lunchBreakOver = false;
-  lunchSecondsLeft = 3600;
-  sessionStartTime: string | null = null;
-  timerValue = '00:00:00';
-  isDragging = false;
-  isUpdating = false;
   private updateTimeout: any;
 
   private restoreTimerState() {

@@ -19,6 +19,4 @@ urlpatterns = [
     path('me/sessions/', views.get_user_sessions, name='get_user_sessions'),
     path('me/sessions/revoke/', views.revoke_session, name='revoke_session'),
     path('verify-password/', views.verify_password, name='verify_password'),
-    path('messages/', views.send_message, name='send_message'),
-    path('messages/<str:other_user_id>/', views.get_conversation, name='get_conversation'),
 ]
