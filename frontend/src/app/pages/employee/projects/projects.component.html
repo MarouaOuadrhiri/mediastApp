@@ -1,57 +1,367 @@
-<div class="space-y-8 animate-in fade-in zoom-in-95 max-w-[1400px] mx-auto pb-10">
-  <div>
-    <h1 class="text-3xl font-black text-white italic tracking-tight uppercase">Assigned Projects</h1>
-    <p class="text-xs text-white/40 mt-1 uppercase tracking-widest font-bold">Track your active workloads and deadlines</p>
-  </div>
+<div class="dashboard-container">
+    <!-- Header -->
+    <header class="header-section" *ngIf="projects.length > 0">
+      <div class="header-left">
+        <div class="label">WORKSPACE OVERVIEW</div>
+        <h1>Active Projects</h1>
+      </div>
+      <div class="header-right">
+        <div class="stat-box">
+          <div class="stat-label">ACTIVE PROJECTS</div>
+          <div class="stat-value">{{projects.length < 10 ? '0' + projects.length : projects.length}}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">TEAM CAPACITY</div>
+          <div class="stat-value">94%</div>
+        </div>
+      </div>
+    </header>
 
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-    <div *ngFor="let p of projects" class="bg-[#161616] border border-white/5 rounded-3xl overflow-hidden hover:border-white/10 transition-all shadow-2xl">
-      <div class="p-8 border-b border-white/5 bg-gradient-to-br from-white/2 to-transparent">
-        <div class="flex flex-col md:flex-row justify-between items-start gap-4">
-          <div class="flex-1">
-            <div class="flex items-center gap-3 mb-3">
-                <span class="px-3 py-1 rounded-full bg-[#e53935]/10 text-[#e53935] text-[10px] font-black uppercase tracking-widest border border-[#e53935]/20">
-                    {{p.priority || 'Medium'}}
-                </span>
-                <span class="text-[10px] text-white/20 font-black uppercase tracking-widest">{{p.client}}</span>
-            </div>
-            <h2 class="text-2xl font-black text-white italic tracking-tight mb-2">{{p.name}}</h2>
-            <p class="text-sm text-white/40 leading-relaxed max-w-xl">{{p.description}}</p>
+    <!-- Top Grid (First 3 Projects) -->
+    <div class="projects-grid" *ngIf="topProjects.length > 0">
+      <div *ngFor="let p of topProjects" class="project-card">
+        <div class="card-top">
+          <div class="category-tag" [style.color]="p?.projectCategory === 'PRIORITY ONE' ? '#FD0000' : '#71717A'">{{p?.projectCategory}}</div>
+          <div class="status-badge" [ngClass]="{
+            'active': p?.displayStatus === 'In Progress' || p?.displayStatus === 'Active',
+            'hold': p?.displayStatus === 'On Hold',
+            'review': p?.displayStatus === 'Completed'
+          }">
+            <span class="status-dot"></span>
+            {{p?.displayStatus}}
           </div>
-          <div class="md:text-right shrink-0">
-             <div class="text-white/20 text-[10px] font-black uppercase tracking-widest mb-1">Deadline</div>
-             <p class="text-white font-black text-lg">{{p.deadline | date:'MMM d, yyyy'}}</p>
+        </div>
+
+        <h2 class="project-title">{{p?.name}}</h2>
+        <div class="client-name">Client: {{p?.client || 'N/A'}}</div>
+
+        <div class="progress-container">
+          <div class="progress-header">
+            <div class="progress-label">PROGRESS</div>
+            <div class="progress-percent">{{p?.progress}}%</div>
           </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" [style.width.%]="p?.progress" [ngClass]="{'grey': p?.status === 'ON HOLD'}"></div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="avatars">
+            <img *ngFor="let avatar of p?.team" [src]="avatar" class="avatar" alt="Team member">
+            <div *ngIf="p?.moreTeam > 0" class="avatar-more">+{{p?.moreTeam}}</div>
+          </div>
+          <div class="deadline-box">
+            <div class="deadline-label">DEADLINE</div>
+            <div class="deadline-date">{{p?.deadline}}</div>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <a href="#" class="action-link" (click)="openDetails(p); $event.preventDefault()">DETAILS</a>
+          <a href="#" class="action-link red" (click)="openUpdate(p); $event.preventDefault()">UPDATE</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Row (Row 2: Side + Featured) -->
+    <div class="feature-row" *ngIf="featuredProject">
+      <!-- Side Project -->
+      <div class="project-card" *ngIf="sideProject">
+        <div class="card-top">
+          <div class="category-tag" [style.color]="sideProject?.projectCategory === 'PRIORITY ONE' ? '#FD0000' : '#71717A'">{{sideProject?.projectCategory}}</div>
+          <div class="status-badge" [ngClass]="{'active': sideProject?.displayStatus === 'In Progress' || sideProject?.displayStatus === 'Active'}">
+            <span class="status-dot"></span>
+            {{sideProject?.displayStatus}}
+          </div>
+        </div>
+
+        <h2 class="project-title">{{sideProject?.name}}</h2>
+        <div class="client-name">Client: {{sideProject?.client || 'N/A'}}</div>
+
+        <div class="progress-container">
+          <div class="progress-header">
+            <div class="progress-label">PROGRESS</div>
+            <div class="progress-percent">{{sideProject?.progress}}%</div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" [style.width.%]="sideProject?.progress"></div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="avatars">
+            <img *ngFor="let avatar of sideProject?.team" [src]="avatar" class="avatar" alt="Team member">
+            <div *ngIf="sideProject?.moreTeam > 0" class="avatar-more">+{{sideProject?.moreTeam}}</div>
+          </div>
+          <div class="deadline-box">
+            <div class="deadline-label">DEADLINE</div>
+            <div class="deadline-date">{{sideProject?.deadline}}</div>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <a href="#" class="action-link" (click)="openDetails(sideProject); $event.preventDefault()">DETAILS</a>
+          <a href="#" class="action-link red" (click)="openUpdate(sideProject); $event.preventDefault()">UPDATE</a>
         </div>
       </div>
 
-      <div class="p-8 space-y-6">
-          <div class="flex items-center justify-between">
-              <span class="text-[10px] font-black text-white uppercase tracking-widest">Tasks Overview</span>
-              <span class="text-[10px] text-white/40 font-bold italic">{{p.tasks?.length || 0}} Total Tasks</span>
+      <!-- Main Featured Card -->
+      <div class="feature-main">
+        <div class="feature-content">
+          <div class="category-tag" style="color: #FD0000">FLAGSHIP PROJECT</div>
+          <h2 class="feature-title py-5">{{featuredProject?.name}}</h2>
+          <p class="feature-desc">{{featuredProject?.description || 'Next-generation content delivery system for global media conglomerates. Currently in high-load testing phase.'}}</p>
+          
+          <div class="feature-footer">
+            <div class="avatars">
+              <img *ngFor="let avatar of featuredProject?.team" [src]="avatar" class="avatar" style="width: 36px; height: 36px;">
+              <div *ngIf="featuredProject?.moreTeam > 0" class="avatar-more" style="width: 36px; height: 36px;">+{{featuredProject?.moreTeam}}</div>
+            </div>
+            <div class="deadline-box" style="padding-left: 24px; border-left: 1px solid rgba(255, 255, 255, 0.1);">
+              <div class="deadline-label" style="text-align: left">RELEASE DATE</div>
+              <div class="deadline-date" style="text-align: left">{{featuredProject?.deadline}}</div>
+            </div>
           </div>
-          <div class="space-y-3">
-              <div *ngFor="let t of p.tasks.slice(0, 3)" class="flex items-center justify-between p-4 bg-white/2 rounded-xl border border-white/5 transition-all hover:bg-white/5">
-                  <div class="min-w-0 flex-1">
-                      <p class="text-white text-xs font-bold truncate">{{t.title}}</p>
-                      <p class="text-white/20 text-[10px] uppercase mt-1">{{t.status}}</p>
-                  </div>
-                  <div class="w-1.5 h-1.5 rounded-full" [class]="t.status === 'DONE' ? 'bg-green-500' : t.status === 'IN_PROGRESS' ? 'bg-orange-500' : 'bg-white/10'"></div>
-              </div>
-              <div *ngIf="p.tasks.length > 3" class="text-center">
-                  <p class="text-[9px] text-white/20 uppercase font-black tracking-widest mt-2">+ {{p.tasks.length - 3}} more tasks on dashboard</p>
-              </div>
+        </div>
+
+        <div class="efficiency-section">
+          <div class="efficiency-card">
+            <div class="eff-label">EFFICIENCY BENCHMARK</div>
+            <div class="eff-value-container">
+              <div class="eff-value">{{featuredProject?.efficiency || '99.8%'}}</div>
+              <div class="eff-unit">Uptime</div>
+            </div>
+            <div class="eff-progress">
+              <div class="eff-progress-fill" [style.width.%]="featuredProject?.progress"></div>
+            </div>
           </div>
+          <div class="eff-buttons">
+            <button class="btn-primary">FULL ANALYTICS</button>
+            <button class="btn-secondary">AUDIT</button>
+          </div>
+        </div>
+      </div> 
+    </div>
+
+    <!-- Remaining Projects (Other rows: 3 each) -->
+    <div class="projects-grid" *ngIf="remainingProjects.length > 0">
+      <div *ngFor="let p of remainingProjects" class="project-card">
+        <div class="card-top">
+          <div class="category-tag" [style.color]="p?.projectCategory === 'PRIORITY ONE' ? '#FD0000' : '#71717A'">{{p?.projectCategory}}</div>
+          <div class="status-badge" [ngClass]="{
+            'active': p?.displayStatus === 'In Progress' || p?.displayStatus === 'Active',
+            'hold': p?.displayStatus === 'On Hold',
+            'review': p?.displayStatus === 'Completed'
+          }">
+            <span class="status-dot"></span>
+            {{p?.displayStatus}}
+          </div>
+        </div>
+
+        <h2 class="project-title">{{p?.name}}</h2>
+        <div class="client-name">Client: {{p?.client || 'N/A'}}</div>
+
+        <div class="progress-container">
+          <div class="progress-header">
+            <div class="progress-label">PROGRESS</div>
+            <div class="progress-percent">{{p?.progress}}%</div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" [style.width.%]="p?.progress" [ngClass]="{'grey': p?.status === 'ON HOLD'}"></div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="avatars">
+            <img *ngFor="let avatar of p?.team" [src]="avatar" class="avatar" alt="Team member">
+            <div *ngIf="p?.moreTeam > 0" class="avatar-more">+{{p?.moreTeam}}</div>
+          </div>
+          <div class="deadline-box">
+            <div class="deadline-label">DEADLINE</div>
+            <div class="deadline-date">{{p?.deadline}}</div>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <a href="#" class="action-link" (click)="openDetails(p); $event.preventDefault()">DETAILS</a>
+          <a href="#" class="action-link red" (click)="openUpdate(p); $event.preventDefault()">UPDATE</a>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Empty State -->
-  <div *ngIf="projects.length === 0 && !loading" class="text-center py-24 bg-[#111] rounded-3xl border border-dashed border-white/5">
-     <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
-        <svg class="w-8 h-8 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-     </div>
-     <h2 class="text-xl font-black text-white italic mb-2 uppercase">No Active Projects</h2>
-     <p class="text-sm text-white/30 italic">You don't have any projects assigned yet.</p>
-  </div>
+    <!-- Empty State -->
+    <div *ngIf="projects.length === 0" class="text-center py-32 bg-[#111] rounded-[32px] border border-dashed border-white/10">
+      <div class="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-8">
+        <svg class="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+      </div>
+      <h2 class="text-2xl font-black text-white italic mb-2 uppercase tracking-tight">No Projects Assigned</h2>
+      <p class="text-sm text-white/30 italic">Initialize your workspace by connecting to a system administrator.</p>
+    </div>
+
+    <!-- Stream Activity -->
+    <section class="stream-section" *ngIf="projects.length > 0">
+      <div class="stream-header">
+        <div class="stream-title">STREAM ACTIVITY</div>
+        <a href="#" class="view-all">VIEW ALL LOGS <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></a>
+      </div>
+
+      <div class="activity-list">
+        <div *ngFor="let activity of streamActivity" class="activity-item">
+          <div class="activity-time">{{activity.time}}</div>
+          <div class="activity-dot" [ngClass]="{'active': activity.time === '09:14 AM'}"></div>
+          <div class="activity-content">
+            <h4>{{activity.title}}</h4>
+            <p>{{activity.subtitle}}</p>
+          </div>
+          <div class="activity-icon">
+            <svg *ngIf="activity.icon === 'link'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <svg *ngIf="activity.icon === 'check'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <svg *ngIf="activity.icon === 'rocket'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5c.92 1.45 4 2 4 2s-1.08-3.38-2-5"/></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Details Modal -->
+    <div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeDetails()">
+      <div class="modal-content glass-panel" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeDetails()">&times;</button>
+        <div class="modal-header">
+          <div class="category-tag">{{selectedProject?.projectCategory}}</div>
+          <h2>{{selectedProject?.name}}</h2>
+          <p class="client-name">Client: {{selectedProject?.client || 'N/A'}}</p>
+        </div>
+        
+        <div class="modal-body">
+          <p class="project-desc">{{selectedProject?.description || 'No description provided.'}}</p>
+          
+          <div class="progress-section mt-6">
+            <div class="progress-header">
+              <span class="progress-label">CURRENT PROGRESS</span>
+              <span class="progress-percent">{{selectedProject?.progress}}%</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" [style.width.%]="selectedProject?.progress" [ngClass]="{'grey': selectedProject?.displayStatus === 'On Hold'}"></div>
+            </div>
+          </div>
+
+          <div class="meta-grid mt-6">
+            <div class="meta-item">
+              <span class="meta-label">STATUS</span>
+              <span class="meta-value">{{selectedProject?.displayStatus}}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">DEADLINE</span>
+              <span class="meta-value">{{selectedProject?.deadline}}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">BUDGET</span>
+              <span class="meta-value">{{selectedProject?.budget || 'TBD'}}</span>
+            </div>
+          </div>
+
+          <div class="team-section mt-6" *ngIf="selectedProject?.employees?.length > 0">
+            <label class="mb-2 block text-[10px] font-bold text-[#A1A1AA] tracking-[2px] uppercase">TEAM</label>
+            <div class="flex flex-wrap gap-2">
+              <div *ngFor="let emp of selectedProject.employees" class="flex items-center gap-2 bg-[#FFFFFF0A] px-3 py-1.5 rounded-full border border-[#FFFFFF1A]">
+                <img [src]="'https://i.pravatar.cc/150?u=' + (emp.id || emp)" class="w-5 h-5 rounded-full border border-[#111]" alt="avatar">
+                <span class="text-xs text-white font-medium">{{emp.first_name || 'Team'}} {{emp.last_name || 'Member'}}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tasks-section mt-6" *ngIf="selectedProject?.tasks?.length > 0">
+            <label class="mb-2 block text-[10px] font-bold text-[#A1A1AA] tracking-[2px] uppercase">TASKS</label>
+            <div class="task-list">
+              <div class="task-item" *ngFor="let task of selectedProject.tasks">
+                <div class="task-info">
+                  <div class="task-title">{{task.title}}</div>
+                  <div class="text-[10px] text-[#A1A1AA] mt-1" *ngIf="task.status === 'DONE'">
+                    Completed by: <span class="text-white font-medium">{{task.completed_by?.first_name || 'Team'}} {{task.completed_by?.last_name || 'Member'}}</span>
+                  </div>
+                </div>
+                <div class="status-badge" [ngClass]="{
+                  'active': task.status === 'IN_PROGRESS',
+                  'review': task.status === 'DONE'
+                }">
+                  {{task.status === 'DONE' ? 'Done' : (task.status === 'IN_PROGRESS' ? 'In Progress' : 'To Do')}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div class="modal-overlay" *ngIf="showUpdateModal" (click)="closeUpdate()">
+      <div class="modal-content glass-panel" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeUpdate()">&times;</button>
+        <div class="modal-header">
+          <div class="category-tag">{{selectedProject?.projectCategory}}</div>
+          <h2>Update: {{selectedProject?.name}}</h2>
+          <p class="client-name">Client: {{selectedProject?.client || 'N/A'}}</p>
+        </div>
+        
+        <div class="modal-body">
+          <p class="project-desc">{{selectedProject?.description || 'No description provided.'}}</p>
+          
+          <div class="progress-section mt-6">
+            <div class="progress-header">
+              <span class="progress-label">CURRENT PROGRESS</span>
+              <span class="progress-percent">{{selectedProject?.progress}}%</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" [style.width.%]="selectedProject?.progress" [ngClass]="{'grey': selectedProject?.displayStatus === 'On Hold'}"></div>
+            </div>
+          </div>
+
+          <div class="team-section mt-6" *ngIf="selectedProject?.employees?.length > 0">
+            <label class="mb-2 block text-[10px] font-bold text-[#A1A1AA] tracking-[2px] uppercase">TEAM</label>
+            <div class="flex flex-wrap gap-2">
+              <div *ngFor="let emp of selectedProject.employees" class="flex items-center gap-2 bg-[#FFFFFF0A] px-3 py-1.5 rounded-full border border-[#FFFFFF1A]">
+                <img [src]="'https://i.pravatar.cc/150?u=' + (emp.id || emp)" class="w-5 h-5 rounded-full border border-[#111]" alt="avatar">
+                <span class="text-xs text-white font-medium">{{emp.first_name || 'Team'}} {{emp.last_name || 'Member'}}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group mt-6">
+            <label>UPDATE PROJECT STATUS</label>
+            <select class="custom-select" [value]="selectedProject?.status">
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div class="tasks-section mt-6" *ngIf="selectedProject?.tasks?.length > 0">
+            <label class="mb-2 block text-[10px] font-bold text-[#A1A1AA] tracking-[2px] uppercase">UPDATE TASKS</label>
+            <div class="task-list">
+              <div class="task-item" *ngFor="let task of selectedProject.tasks">
+                <div class="task-info">
+                  <div class="task-title">{{task.title}}</div>
+                  <div class="text-[10px] text-[#A1A1AA] mt-1" *ngIf="task.status === 'DONE'">
+                    Completed by: <span class="text-white font-medium">{{task.completed_by?.first_name || 'Team'}} {{task.completed_by?.last_name || 'Member'}}</span>
+                  </div>
+                </div>
+                <select class="custom-select task-select" [value]="task.status">
+                  <option value="TODO">To Do</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="DONE">Done</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions mt-8">
+            <button class="btn-secondary" (click)="closeUpdate()">CANCEL</button>
+            <button class="btn-primary" (click)="closeUpdate()">SAVE CHANGES</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 </div>

@@ -1,54 +1,156 @@
-<div class="space-y-8 animate-in fade-in zoom-in-95 max-w-[1200px] mx-auto pb-20">
-    <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-black text-white italic tracking-tight uppercase">My Individual Tasks</h1>
-          <p class="text-xs text-white/40 mt-1 uppercase tracking-widest font-bold">Manage your personal responsibilities and standalone items</p>
-        </div>
-        <div class="px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl">
-            <span class="text-xs font-black text-white uppercase tracking-widest">{{tasks.length}} Active</span>
-        </div>
-    </div>
+<div class="tasks-wrapper">
+  <!-- Mission Control Header -->
+  <header>
+    <p class="mission-control">Mission Control</p>
+    <h1 class="page-title">My Tasks</h1>
 
-    <div class="grid grid-cols-1 gap-4">
-        <div *ngFor="let t of tasks" class="bg-[#161616] border border-white/5 rounded-2xl p-6 flex items-center justify-between hover:border-white/10 transition-all group shadow-xl">
-            <div class="flex-1 min-w-0 pr-8">
-                <div class="flex items-center gap-3 mb-2">
-                    <span class="w-1.5 h-1.5 rounded-full" [class]="t.status === 'DONE' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-[#e53935] animate-pulse'"></span>
-                    <span class="text-[9px] font-black text-white/20 uppercase tracking-widest">{{t.status}}</span>
-                </div>
-                <h3 class="text-lg font-bold text-white mb-1 group-hover:text-[#e53935] transition-colors" [class.line-through]="t.status === 'DONE'" [class.opacity-30]="t.status === 'DONE'">
-                    {{t.title}}
-                </h3>
-                <p class="text-xs text-white/30 truncate font-medium" [class.opacity-20]="t.status === 'DONE'">{{t.description || 'No description provided.'}}</p>
+    <!-- View Toggle Pill -->
+    <div class="view-toggle">
+      <button (click)="viewMode = 'kanban'" class="toggle-btn" [class.active]="viewMode === 'kanban'">Board</button>
+      <button (click)="viewMode = 'list'" class="toggle-btn" [class.active]="viewMode === 'list'">List View</button>
+    </div>
+  </header>
+
+  <!-- Board Layout -->
+  <div class="board-container" cdkDropListGroup *ngIf="viewMode === 'kanban'">
+    
+    <!-- BLOCKED -->
+    <div class="column status-BLOCKED">
+      <div class="column-header">
+        <span class="status-dot"></span>
+        <span class="status-name">Blocked</span>
+        <span class="count-badge">{{todoTasks.length}}</span>
+      </div>
+      <div class="task-list" id="blockedList" cdkDropList [cdkDropListData]="todoTasks"
+           [cdkDropListConnectedTo]="['inProgressList', 'reviewList', 'doneList']" (cdkDropListDropped)="drop($event, 'BLOCKED')">
+        <div *ngFor="let t of todoTasks; trackBy: trackById" class="task-card" cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+          <div class="card-top">
+            <span class="tag">{{t.project_name || 'PROJECT: ORION'}}</span>
+            <button class="menu-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+          <h3 class="task-title">{{t.title}}</h3>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Priority:</span>
+              <span class="meta-value">{{t.priority || 'High'}}</span>
             </div>
-
-            <div class="flex items-center gap-6 shrink-0">
-                <div class="flex flex-col items-end">
-                    <p class="text-[9px] font-black text-white/10 uppercase tracking-widest mb-2">Change Status</p>
-                    <div class="flex gap-2">
-                        <button (click)="updateStatus(t.id, 'IN_PROGRESS')" 
-                                [disabled]="t.status === 'DONE'"
-                                class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase transition-all border"
-                                [class]="t.status === 'IN_PROGRESS' ? 'bg-orange-500 text-white border-orange-500' : 'bg-white/5 text-white/40 border-white/5 hover:bg-white/10'">
-                            Busy
-                        </button>
-                        <button (click)="updateStatus(t.id, 'DONE')" 
-                                class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase transition-all border"
-                                [class]="t.status === 'DONE' ? 'bg-green-500 text-white border-green-500' : 'bg-white/5 text-white/40 border-white/5 hover:bg-white/10'">
-                            Done
-                        </button>
-                    </div>
-                </div>
+            <div class="meta-item">
+              <span class="meta-label">Due:</span>
+              <span class="meta-value">{{t.deadline ? (t.deadline | date:'MMM dd') : 'Oct 12'}}</span>
             </div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar" style="width: 30%; background: #353537;"></div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Empty State -->
-    <div *ngIf="tasks.length === 0" class="text-center py-24 bg-[#111] rounded-3xl border border-dashed border-white/5">
-        <div class="w-16 h-16 bg-gradient-to-br from-green-500/10 to-green-900/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-           <svg class="w-8 h-8 text-green-500/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <!-- IN PROGRESS -->
+    <div class="column status-IN_PROGRESS">
+      <div class="column-header">
+        <span class="status-dot"></span>
+        <span class="status-name">In Progress</span>
+        <span class="count-badge">{{inProgressTasks.length}}</span>
+      </div>
+      <div class="task-list" id="inProgressList" cdkDropList [cdkDropListData]="inProgressTasks"
+           [cdkDropListConnectedTo]="['blockedList', 'reviewList', 'doneList']" (cdkDropListDropped)="drop($event, 'IN_PROGRESS')">
+        <div *ngFor="let t of inProgressTasks; trackBy: trackById" class="task-card" cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+          <div class="card-top">
+            <span class="tag">Urgent Action</span>
+            <div class="avatar-stack">
+              <img src="https://i.pravatar.cc/150?u=123" class="avatar" alt="User">
+            </div>
+          </div>
+          <h3 class="task-title">{{t.title}}</h3>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Progress:</span>
+              <span class="meta-value">68%</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Priority:</span>
+              <span class="meta-value">{{t.priority || 'High'}}</span>
+            </div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar" style="width: 68%"></div>
+          </div>
         </div>
-        <h2 class="text-xl font-black text-white italic mb-2 uppercase">Inbox Zero</h2>
-        <p class="text-sm text-white/30 italic">No standalone tasks assigned to you. Great job!</p>
+      </div>
     </div>
+
+    <!-- REVIEW -->
+    <div class="column status-REVIEW">
+      <div class="column-header">
+        <span class="status-dot"></span>
+        <span class="status-name">Review</span>
+        <span class="count-badge">{{reviewTasks.length}}</span>
+      </div>
+      <div class="task-list" id="reviewList" cdkDropList [cdkDropListData]="reviewTasks"
+           [cdkDropListConnectedTo]="['blockedList', 'inProgressList', 'doneList']" (cdkDropListDropped)="drop($event, 'REVIEW')">
+        <div *ngFor="let t of reviewTasks; trackBy: trackById" class="task-card" cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+          <div class="card-top">
+            <span class="tag">Client: Vantedge</span>
+          </div>
+          <h3 class="task-title">{{t.title}}</h3>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Progress:</span>
+              <span class="meta-value">95%</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Status:</span>
+              <span class="meta-value">Reviewing</span>
+            </div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar" style="width: 95%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DONE -->
+    <div class="column status-DONE">
+      <div class="column-header">
+        <span class="status-dot"></span>
+        <span class="status-name">Done</span>
+        <span class="count-badge">{{doneTasks.length}}</span>
+      </div>
+      <div class="task-list" id="doneList" cdkDropList [cdkDropListData]="doneTasks"
+           [cdkDropListConnectedTo]="['blockedList', 'inProgressList', 'reviewList']" (cdkDropListDropped)="drop($event, 'DONE')">
+        <div *ngFor="let t of doneTasks; trackBy: trackById" class="task-card" cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+          <div class="card-top">
+            <span class="tag">Marketing</span>
+            <div class="check-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+          </div>
+          <h3 class="task-title">{{t.title}}</h3>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Completed:</span>
+              <span class="meta-value">{{ (t.completed_at || '2026-05-05') | date:'MMM dd' }}</span>
+            </div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar" style="width: 100%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List View Fallback -->
+  <div class="board-container overflow-y-auto" *ngIf="viewMode === 'list'">
+     <!-- Simple list implementation matching the premium dark style could go here -->
+     <p class="text-white/20 italic p-8">List View is currently optimized for Board mode. Switch to Board for the full experience.</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="standaloneTasks.length === 0" class="flex-1 flex flex-col items-center justify-center text-center opacity-30">
+    <h2 class="text-3xl font-black uppercase italic tracking-tighter">Mission Complete</h2>
+    <p class="text-sm uppercase tracking-widest mt-2">No tasks currently assigned to your queue</p>
+  </div>
 </div>

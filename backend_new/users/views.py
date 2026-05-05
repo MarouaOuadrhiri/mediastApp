@@ -452,15 +452,19 @@ from bson import ObjectId
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAdmin])
+@permission_classes([IsAuthenticated])
 def get_employee_history(request, pk):
     """
     Returns history for an employee:
-    - Projects assigned to them (ordered by newest start_date).
+    - Projects assigned to them.
     - Progress of those projects.
     - Status of tasks within those projects.
     - Standalone tasks assigned to them.
+    Admin can see anyone's; Employees can only see their own.
     """
+    if request.user.role != 'ADMIN' and str(request.user.id) != str(pk):
+        return Response({'error': 'You can only view your own history.'}, status=403)
+
     try:
         uid = ObjectId(pk)
         user = User.objects.get(id=uid)
@@ -503,6 +507,7 @@ def get_employee_history(request, pk):
                     'id': str(t.id),
                     'title': t.title,
                     'status': t.status,
+                    'completed_at': t.completed_at.isoformat() if getattr(t, 'completed_at', None) else None,
                     'progress': 100 if t.status == 'DONE' else 50 if t.status == 'IN_PROGRESS' else 0,
                     # Optimization: if completed by the same user, we already have their name in memory
                     'completed_by_name': f"{user.first_name} {user.last_name}" if (getattr(t, 'completed_by', None) and str(t.completed_by.id) == str(uid)) else (f"{t.completed_by.first_name} {t.completed_by.last_name}" if getattr(t, 'completed_by', None) else None)
