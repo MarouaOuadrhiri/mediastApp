@@ -31,10 +31,11 @@
   text-transform: uppercase;
   color: #FD0000;
 }
+
 .header-left p {
   font-family: 'Space Grotesk';
   font-weight: 700;
-  font-size: 48px;  
+  font-size: 48px;
   line-height: 48px;
   letter-spacing: -2.4px;
   vertical-align: middle;
@@ -83,7 +84,7 @@
 }
 
 .stat-value {
- font-family: 'Space Grotesk';
+  font-family: 'Space Grotesk';
   font-weight: 700;
   font-size: 24px;
   line-height: 32px;
@@ -323,12 +324,12 @@
 
 .deadline-date {
   font-family: 'Inter';
-font-weight: 700;
-font-style: Bold;
-font-size: 14px;
-line-height: 20px;
-letter-spacing: 0px;
-vertical-align: middle;
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0px;
+  vertical-align: middle;
 
 }
 
@@ -429,9 +430,9 @@ vertical-align: middle;
   font-style: Regular;
   font-size: 16px;
   line-height: 24px;
-letter-spacing: 0px;
-vertical-align: middle;
-color: #A1A1AA;
+  letter-spacing: 0px;
+  vertical-align: middle;
+  color: #A1A1AA;
 }
 
 .feature-footer {
@@ -506,8 +507,8 @@ color: #A1A1AA;
 .eff-unit {
   color: #71717A;
   font-family: 'Space Grotesk';
-font-weight: 500;
-font-style: Medium;
+  font-weight: 500;
+  font-style: Medium;
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0px;
@@ -553,8 +554,8 @@ font-style: Medium;
   line-height: 15px;
   letter-spacing: 1px;
   text-align: center;
-vertical-align: middle;
-text-transform: uppercase;
+  vertical-align: middle;
+  text-transform: uppercase;
 
 }
 
@@ -572,17 +573,15 @@ text-transform: uppercase;
   border-radius: 24px;
   cursor: pointer;
   transition: all 0.3s;
-
   font-family: 'Space Grotesk';
-font-weight: 700;
-font-style: Bold;
-font-size: 10px;
-line-height: 15px;
-letter-spacing: 1px;
-text-align: center;
-vertical-align: middle;
-text-transform: uppercase;
-
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 10px;
+  line-height: 15px;
+  letter-spacing: 1px;
+  text-align: center;
+  vertical-align: middle;
+  text-transform: uppercase;
 }
 
 .btn-secondary:hover {
@@ -606,7 +605,7 @@ text-transform: uppercase;
 
 .stream-title {
   color: #A1A1AA;
-  font-family:'Space Grotesk';
+  font-family: 'Space Grotesk';
   font-weight: 500;
   font-style: Medium;
   font-size: 12px;
@@ -703,6 +702,7 @@ text-transform: uppercase;
   .feature-title {
     font-size: 48px;
   }
+
   .feature-main {
     gap: 32px;
   }
@@ -712,10 +712,12 @@ text-transform: uppercase;
   .feature-row {
     grid-template-columns: 1fr;
   }
+
   .feature-main {
     padding: 40px;
     gap: 40px;
   }
+
   .projects-grid {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   }
@@ -725,6 +727,7 @@ text-transform: uppercase;
   .header-section {
     align-items: flex-start;
   }
+
   .feature-title {
     font-size: 42px;
   }
@@ -734,66 +737,82 @@ text-transform: uppercase;
   .dashboard-container {
     padding: 20px 16px;
   }
+
   .header-section {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
     margin-bottom: 32px;
   }
+
   .header-left h1 {
     font-size: 32px;
     letter-spacing: -0.5px;
   }
+
   .header-right {
     width: 100%;
     justify-content: flex-start;
     gap: 24px;
   }
+
   .stat-value {
     font-size: 24px;
   }
+
   .projects-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
+
   .project-card {
     padding: 24px;
   }
+
   .feature-main {
     flex-direction: column;
     padding: 32px 24px;
     gap: 32px;
   }
+
   .feature-title {
     font-size: 36px;
     margin-bottom: 16px;
   }
+
   .feature-desc {
     font-size: 15px;
     margin-bottom: 32px;
   }
+
   .feature-footer {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
   }
+
   .efficiency-card {
     width: 100%;
     padding: 24px;
   }
+
   .eff-value {
     font-size: 36px;
   }
+
   .activity-item {
     grid-template-columns: 80px 24px 1fr;
     padding: 16px 0;
   }
+
   .activity-time {
     font-size: 11px;
   }
+
   .activity-content h4 {
     font-size: 14px;
   }
+
   .activity-icon {
     display: none;
   }
@@ -803,13 +822,17 @@ text-transform: uppercase;
   .header-left h1 {
     font-size: 28px;
   }
+
   .feature-title {
     font-size: 30px;
   }
+
   .stat-value {
     font-size: 20px;
   }
-  .btn-primary, .btn-secondary {
+
+  .btn-primary,
+  .btn-secondary {
     padding: 14px;
   }
 }
@@ -968,7 +991,18 @@ text-transform: uppercase;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.mt-6 { margin-top: 24px; }
-.mt-8 { margin-top: 32px; }
-.mb-2 { margin-bottom: 8px; }
-.block { display: block; }
+.mt-6 {
+  margin-top: 24px;
+}
+
+.mt-8 {
+  margin-top: 32px;
+}
+
+.mb-2 {
+  margin-bottom: 8px;
+}
+
+.block {
+  display: block;
+}
