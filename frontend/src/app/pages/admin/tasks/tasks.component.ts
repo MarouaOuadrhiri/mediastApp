@@ -382,4 +382,24 @@ export class TasksComponent implements OnInit {
     if (t.progress >= 30) return 'orange';
     return 'dim';
   }
+
+  resolveRejection(task: any) {
+    // Open edit modal to reassign
+    this.startEditTask(task);
+    this.openModal();
+  }
+
+  dismissRejection(task: any) {
+    if (!confirm('Dismiss this rejection and move task back to IN PROGRESS?')) return;
+    
+    // Move back to IN PROGRESS and clear rejection reason
+    this.api.updateTaskStatus(task.id, 'IN_PROGRESS', false, '').subscribe({
+      next: () => {
+        this.loadData();
+      },
+      error: () => {
+        this.errorMsg = 'Failed to dismiss rejection.';
+      }
+    });
+  }
 }

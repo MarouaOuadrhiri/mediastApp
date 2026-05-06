@@ -400,13 +400,32 @@ for i in range(200):
 
 tasks = []
 for td in task_data:
+    project = random.choice(projects)
+    source_project_task_id = None
+    task_deadline = None
+    
+    if project.tasks:
+        pt = random.choice(project.tasks)
+        source_project_task_id = str(pt.id)
+        task_deadline = pt.deadline
+        # Give some tasks very near deadlines for the URGENT demo
+        if random.random() > 0.7:
+            task_deadline = now + datetime.timedelta(days=random.randint(0, 2))
+            pt.deadline = task_deadline
+            project.save()
+
+    if not task_deadline:
+        task_deadline = now + datetime.timedelta(days=random.randint(5, 30))
+
     task = Task(
         title=td["title"],
         description=td["description"],
         status=td["status"],
         employees=td["employees"],
         department=td["department"],
-        project=random.choice(projects) if random.random() > 0.4 else None,
+        project=project,
+        source_project_task_id=source_project_task_id,
+        deadline=task_deadline,
         is_archived=(td["status"] == "ARCHIVED"),
     )
     task.save()

@@ -55,7 +55,8 @@
       <div class="bg-[#1C1C1E]/50 border border-white/10 rounded-3xl p-4 backdrop-blur-md">
         <div class="flex items-center justify-between mb-4 px-1">
           <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">System Alerts</p>
-          <button (click)="systemNotifications = []" class="text-[10px] text-white/20 hover:text-white transition-colors">Dismiss All</button>
+          <button (click)="systemNotifications = []"
+            class="text-[10px] text-white/20 hover:text-white transition-colors">Dismiss All</button>
         </div>
         <div class="space-y-3 max-h-[160px] overflow-y-auto custom-scrollbar pr-2">
           <div *ngFor="let n of systemNotifications" class="flex gap-3 group">
@@ -65,7 +66,8 @@
               'bg-amber-500': n.type === 'warn'
             }"></div>
             <div class="flex-1">
-              <p class="text-[9px] font-black uppercase tracking-widest text-white/20 mb-0.5">{{ n.feature || 'Alert' }}</p>
+              <p class="text-[9px] font-black uppercase tracking-widest text-white/20 mb-0.5">{{ n.feature || 'Alert' }}
+              </p>
               <p class="text-xs font-medium text-white/80 leading-relaxed">{{ n.message }}</p>
             </div>
           </div>
@@ -134,51 +136,55 @@
       <!-- Task Board Header -->
       <div class="flex items-center justify-between">
 
-        <h2 class="relative inline-block pl-4" style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 20px; line-height: 28px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
+        <h2 class="relative inline-block pl-4"
+          style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 20px; line-height: 28px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
           <span class="nav-indicator" style="left: 0;"></span>My Tasks Board
         </h2>
         <div class="flex items-center gap-2">
-          <button (click)="viewMode = 'kanban'"
-            [class.!text-white]="viewMode === 'kanban'"
+          <button (click)="viewMode = 'kanban'" [class.!text-white]="viewMode === 'kanban'"
             [class.bg-white/5]="viewMode === 'kanban'"
             class="w-8 h-8 rounded-lg flex items-center justify-center text-white/30 hover:text-white transition-all">
             <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 12V10H11V12H7ZM3 7V5H15V7H3ZM0 2V0H18V2H0Z" fill="currentColor"/>
+              <path d="M7 12V10H11V12H7ZM3 7V5H15V7H3ZM0 2V0H18V2H0Z" fill="currentColor" />
             </svg>
           </button>
-          <button (click)="viewMode = 'list'"
-            [class.!text-white]="viewMode === 'list'"
+          <button (click)="viewMode = 'list'" [class.!text-white]="viewMode === 'list'"
             [class.bg-white/5]="viewMode === 'list'"
             class="w-8 h-8 rounded-lg flex items-center justify-center text-white/30 hover:text-white transition-all">
             <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2 16C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14C0 13.45 0.195833 12.9792 0.5875 12.5875C0.979167 12.1958 1.45 12 2 12C2.55 12 3.02083 12.1958 3.4125 12.5875C3.80417 12.9792 4 13.45 4 14C4 14.55 3.80417 15.0208 3.4125 15.4125C3.02083 15.8042 2.55 16 2 16ZM2 10C1.45 10 0.979167 9.80417 0.5875 9.4125C0.195833 9.02083 0 8.55 0 8C0 7.45 0.195833 6.97917 0.5875 6.5875C0.979167 6.19583 1.45 6 2 6C2.55 6 3.02083 6.19583 3.4125 6.5875C3.80417 6.97917 4 7.45 4 8C4 8.55 3.80417 9.02083 3.4125 9.4125C3.02083 9.80417 2.55 10 2 10ZM2 4C1.45 4 0.979167 3.80417 0.5875 3.4125C0.195833 3.02083 0 2.55 0 2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0C2.55 0 3.02083 0.195833 3.4125 0.5875C3.80417 0.979167 4 1.45 4 2C4 2.55 3.80417 3.02083 3.4125 3.4125C3.02083 3.80417 2.55 4 2 4Z" fill="currentColor"/>
+              <path
+                d="M2 16C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14C0 13.45 0.195833 12.9792 0.5875 12.5875C0.979167 12.1958 1.45 12 2 12C2.55 12 3.02083 12.1958 3.4125 12.5875C3.80417 12.9792 4 13.45 4 14C4 14.55 3.80417 15.0208 3.4125 15.4125C3.02083 15.8042 2.55 16 2 16ZM2 10C1.45 10 0.979167 9.80417 0.5875 9.4125C0.195833 9.02083 0 8.55 0 8C0 7.45 0.195833 6.97917 0.5875 6.5875C0.979167 6.19583 1.45 6 2 6C2.55 6 3.02083 6.19583 3.4125 6.5875C3.80417 6.97917 4 7.45 4 8C4 8.55 3.80417 9.02083 3.4125 9.4125C3.02083 9.80417 2.55 10 2 10ZM2 4C1.45 4 0.979167 3.80417 0.5875 3.4125C0.195833 3.02083 0 2.55 0 2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0C2.55 0 3.02083 0.195833 3.4125 0.5875C3.80417 0.979167 4 1.45 4 2C4 2.55 3.80417 3.02083 3.4125 3.4125C3.02083 3.80417 2.55 4 2 4Z"
+                fill="currentColor" />
             </svg>
           </button>
         </div>
       </div>
 
       <!-- KANBAN VIEW -->
-      <div class="flex gap-4 overflow-x-auto lg:overflow-x-hidden pb-4 lg:pb-0 custom-scrollbar" cdkDropListGroup *ngIf="viewMode === 'kanban'">
+      <div class="flex gap-4 overflow-x-auto lg:overflow-x-hidden pb-4 lg:pb-0 custom-scrollbar" cdkDropListGroup
+        *ngIf="viewMode === 'kanban'">
         <!-- TO DO -->
         <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col">
           <div class="flex items-center gap-2 mb-4 shrink-0">
-            <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #2563EB;">
+            <span
+              style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #2563EB;">
               To Do
-            </span> 
+            </span>
             <span
               style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #2563EB33; background: #1A1A1C; font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{todoTasks.length}}</span>
           </div>
-          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32"
-               id="todoList"
-               cdkDropList
-               [cdkDropListData]="todoTasks"
-               [cdkDropListConnectedTo]="['inProgressList', 'reviewList', 'doneList']"
-               (cdkDropListDropped)="drop($event, 'TODO')">
-            <div *ngFor="let t of todoTasks; trackBy: trackById" class="task-card todo-card border border-[#2563EB52] cursor-grab active:cursor-grabbing" 
-                 cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32" id="todoList" cdkDropList
+            [cdkDropListData]="todoTasks" [cdkDropListConnectedTo]="['inProgressList', 'reviewList', 'doneList']"
+            (cdkDropListDropped)="drop($event, 'TODO')">
+            <div *ngFor="let t of todoTasks; trackBy: trackById"
+              class="task-card todo-card border border-[#2563EB52] cursor-grab active:cursor-grabbing" cdkDrag
+              [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
               <div class="flex items-start justify-between gap-2">
                 <div>
-                  <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
+                  <span class="tag" [class.urgent-tag]="isUrgent(t)" [ngClass]="getDeadlineClass(t.deadline)">{{ isUrgent(t) ? 'URGENT ACTION' : getDaysLeftText(t.deadline) }}</span>
+                  <p
+                    style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
+                    {{t.title}}</p>
                   <p class="text-[11px] text-white/30 mt-1">{{t.description || ''}}</p>
                 </div>
               </div>
@@ -190,11 +196,11 @@
                 </div>
                 <div class="text-right">
                   <p class="text-[9px] text-white/20 uppercase">Progress</p>
-                  <p class="text-[11px] text-white/50 font-bold">0%</p>
+                  <p class="text-[11px] text-white/50 font-bold">{{getProgressByStatus(t.status)}}%</p>
                 </div>
               </div>
               <div class="h-1 bg-white/5 rounded-full mt-2 overflow-hidden">
-                <div class="h-full bg-[#2563EB] rounded-full" style="width:0%"></div>
+                <div class="h-full bg-[#2563EB] rounded-full" [style.width.%]="getProgressByStatus(t.status)"></div>
               </div>
             </div>
           </div>
@@ -203,23 +209,25 @@
         <!-- IN PROGRESS -->
         <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col">
           <div class="flex items-center gap-2 mb-4 shrink-0">
-            <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #FFFFFF;">
+            <span
+              style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #FFFFFF;">
               In Progress
             </span>
             <span
               style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #FFFFFF33;background: #1A1A1C;font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{inProgressTasks.length}}</span>
           </div>
-          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32"
-               id="inProgressList"
-               cdkDropList
-               [cdkDropListData]="inProgressTasks"
-               [cdkDropListConnectedTo]="['todoList', 'reviewList', 'doneList']"
-               (cdkDropListDropped)="drop($event, 'IN_PROGRESS')">
-            <div *ngFor="let t of inProgressTasks; trackBy: trackById" class="task-card inprogress-card border border-[#FFFFFF52] cursor-grab active:cursor-grabbing" 
-                 cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32" id="inProgressList" cdkDropList
+            [cdkDropListData]="inProgressTasks" [cdkDropListConnectedTo]="['todoList', 'reviewList', 'doneList']"
+            (cdkDropListDropped)="drop($event, 'IN_PROGRESS')">
+            <div *ngFor="let t of inProgressTasks; trackBy: trackById"
+              class="task-card inprogress-card border border-[#FFFFFF52] cursor-grab active:cursor-grabbing" cdkDrag
+              [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
               <div class="flex items-start justify-between gap-2">
                 <div>
-                  <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
+                  <span class="tag" [class.urgent-tag]="isUrgent(t)" [ngClass]="getDeadlineClass(t.deadline)">{{ isUrgent(t) ? 'URGENT ACTION' : getDaysLeftText(t.deadline) }}</span>
+                  <p
+                    style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
+                    {{t.title}}</p>
                   <p class="text-[11px] text-white/30 mt-1">Project: {{t.project_name || 'BrandShift'}}</p>
                 </div>
               </div>
@@ -231,11 +239,11 @@
                 </div>
                 <div class="text-right">
                   <p class="text-[9px] text-white/20 uppercase">Progress</p>
-                  <p class="text-[11px] text-white/50 font-bold">40%</p>
+                  <p class="text-[11px] text-white/50 font-bold">{{getProgressByStatus(t.status)}}%</p>
                 </div>
               </div>
               <div class="h-1 bg-white/5 rounded-full mt-2 overflow-hidden">
-                <div class="h-full bg-[#FFFFFF] rounded-full" style="width:40%"></div>
+                <div class="h-full bg-[#FFFFFF] rounded-full" [style.width.%]="getProgressByStatus(t.status)"></div>
               </div>
             </div>
           </div>
@@ -244,23 +252,25 @@
         <!-- REVIEW -->
         <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col">
           <div class="flex items-center gap-2 mb-4 shrink-0">
-            <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #F59E0B;">
+            <span
+              style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #F59E0B;">
               Review
             </span>
             <span
               style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #F59E0B33;background: #1A1A1C;font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{reviewTasks.length}}</span>
           </div>
-          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32"
-               id="reviewList"
-               cdkDropList
-               [cdkDropListData]="reviewTasks"
-               [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'doneList']"
-               (cdkDropListDropped)="drop($event, 'REVIEW')">
-            <div *ngFor="let t of reviewTasks; trackBy: trackById" class="task-card review-card border border-[#F59E0B52] cursor-grab active:cursor-grabbing" 
-                 cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32" id="reviewList" cdkDropList
+            [cdkDropListData]="reviewTasks" [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'doneList']"
+            (cdkDropListDropped)="drop($event, 'REVIEW')">
+            <div *ngFor="let t of reviewTasks; trackBy: trackById"
+              class="task-card review-card border border-[#F59E0B52] cursor-grab active:cursor-grabbing" cdkDrag
+              [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
               <div class="flex items-start justify-between gap-2">
                 <div>
-                  <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
+                  <span class="tag review-tag" [class.urgent-tag]="isUrgent(t)" [ngClass]="getDeadlineClass(t.deadline)">{{ isUrgent(t) ? 'URGENT ACTION' : getDaysLeftText(t.deadline) }}</span>
+                  <p
+                    style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
+                    {{t.title}}</p>
                   <p class="text-[11px] text-white/30 mt-1">Project: {{t.project_name || 'BrandShift'}}</p>
                 </div>
               </div>
@@ -272,11 +282,11 @@
                 </div>
                 <div class="text-right">
                   <p class="text-[9px] text-white/20 uppercase">Progress</p>
-                  <p class="text-[11px] text-white/50 font-bold">80%</p>
+                  <p class="text-[11px] text-white/50 font-bold">{{getProgressByStatus(t.status)}}%</p>
                 </div>
               </div>
               <div class="h-1 bg-white/5 rounded-full mt-2 overflow-hidden">
-                <div class="h-full bg-[#F59E0B] rounded-full" style="width:80%"></div>
+                <div class="h-full bg-[#F59E0B] rounded-full" [style.width.%]="getProgressByStatus(t.status)"></div>
               </div>
             </div>
           </div>
@@ -285,23 +295,24 @@
         <!-- DONE -->
         <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col">
           <div class="flex items-center gap-2 mb-4 shrink-0">
-            <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #10B981;">
+            <span
+              style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #10B981;">
               Done
             </span>
             <span
               style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #10B98152;background: #1A1A1C;font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{doneTasks.length}}</span>
           </div>
-          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32"
-               id="doneList"
-               cdkDropList
-               [cdkDropListData]="doneTasks"
-               [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'reviewList']"
-               (cdkDropListDropped)="drop($event, 'DONE')">
-            <div *ngFor="let t of doneTasks; trackBy: trackById" class="task-card done-card border border-[#10B98152] cursor-grab active:cursor-grabbing" 
-                 cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32" id="doneList" cdkDropList
+            [cdkDropListData]="doneTasks" [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'reviewList']"
+            (cdkDropListDropped)="drop($event, 'DONE')">
+            <div *ngFor="let t of doneTasks; trackBy: trackById"
+              class="task-card done-card border border-[#10B98152] cursor-grab active:cursor-grabbing" cdkDrag
+              [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
               <div class="flex items-start justify-between gap-2">
                 <div>
-                  <p style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{t.title}}</p>
+                  <p
+                    style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
+                    {{t.title}}</p>
                   <p class="text-[11px] text-white/30 mt-1">Project: {{t.project_name || 'BrandShift'}}</p>
                 </div>
               </div>
@@ -327,7 +338,8 @@
       <!-- LIST VIEW -->
       <div class="space-y-6" *ngIf="viewMode === 'list'" cdkDropListGroup>
         <!-- Table Headers -->
-        <div class="flex items-center justify-between px-5 pb-3 border-b border-white/[0.04] text-[10px] font-bold uppercase tracking-[0.2em] text-[#737373]">
+        <div
+          class="flex items-center justify-between px-5 pb-3 border-b border-white/[0.04] text-[10px] font-bold uppercase tracking-[0.2em] text-[#737373]">
           <div class="w-[45%]">Task Details</div>
           <div class="w-[20%]">Status</div>
           <div class="w-[15%]">Deadline</div>
@@ -336,28 +348,40 @@
 
         <div class="status-group" *ngFor="let status of listStatuses">
           <!-- Group Header -->
-          <div class="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-colors mb-2" (click)="toggleStatusGroup(status)">
+          <div
+            class="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-colors mb-2"
+            (click)="toggleStatusGroup(status)">
             <div class="flex items-center gap-3">
-              <span class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border border-white/10 text-white/60">{{ status }}</span>
+              <span
+                class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border border-white/10 text-white/60">{{
+                status }}</span>
               <span class="text-xs font-bold text-white/20">{{ getTasksByListStatus(status).length }}</span>
             </div>
-            <svg class="w-4 h-4 text-white/20 transition-transform" [class.rotate-180]="expandedStatusGroups.has(status)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-white/20 transition-transform"
+              [class.rotate-180]="expandedStatusGroups.has(status)" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </div>
 
           <!-- Group Content -->
-          <div class="space-y-2 min-h-[20px]" *ngIf="expandedStatusGroups.has(status)"
-               cdkDropList [cdkDropListData]="getTasksByListStatus(status)" (cdkDropListDropped)="drop($event, status)">
-            <div *ngFor="let t of getTasksByListStatus(status); trackBy: trackById" cdkDrag (cdkDragStarted)="onDragStarted()"
-                 class="flex items-center justify-between p-4 bg-[#1C1C1E] hover:bg-[#252529] border border-white/[0.03] rounded-xl transition-all cursor-grab active:cursor-grabbing group">
-              
-              <div *cdkDragPlaceholder class="bg-white/5 border border-dashed border-white/10 rounded-xl h-16 w-full"></div>
+          <div class="space-y-2 min-h-[20px]" *ngIf="expandedStatusGroups.has(status)" cdkDropList
+            [cdkDropListData]="getTasksByListStatus(status)" (cdkDropListDropped)="drop($event, status)">
+            <div *ngFor="let t of getTasksByListStatus(status); trackBy: trackById" cdkDrag
+              (cdkDragStarted)="onDragStarted()"
+              class="flex items-center justify-between p-4 bg-[#1C1C1E] hover:bg-[#252529] border border-white/[0.03] rounded-xl transition-all cursor-grab active:cursor-grabbing group">
+
+              <div *cdkDragPlaceholder class="bg-white/5 border border-dashed border-white/10 rounded-xl h-16 w-full">
+              </div>
 
               <!-- 1. Task Title & Project -->
               <div class="flex items-center gap-3 w-[45%]">
-                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/30 group-hover:text-white/60 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                <div
+                  class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/30 group-hover:text-white/60 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
                 </div>
                 <div class="flex flex-col min-w-0">
                   <span class="font-bold text-sm text-white truncate">{{ t.title }}</span>
@@ -367,8 +391,7 @@
 
               <!-- 2. Status Pill -->
               <div class="w-[20%]">
-                <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md border"
-                      [ngClass]="{
+                <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md border" [ngClass]="{
                         'bg-green-500/10 text-green-400 border-green-500/20': t.status === 'DONE',
                         'bg-blue-500/10 text-blue-400 border-blue-500/20': t.status === 'IN_PROGRESS',
                         'bg-yellow-500/10 text-yellow-400 border-yellow-500/20': t.status === 'REVIEW',
@@ -380,15 +403,16 @@
 
               <!-- 3. Deadline -->
               <div class="w-[15%]">
-                <span class="text-xs text-white/40 font-medium">{{ t.deadline ? (t.deadline | date:'MMM dd') : 'N/A' }}</span>
+                <span class="text-xs text-white/40 font-medium">{{ t.deadline ? (t.deadline | date:'MMM dd') : 'N/A'
+                  }}</span>
               </div>
 
               <!-- 4. Progress -->
               <div class="w-[20%] text-right">
                 <div class="flex flex-col items-end gap-1.5">
-                  <span class="text-[11px] font-bold text-white/60">{{ t.status === 'DONE' ? '100%' : (t.status === 'IN_PROGRESS' ? '40%' : '0%') }}</span>
+                  <span class="text-[11px] font-bold text-white/60">{{ getProgressByStatus(t.status) }}%</span>
                   <div class="w-16 h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div class="h-full bg-white/20" [style.width]="t.status === 'DONE' ? '100%' : (t.status === 'IN_PROGRESS' ? '40%' : '0%')"></div>
+                    <div class="h-full bg-white/20" [style.width.%]="getProgressByStatus(t.status)"></div>
                   </div>
                 </div>
               </div>
@@ -407,15 +431,18 @@
           <span class="count-meeting">{{upcomingMeetings.length}} Meetings</span>
         </div>
         <div class="space-y-3">
-          <div *ngFor="let m of upcomingMeetings.slice(0,3)"
-            class="w-full h-[74px] flex items-center gap-4 p-4 rounded-3xl border border-[#2A2A2D] 
+          <div *ngFor="let m of upcomingMeetings.slice(0,3)" class="w-full h-[74px] flex items-center gap-4 p-4 rounded-3xl border border-[#2A2A2D] 
               bg-gradient-to-br from-[#1C1C1E] to-[#121214] opacity-100 rotate-0 
               hover:border-[#3A3A3E] transition-colors">
             <div class="text-center shrink-0 w-12">
               <!-- <p class="text-sm font-black text-white">{{m.date_time | date:'HH:mm'}}</p>
               <p class="text-[8px] text-white/30 uppercase">{{m.date_time | date:'a'}}</p> -->
-              <p class="date-meeting text-[14px] font-bold leading-5 tracking-normal text-center text-white align-middle">{{m.date_time | date:'HH:mm'}}</p>
-              <p class="date text-[10px] font-normal leading-5 tracking-normal text-center uppercase align-middle text-[#808080]">{{m.date_time | date:'a'}}</p>
+              <p
+                class="date-meeting text-[14px] font-bold leading-5 tracking-normal text-center text-white align-middle">
+                {{m.date_time | date:'HH:mm'}}</p>
+              <p
+                class="date text-[10px] font-normal leading-5 tracking-normal text-center uppercase align-middle text-[#808080]">
+                {{m.date_time | date:'a'}}</p>
             </div>
             <div class="w-[1px] h-7 bg-white/10"></div>
             <div class="min-w-0 flex-1">
@@ -434,50 +461,53 @@
         <h3 class="Schedule mb-4">Priority Tasks</h3>
         <div class="space-y-3">
           <div *ngFor="let t of getPriorityTasks().slice(0,3); let first = first" class="flex items-center gap-3">
-            <span class="w-1.5 h-1.5 rounded-full shrink-0"
-              [ngClass]="first ? 'bg-[#FF1A1A]' : 'bg-white/20'"></span>
+            <span class="w-1.5 h-1.5 rounded-full shrink-0" [ngClass]="first ? 'bg-[#FF1A1A]' : 'bg-white/20'"></span>
             <p style="font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 14px; line-height: 20px; letter-spacing: 0px; vertical-align: middle;"
-               [style.color]="first ? '#FFFFFF' : '#808080'">{{t.title}}</p>
+              [style.color]="first ? '#FFFFFF' : '#808080'">{{t.title}}</p>
           </div>
           <div *ngIf="getPriorityTasks().length === 0" class="text-xs text-white/20 italic">No priority tasks</div>
         </div>
       </div>
 
       <!-- Focus Session Timer -->
-      <div class="relative overflow-hidden flex flex-col items-center w-full" 
-           style="height: 216px; gap: 8px; border: 1px solid #2A2A2D; border-radius: 32px; padding: 24px; background: linear-gradient(135.85deg, #1C1C1E 0%, #121214 100%);" 
-           *ngIf="attendanceSession || isLunchBreak">
+      <div class="relative overflow-hidden flex flex-col items-center w-full"
+        style="height: 216px; gap: 8px; border: 1px solid #2A2A2D; border-radius: 32px; padding: 24px; background: linear-gradient(135.85deg, #1C1C1E 0%, #121214 100%);"
+        *ngIf="attendanceSession || isLunchBreak">
         <!-- Subtle Red Glow -->
-        <div class="absolute -top-10 -right-10 w-48 h-48 bg-[#FF1A1A]/30 blur-[60px] rounded-full pointer-events-none"></div>
+        <div class="absolute -top-10 -right-10 w-48 h-48 bg-[#FF1A1A]/30 blur-[60px] rounded-full pointer-events-none">
+        </div>
         <p class="timer mb-1">Focus Session Timer</p>
-        
+
         <div class="flex-1 flex flex-col items-center justify-center -mt-2">
           <ng-container *ngIf="isLunchBreak; else regularTimer">
             <p class="timer-title !text-[52px] !leading-[0.9] !tracking-[-3px]">LUNCH</p>
-            <p class="timer-title !text-[52px] !leading-[1.1] !tracking-[-3px]">{{elapsedTime.split(' ')[1] || elapsedTime}}</p>
+            <p class="timer-title !text-[52px] !leading-[1.1] !tracking-[-3px]">{{elapsedTime.split(' ')[1] ||
+              elapsedTime}}</p>
           </ng-container>
           <ng-template #regularTimer>
             <p class="timer-title">{{elapsedTime}}</p>
           </ng-template>
         </div>
-        
+
         <div class="flex items-center gap-4 relative z-10 w-full mt-auto">
           <button (click)="toggleTimer()"
             class="w-12 h-12 rounded-full border border-white/10 bg-transparent flex items-center justify-center text-white/80 hover:text-white hover:bg-white/5 transition-all shrink-0">
-            <svg *ngIf="timerRunning && !isLunchBreak" width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="1" width="3" height="14" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="10" y="1" width="3" height="14" stroke="currentColor" stroke-width="1.5"/>
+            <svg *ngIf="timerRunning && !isLunchBreak" width="14" height="16" viewBox="0 0 14 16" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="3" height="14" stroke="currentColor" stroke-width="1.5" />
+              <rect x="10" y="1" width="3" height="14" stroke="currentColor" stroke-width="1.5" />
             </svg>
-            <svg *ngIf="!timerRunning || isLunchBreak" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg *ngIf="!timerRunning || isLunchBreak" width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="5 3 19 12 5 21 5 3"></polygon>
             </svg>
           </button>
-          
+
           <button *ngIf="!isLunchBreak" (click)='startLunchBreak()'
             class="flex-1 h-12 rounded-full bg-[#FF1A1A] text-white text-[11px] font-bold uppercase tracking-[0.1em] shadow-[0_8px_30px_rgba(255,26,26,0.3)] hover:bg-[#e61717] transition-all">
             Lunch Break
           </button>
-          
+
           <button *ngIf="isLunchBreak" (click)='toggleTimer()'
             class="flex-1 h-12 rounded-full bg-[#10B981] text-white text-[11px] font-bold uppercase tracking-[0.1em] shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:bg-[#0d9668] transition-all">
             Continue Pointage
@@ -495,7 +525,8 @@
         <span class="nav-indicator" style="left: 0;"></span>
         My Projects
       </h2>
-      <div class="overflow-hidden" style="border: 1px solid #2A2A2D; background: linear-gradient(118.95deg, #1C1C1E 0%, #121214 100%); width: 100%; height: 243px; border-radius: 24px;">
+      <div class="overflow-hidden"
+        style="border: 1px solid #2A2A2D; background: linear-gradient(118.95deg, #1C1C1E 0%, #121214 100%); width: 100%; height: 243px; border-radius: 24px;">
         <table class="w-full text-left">
           <thead>
             <tr class="border-b border-[#2A2A2D]">
@@ -506,30 +537,35 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of projects; let i = index" class="border-b border-[#2A2A2D] last:border-0 hover:bg-white/[0.02] transition-all">
+            <tr *ngFor="let p of projects; let i = index"
+              class="border-b border-[#2A2A2D] last:border-0 hover:bg-white/[0.02] transition-all">
               <td class="px-6 py-4">
                 <div class="flex items-center gap-4">
                   <div class="rounded-full flex items-center justify-center shrink-0"
-                       style="width: 32px; height: 32px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; line-height: 16px; text-align: center; vertical-align: middle;"
-                       [ngStyle]="{
+                    style="width: 32px; height: 32px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; line-height: 16px; text-align: center; vertical-align: middle;"
+                    [ngStyle]="{
                          'background': i === 0 ? '#FF1A1A33' : '#3B82F633',
                          'color': i === 0 ? '#FF1A1A' : '#3B82F6'
                        }">
                     {{getProjectInitials(p.name)}}
                   </div>
-                  <span style="font-family: 'Inter', sans-serif; font-weight: 600; font-style: normal; font-size: 14px; line-height: 20px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{p.name}}</span>
+                  <span
+                    style="font-family: 'Inter', sans-serif; font-weight: 600; font-style: normal; font-size: 14px; line-height: 20px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">{{p.name}}</span>
                 </div>
               </td>
               <td class="px-6 py-4">
                 <div class="flex -space-x-2">
                   <ng-container *ngIf="p.employees && p.employees.length > 0; else fallbackTeam">
-                    <div *ngFor="let u of p.employees.slice(0, 3)" class="w-7 h-7 rounded-full border-2 border-[#151515] overflow-hidden bg-gradient-to-br from-[#67E8F9] to-[#06B6D4] flex items-center justify-center text-[10px] font-bold text-[#151515]">
-                      <img *ngIf="u.profile_photo" [src]="u.profile_photo" class="w-full h-full object-cover" alt="Team member">
+                    <div *ngFor="let u of p.employees.slice(0, 3)"
+                      class="w-7 h-7 rounded-full border-2 border-[#151515] overflow-hidden bg-gradient-to-br from-[#67E8F9] to-[#06B6D4] flex items-center justify-center text-[10px] font-bold text-[#151515]">
+                      <img *ngIf="u.profile_photo" [src]="u.profile_photo" class="w-full h-full object-cover"
+                        alt="Team member">
                       <span *ngIf="!u.profile_photo">{{(u.name || 'U').charAt(0).toUpperCase()}}</span>
                     </div>
                   </ng-container>
                   <ng-template #fallbackTeam>
-                    <div class="w-7 h-7 rounded-full border-2 border-[#151515] overflow-hidden bg-gradient-to-br from-[#E2E8F0] to-[#94A3B8] flex items-center justify-center text-[10px] font-bold text-[#151515]">
+                    <div
+                      class="w-7 h-7 rounded-full border-2 border-[#151515] overflow-hidden bg-gradient-to-br from-[#E2E8F0] to-[#94A3B8] flex items-center justify-center text-[10px] font-bold text-[#151515]">
                       {{(p.manager_name || 'T').charAt(0).toUpperCase()}}
                     </div>
                   </ng-template>
@@ -538,7 +574,8 @@
               <td class="px-6 py-4">
                 <div class="flex items-center gap-4">
                   <div class="w-16 h-1 bg-[#2A2A2D] rounded-full overflow-hidden">
-                    <div class="h-full rounded-full" [style.width]="getProjectProgress(p) + '%'" [style.background]="i === 0 ? '#FF1A1A' : '#3B82F6'"></div>
+                    <div class="h-full rounded-full" [style.width]="getProjectProgress(p) + '%'"
+                      [style.background]="i === 0 ? '#FF1A1A' : '#3B82F6'"></div>
                   </div>
                   <span class="project-progress">{{getProjectProgress(p)}}%</span>
                 </div>
@@ -562,59 +599,86 @@
         Performance Snapshot
       </h2>
       <div class="grid grid-cols-2 gap-4">
-        <div class="flex flex-col justify-center items-start text-left" style="width: 100%; height: 108px; gap: 4px; border-radius: 12px; padding: 16px; background: linear-gradient(151.54deg, #1C1C1E 0%, #121214 100%); border: 1px solid #2A2A2D;">
+        <div class="flex flex-col justify-center items-start text-left"
+          style="width: 100%; height: 108px; gap: 4px; border-radius: 12px; padding: 16px; background: linear-gradient(151.54deg, #1C1C1E 0%, #121214 100%); border: 1px solid #2A2A2D;">
           <div class="flex items-center gap-3">
-            <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-style: normal; font-size: 24px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; color: #FFFFFF; margin: 0;">{{getAvgResponseTime()}}</p>
+            <p
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-style: normal; font-size: 24px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; color: #FFFFFF; margin: 0;">
+              {{getAvgResponseTime()}}</p>
             <div class="w-7 h-7 rounded-full bg-white/[0.03] flex items-center justify-center shrink-0">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1.16699 7.00008C1.16699 10.2196 3.78082 12.8334 7.00033 12.8334C10.2198 12.8334 12.8337 10.2196 12.8337 7.00008C12.8337 3.78058 10.2198 1.16675 7.00033 1.16675C3.78082 1.16675 1.16699 3.78058 1.16699 7.00008V7.00008" stroke="#808080" stroke-width="1.16667"/>
-                <path d="M7 3.5V7L9.33333 8.16667" stroke="#808080" stroke-width="1.16667"/>
+                <path
+                  d="M1.16699 7.00008C1.16699 10.2196 3.78082 12.8334 7.00033 12.8334C10.2198 12.8334 12.8337 10.2196 12.8337 7.00008C12.8337 3.78058 10.2198 1.16675 7.00033 1.16675C3.78082 1.16675 1.16699 3.78058 1.16699 7.00008V7.00008"
+                  stroke="#808080" stroke-width="1.16667" />
+                <path d="M7 3.5V7L9.33333 8.16667" stroke="#808080" stroke-width="1.16667" />
               </svg>
             </div>
           </div>
-          <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #808080; margin: 0;">Avg Response<br>Time</p>
+          <p
+            style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #808080; margin: 0;">
+            Avg Response<br>Time</p>
         </div>
-        <div class="flex flex-col justify-center items-start text-left" style="width: 100%; height: 108px; gap: 4px; border-radius: 12px; padding: 16px; background: linear-gradient(151.54deg, #1C1C1E 0%, #121214 100%); border: 1px solid #2A2A2D;">
+        <div class="flex flex-col justify-center items-start text-left"
+          style="width: 100%; height: 108px; gap: 4px; border-radius: 12px; padding: 16px; background: linear-gradient(151.54deg, #1C1C1E 0%, #121214 100%); border: 1px solid #2A2A2D;">
           <div class="flex items-center gap-3">
-            <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-style: normal; font-size: 24px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #FFFFFF; margin: 0;">{{getOverallProgress()}}%</p>
+            <p
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-style: normal; font-size: 24px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #FFFFFF; margin: 0;">
+              {{getOverallProgress()}}%</p>
             <div class="w-7 h-7 rounded-full bg-white/[0.03] flex items-center justify-center shrink-0">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 8C14 11.3115 11.3115 14 8 14C4.68851 14 2 11.3115 2 8C2 4.68851 4.68851 2 8 2C9.68 2 11.2867 2.66667 12.4933 3.82667L14 5.33333" stroke="#808080" stroke-width="1.33333"/>
-              <path d="M14.0003 2V5.33333H10.667" stroke="#808080" stroke-width="1.33333"/>
-            </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M14 8C14 11.3115 11.3115 14 8 14C4.68851 14 2 11.3115 2 8C2 4.68851 4.68851 2 8 2C9.68 2 11.2867 2.66667 12.4933 3.82667L14 5.33333"
+                  stroke="#808080" stroke-width="1.33333" />
+                <path d="M14.0003 2V5.33333H10.667" stroke="#808080" stroke-width="1.33333" />
+              </svg>
+            </div>
           </div>
-          </div>
-          <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #808080; margin: 0;">Weekly<br>Completion<br>Rate</p>
+          <p
+            style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #808080; margin: 0;">
+            Weekly<br>Completion<br>Rate</p>
         </div>
-        <div class="flex flex-col justify-center items-start text-left" style="width: 100%; height: 108px; gap: 4px; border-radius: 12px; padding: 16px; background: linear-gradient(151.54deg, #1C1C1E 0%, #121214 100%); border: 1px solid #2A2A2D;">
+        <div class="flex flex-col justify-center items-start text-left"
+          style="width: 100%; height: 108px; gap: 4px; border-radius: 12px; padding: 16px; background: linear-gradient(151.54deg, #1C1C1E 0%, #121214 100%); border: 1px solid #2A2A2D;">
           <div class="flex items-center gap-3">
-            <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-style: normal; font-size: 24px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #FFFFFF; margin: 0;">{{getCompletedTasks()}}</p>
+            <p
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-style: normal; font-size: 24px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #FFFFFF; margin: 0;">
+              {{getCompletedTasks()}}</p>
             <div class="w-7 h-7 rounded-full bg-white/[0.03] flex items-center justify-center shrink-0">
-           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5.25 6.41658L7 8.16658L12.8333 2.33325" stroke="#808080" stroke-width="1.16667"/>
-            <path d="M12.25 7V11.0833C12.25 11.7272 11.7272 12.25 11.0833 12.25H2.91667C2.27277 12.25 1.75 11.7272 1.75 11.0833V2.91667C1.75 2.27277 2.27277 1.75 2.91667 1.75H9.33333" stroke="#808080" stroke-width="1.16667"/>
-           </svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5.25 6.41658L7 8.16658L12.8333 2.33325" stroke="#808080" stroke-width="1.16667" />
+                <path
+                  d="M12.25 7V11.0833C12.25 11.7272 11.7272 12.25 11.0833 12.25H2.91667C2.27277 12.25 1.75 11.7272 1.75 11.0833V2.91667C1.75 2.27277 2.27277 1.75 2.91667 1.75H9.33333"
+                  stroke="#808080" stroke-width="1.16667" />
+              </svg>
+            </div>
           </div>
-          </div>
-          <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #808080; margin: 0;">Tasks Closed</p>
+          <p
+            style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #808080; margin: 0;">
+            Tasks Closed</p>
         </div>
-        <div class="flex flex-col justify-center items-start text-left" style="width: 100%; height: 108px; gap: 4px; border-radius: 12px; padding: 16px; background: linear-gradient(151.54deg, #1C1C1E 0%, #121214 100%); border: 1px solid #2A2A2D;">
+        <div class="flex flex-col justify-center items-start text-left"
+          style="width: 100%; height: 108px; gap: 4px; border-radius: 12px; padding: 16px; background: linear-gradient(151.54deg, #1C1C1E 0%, #121214 100%); border: 1px solid #2A2A2D;">
           <div class="flex items-center gap-3">
-            <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-style: normal; font-size: 24px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #FFFFFF; margin: 0;">{{getCurrentLoad()}}%</p>
+            <p
+              style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-style: normal; font-size: 24px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #FFFFFF; margin: 0;">
+              {{getCurrentLoad()}}%</p>
             <div class="w-7 h-7 rounded-full bg-white/[0.03] flex items-center justify-center shrink-0">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_799_1575)">
-                  <path d="M14.6663 8H11.9997L9.99967 14L5.99967 2L3.99967 8H1.33301" stroke="#808080" stroke-width="1.33333"/>
+                  <path d="M14.6663 8H11.9997L9.99967 14L5.99967 2L3.99967 8H1.33301" stroke="#808080"
+                    stroke-width="1.33333" />
                 </g>
                 <defs>
                   <clipPath id="clip0_799_1575">
-                  <rect width="16" height="16" fill="white"/>
-                </clipPath>
+                    <rect width="16" height="16" fill="white" />
+                  </clipPath>
                 </defs>
               </svg>
             </div>
           </div>
-          <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #808080; margin: 0;">Current Load</p>
+          <p
+            style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 15px; letter-spacing: 1px; vertical-align: middle; text-transform: uppercase; color: #808080; margin: 0;">
+            Current Load</p>
         </div>
       </div>
     </div>

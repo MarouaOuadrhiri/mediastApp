@@ -72,6 +72,27 @@
           </div>
 
           <h3 class="task-title">{{t.title}}</h3>
+          
+          <!-- Rejection Reason Alert -->
+          <div class="rejection-alert-card" *ngIf="t.status === 'BLOCKED' && t.rejection_reason">
+            <div class="alert-icon">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <div class="alert-content">
+              <span class="alert-label">REJECTION REASON:</span>
+              <p class="alert-text">"{{t.rejection_reason}}"</p>
+              
+              <div class="alert-actions mt-3 flex gap-3">
+                <button class="alert-btn accept" (click)="resolveRejection(t)">
+                  REASSIGN TASK
+                </button>
+                <button class="alert-btn dismiss" (click)="dismissRejection(t)">
+                  DISMISS
+                </button>
+              </div>
+            </div>
+          </div>
+
           <p class="task-desc">{{t.description || 'No description available.'}}</p>
 
           <div class="card-footer">

@@ -9,10 +9,11 @@ class ProjectTask(EmbeddedDocument):
     title = StringField(required=True, max_length=200)
     description = StringField()
     note = StringField()
-    status = StringField(choices=('TODO', 'IN_PROGRESS', 'DONE'), default='TODO')
+    status = StringField(choices=('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'BLOCKED'), default='TODO')
     deadline = DateTimeField()
     completed_by = ReferenceField(User, null=True)
     completed_at = DateTimeField()
+    rejection_reason = StringField()
 
 class Project(Document):
     meta = {'strict': False}

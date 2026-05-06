@@ -13,7 +13,7 @@
 
   <!-- Board Layout -->
   <div class="board-container" cdkDropListGroup *ngIf="viewMode === 'kanban'">
-    
+
     <!-- BLOCKED -->
     <div class="column status-BLOCKED">
       <div class="column-header">
@@ -22,25 +22,42 @@
         <span class="count-badge">{{todoTasks.length}}</span>
       </div>
       <div class="task-list" id="blockedList" cdkDropList [cdkDropListData]="todoTasks"
-           [cdkDropListConnectedTo]="['inProgressList', 'reviewList', 'doneList']" (cdkDropListDropped)="drop($event, 'BLOCKED')">
-        <div *ngFor="let t of todoTasks; trackBy: trackById" class="task-card" cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+        [cdkDropListConnectedTo]="['inProgressList', 'reviewList', 'doneList']"
+        (cdkDropListDropped)="drop($event, 'BLOCKED')">
+        <div *ngFor="let t of todoTasks; trackBy: trackById" class="task-card" cdkDrag [cdkDragData]="t"
+          (cdkDragStarted)="onDragStarted()">
           <div class="card-top">
-            <span class="tag">{{t.project_name || 'PROJECT: ORION'}}</span>
-            <button class="menu-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+            <span class="tag" [class.urgent-tag]="isUrgent(t)" [ngClass]="getDeadlineClass(t.deadline)">{{ isUrgent(t) ?
+              'URGENT ACTION' : getDaysLeftText(t.deadline) }}</span>
+            <button class="menu-btn" (click)="openRejectionModal(t)"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="4" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="12" cy="20" r="2" />
+              </svg></button>
           </div>
           <h3 class="task-title">{{t.title}}</h3>
-          <div class="card-meta">
-            <div class="meta-item">
-              <span class="meta-label">Priority:</span>
-              <span class="meta-value">{{t.priority || 'High'}}</span>
+          <p class="task-description" *ngIf="t.description">{{t.description}}</p>
+          <div class="card-footer">
+            <div class="card-meta">
+              <div class="meta-item">
+                <span class="meta-label">STATUS:</span>
+                <span class="meta-value">BLOCKED</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">DUE:</span>
+                <span class="meta-value">{{t.deadline ? (t.deadline | date:'MMM dd' | uppercase) : '—'}}</span>
+              </div>
             </div>
-            <div class="meta-item">
-              <span class="meta-label">Due:</span>
-              <span class="meta-value">{{t.deadline ? (t.deadline | date:'MMM dd') : 'Oct 12'}}</span>
+            <!-- <div class="deadline-badge" [ngClass]="getDeadlineClass(t.deadline)" *ngIf="t.deadline">
+              <span class="deadline-dot"></span>
+              {{ getDaysLeftText(t.deadline) }}
+            </div> -->
+            <div class="progress-row">
+              <div class="progress-container">
+                <div class="progress-bar" [style.width.%]="getProgressByStatus(t.status)"></div>
+              </div>
+              <span class="progress-text">{{getProgressByStatus(t.status)}}%</span>
             </div>
-          </div>
-          <div class="progress-container">
-            <div class="progress-bar" style="width: 30%; background: #353537;"></div>
           </div>
         </div>
       </div>
@@ -54,27 +71,44 @@
         <span class="count-badge">{{inProgressTasks.length}}</span>
       </div>
       <div class="task-list" id="inProgressList" cdkDropList [cdkDropListData]="inProgressTasks"
-           [cdkDropListConnectedTo]="['blockedList', 'reviewList', 'doneList']" (cdkDropListDropped)="drop($event, 'IN_PROGRESS')">
-        <div *ngFor="let t of inProgressTasks; trackBy: trackById" class="task-card" cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+        [cdkDropListConnectedTo]="['blockedList', 'reviewList', 'doneList']"
+        (cdkDropListDropped)="drop($event, 'IN_PROGRESS')">
+        <div *ngFor="let t of inProgressTasks; trackBy: trackById" class="task-card" [class.urgent-card]="isUrgent(t)"
+          cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
           <div class="card-top">
-            <span class="tag">Urgent Action</span>
-            <div class="avatar-stack">
-              <img src="https://i.pravatar.cc/150?u=123" class="avatar" alt="User">
-            </div>
+            <span class="tag" [class.urgent-tag]="isUrgent(t)" [ngClass]="getDeadlineClass(t.deadline)">{{ isUrgent(t) ?
+              'URGENT ACTION' : getDaysLeftText(t.deadline) }}</span>
+            <button class="menu-btn" (click)="openRejectionModal(t)" *ngIf="!isUrgent(t)"><svg width="16" height="16" viewBox="0 0 24 24"
+                fill="currentColor">
+                <circle cx="12" cy="4" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="12" cy="20" r="2" />
+              </svg></button>
           </div>
           <h3 class="task-title">{{t.title}}</h3>
-          <div class="card-meta">
-            <div class="meta-item">
-              <span class="meta-label">Progress:</span>
-              <span class="meta-value">68%</span>
+          <p class="task-description" *ngIf="t.description">{{t.description}}</p>
+          <div class="card-footer">
+            <div class="card-meta">
+              <div class="meta-item">
+                <span class="meta-label">PROGRESS:</span>
+                <span class="meta-value">{{getProgressByStatus(t.status)}}%</span>
+              </div>
+
+              <div class="meta-item">
+                <span class="meta-label">DUE:</span>
+                <span class="meta-value">{{t.deadline ? (t.deadline | date:'MMM dd' | uppercase) : '—'}}</span>
+              </div>
             </div>
-            <div class="meta-item">
-              <span class="meta-label">Priority:</span>
-              <span class="meta-value">{{t.priority || 'High'}}</span>
+            <!-- <div class="deadline-badge" [ngClass]="getDeadlineClass(t.deadline)" *ngIf="t.deadline">
+              <span class="deadline-dot"></span>
+              {{ getDaysLeftText(t.deadline) }}
+            </div> -->
+            <div class="progress-row">
+              <div class="progress-container">
+                <div class="progress-bar" [style.width.%]="getProgressByStatus(t.status)"></div>
+              </div>
+              <span class="progress-text">{{getProgressByStatus(t.status)}}%</span>
             </div>
-          </div>
-          <div class="progress-container">
-            <div class="progress-bar" style="width: 68%"></div>
           </div>
         </div>
       </div>
@@ -88,24 +122,43 @@
         <span class="count-badge">{{reviewTasks.length}}</span>
       </div>
       <div class="task-list" id="reviewList" cdkDropList [cdkDropListData]="reviewTasks"
-           [cdkDropListConnectedTo]="['blockedList', 'inProgressList', 'doneList']" (cdkDropListDropped)="drop($event, 'REVIEW')">
-        <div *ngFor="let t of reviewTasks; trackBy: trackById" class="task-card" cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+        [cdkDropListConnectedTo]="['blockedList', 'inProgressList', 'doneList']"
+        (cdkDropListDropped)="drop($event, 'REVIEW')">
+        <div *ngFor="let t of reviewTasks; trackBy: trackById" class="task-card" cdkDrag [cdkDragData]="t"
+          (cdkDragStarted)="onDragStarted()">
           <div class="card-top">
-            <span class="tag">Client: Vantedge</span>
+            <span class="tag" [class.urgent-tag]="isUrgent(t)" [ngClass]="getDeadlineClass(t.deadline)">{{ isUrgent(t) ?
+              'URGENT' : getDaysLeftText(t.deadline) }}</span>
+            <button class="menu-btn" (click)="openRejectionModal(t)"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="4" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="12" cy="20" r="2" />
+              </svg></button>
           </div>
           <h3 class="task-title">{{t.title}}</h3>
-          <div class="card-meta">
-            <div class="meta-item">
-              <span class="meta-label">Progress:</span>
-              <span class="meta-value">95%</span>
+          <p class="task-description" *ngIf="t.description">{{t.description}}</p>
+          <div class="card-footer">
+            <div class="card-meta">
+              <div class="meta-item">
+                <span class="meta-label">PROGRESS:</span>
+                <span class="meta-value">{{getProgressByStatus(t.status)}}%</span>
+              </div>
+
+              <div class="meta-item">
+                <span class="meta-label">DUE:</span>
+                <span class="meta-value">{{t.deadline ? (t.deadline | date:'MMM dd' | uppercase) : '—'}}</span>
+              </div>
             </div>
-            <div class="meta-item">
-              <span class="meta-label">Status:</span>
-              <span class="meta-value">Reviewing</span>
+            <!-- <div class="deadline-badge" [ngClass]="getDeadlineClass(t.deadline)" *ngIf="t.deadline">
+              <span class="deadline-dot"></span>
+              {{ getDaysLeftText(t.deadline) }}
+            </div> -->
+            <div class="progress-row">
+              <div class="progress-container">
+                <div class="progress-bar" [style.width.%]="getProgressByStatus(t.status)"></div>
+              </div>
+              <span class="progress-text">{{getProgressByStatus(t.status)}}%</span>
             </div>
-          </div>
-          <div class="progress-container">
-            <div class="progress-bar" style="width: 95%"></div>
           </div>
         </div>
       </div>
@@ -119,38 +172,176 @@
         <span class="count-badge">{{doneTasks.length}}</span>
       </div>
       <div class="task-list" id="doneList" cdkDropList [cdkDropListData]="doneTasks"
-           [cdkDropListConnectedTo]="['blockedList', 'inProgressList', 'reviewList']" (cdkDropListDropped)="drop($event, 'DONE')">
-        <div *ngFor="let t of doneTasks; trackBy: trackById" class="task-card" cdkDrag [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
+        [cdkDropListConnectedTo]="['blockedList', 'inProgressList', 'reviewList']"
+        (cdkDropListDropped)="drop($event, 'DONE')">
+        <div *ngFor="let t of doneTasks; trackBy: trackById" class="task-card done-card" cdkDrag [cdkDragData]="t"
+          (cdkDragStarted)="onDragStarted()">
           <div class="card-top">
-            <span class="tag">Marketing</span>
+            <span class="tag">{{t.project_name || 'BRANDSHIFT'}}</span>
             <div class="check-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="11" fill="#10B981" />
+                <path d="M7 12L10.5 15.5L17 8.5" stroke="#121212" stroke-width="2.5" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
             </div>
           </div>
           <h3 class="task-title">{{t.title}}</h3>
-          <div class="card-meta">
-            <div class="meta-item">
-              <span class="meta-label">Completed:</span>
-              <span class="meta-value">{{ (t.completed_at || '2026-05-05') | date:'MMM dd' }}</span>
+          <p class="task-description" *ngIf="t.description">{{t.description}}</p>
+          <div class="card-footer">
+            <div class="card-meta">
+              <div class="meta-item">
+                <span class="meta-label">COMPLETED</span>
+                <span class="meta-value">{{ (t.completed_at || t.deadline) | date:'MMM dd' | uppercase }}</span>
+              </div>
             </div>
-          </div>
-          <div class="progress-container">
-            <div class="progress-bar" style="width: 100%"></div>
+            <div class="progress-row">
+              <div class="progress-container">
+                <div class="progress-bar" style="width: 100%"></div>
+              </div>
+              <span class="progress-text">100%</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- List View Fallback -->
-  <div class="board-container overflow-y-auto" *ngIf="viewMode === 'list'">
-     <!-- Simple list implementation matching the premium dark style could go here -->
-     <p class="text-white/20 italic p-8">List View is currently optimized for Board mode. Switch to Board for the full experience.</p>
+  <!-- List View — Flat list of all tasks with expandable details -->
+  <div class="list-view" *ngIf="viewMode === 'list'" cdkDropListGroup>
+
+    <div *ngIf="standaloneTasks.length === 0 && projects.length === 0" class="list-empty">
+      <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+      <span>No tasks yet.</span>
+    </div>
+
+    <!-- Table Headers (Inspired by Design) -->
+    <div class="flex items-center justify-between px-5 pb-3 mb-4 border-b border-white/[0.04] text-[10px] font-bold uppercase tracking-[0.2em] text-[#737373] mt-8" *ngIf="standaloneTasks.length > 0 || projects.length > 0">
+      <div class="w-[35%]">Task Details</div>
+      <div class="w-[20%]">Status</div>
+      <div class="w-[15%]">Efficiency Rating</div>
+      <div class="w-[15%]">Team Health</div>
+      <div class="w-[15%] flex justify-end">Deadline</div>
+    </div>
+
+    <div class="status-group mb-6" *ngFor="let status of listStatuses">
+      <!-- Group Header -->
+      <div class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-colors" (click)="toggleStatusGroup(status)">
+        <div class="flex items-center gap-3">
+          <div class="list-status-badge text-sm" [attr.data-status]="status.replace(' ', '_')">{{ status }}</div>
+          <span class="text-xs font-bold text-white/40 bg-white/5 px-2 py-0.5 rounded-full">{{ getTasksByListStatus(status).length || 0 }}</span>
+        </div>
+        <button class="text-white/40 hover:text-white transition-transform duration-200" [class.rotate-180]="expandedStatusGroups.has(status)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Group Content -->
+      <div class="status-group-content space-y-3 p-1 min-h-[100px] transition-all rounded-xl border border-transparent" 
+           [class.border-dashed]="true" [class.border-white/10]="getTasksByListStatus(status).length === 0"
+           *ngIf="expandedStatusGroups.has(status)"
+           cdkDropList [id]="status" [cdkDropListData]="getTasksByListStatus(status)" [cdkDropListConnectedTo]="listStatuses" (cdkDropListDropped)="drop($event, status.replace(' ', '_'))">
+        <div class="list-row-container hover:shadow-[0_0_15px_rgba(255,255,255,0.03)] rounded-xl cursor-grab active:cursor-grabbing" 
+             *ngFor="let t of getTasksByListStatus(status)" cdkDrag>
+          
+          <div *cdkDragPlaceholder class="bg-white/5 border border-dashed border-white/20 rounded-xl h-[88px] w-full mb-2"></div>
+          
+          <!-- Unified Table-like Row -->
+          <div class="flex items-center justify-between p-5 bg-[#1C1B1C] hover:bg-[#2A2A2B] border-b border-white/[0.04] transition-colors rounded-xl mb-2 group">
+            
+            <!-- 1. Task Title & Project -->
+            <div class="flex items-center gap-4 w-[35%]">
+              <div class="w-8 h-8 rounded-full bg-white/5 flex flex-col items-center justify-center text-white/50 group-hover:text-white/80 transition-colors shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+              </div>
+              <div class="flex flex-col overflow-hidden">
+                <span class="font-bold text-[15px] font-['Space_Grotesk'] text-white truncate w-full" [title]="t.title">{{ t.title }}</span>
+                <span class="text-[11px] text-[#A3A3A3] font-medium tracking-wide truncate w-full">
+                  {{ t.project_name || 'Standalone Task' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- 2. Status Pill -->
+            <div class="w-[20%]">
+              <span class="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border"
+                    [ngClass]="{
+                      'bg-[#22C55E1A] text-[#4ADE80] border-[#22C55E33]': t.status === 'DONE',
+                      'bg-[#EAB3081A] text-[#FACC15] border-[#EAB30833]': t.status === 'IN_PROGRESS' || t.status === 'REVIEW',
+                      'bg-[#EF44441A] text-[#F87171] border-[#EF444433]': t.status === 'BLOCKED',
+                      'bg-white/5 text-white/50 border-white/10': !t.status || t.status === 'TODO'
+                    }">
+                {{ t.status }}
+              </span>
+            </div>
+
+            <!-- 3. Efficiency Rating (Progress) -->
+            <div class="w-[15%] flex items-center">
+               <span class="text-[14px] font-bold font-['Space_Grotesk'] text-[#A3A3A3]">{{ getProgressByStatus(t.status) }}%</span>
+            </div>
+
+            <!-- 4. Team Health (Priority/Urgency) -->
+            <div class="w-[15%] flex items-center">
+               <span class="text-[14px] font-bold font-['Space_Grotesk'] capitalize" [ngClass]="isUrgent(t) ? 'text-[#ff453a]' : 'text-[#A3A3A3]'">
+                 {{ isUrgent(t) ? 'Urgent' : 'Normal' }}
+               </span>
+            </div>
+
+            <!-- 5. Assignees & Actions -->
+            <div class="w-[20%] flex items-center justify-end gap-3 min-w-[120px]">
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-bold" [ngClass]="getDeadlineClass(t.deadline)">{{ getDaysLeftText(t.deadline) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="standaloneTasks.length === 0" class="flex-1 flex flex-col items-center justify-center text-center opacity-30">
-    <h2 class="text-3xl font-black uppercase italic tracking-tighter">Mission Complete</h2>
-    <p class="text-sm uppercase tracking-widest mt-2">No tasks currently assigned to your queue</p>
+  <div *ngIf="standaloneTasks.length === 0" class="empty-state">
+    <h2>Mission Complete</h2>
+    <p>No tasks currently assigned to your queue</p>
+  </div>
+
+</div>
+
+<!-- Rejection Modal -->
+<div class="modal-overlay" *ngIf="showRejectionModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 class="modal-title">Reject Task</h2>
+      <p class="modal-subtitle">Please provide a reason for rejecting this task.</p>
+    </div>
+    
+    <div class="modal-body">
+      <div class="task-info-mini" *ngIf="selectedTaskForRejection">
+        <span class="mini-label">TASK:</span>
+        <span class="mini-value">{{selectedTaskForRejection.title}}</span>
+      </div>
+      
+      <div class="input-group">
+        <label for="rejectionReason">Reason for Rejection</label>
+        <textarea 
+          id="rejectionReason" 
+          [(ngModel)]="rejectionReason" 
+          placeholder="E.g. Technical blockers, capacity issues, or incorrect assignment..."
+          rows="4"
+        ></textarea>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showRejectionModal = false">Cancel</button>
+      <button class="btn-submit" (click)="submitRejection()" [disabled]="!rejectionReason.trim()">
+        Submit Rejection
+      </button>
+    </div>
   </div>
 </div>

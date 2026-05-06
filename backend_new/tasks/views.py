@@ -22,6 +22,31 @@ def serialize_task(t):
         except DoesNotExist:
             continue
 
+    # Fetch deadline and project name from linked ProjectTask
+    deadline = t.deadline.strftime('%Y-%m-%d') if getattr(t, 'deadline', None) else None
+    project_name = None
+    if getattr(t, 'project', None):
+        try:
+            proj = t.project
+            project_name = proj.name
+            if not deadline:
+                if getattr(t, 'source_project_task_id', None):
+                    for pt in proj.tasks:
+                        if str(pt.id) == str(t.source_project_task_id):
+                            if pt.deadline:
+                                deadline = pt.deadline.strftime('%Y-%m-%d')
+                            break
+                # Fallback to project deadline if no task-level deadline
+                if not deadline and proj.deadline:
+                    deadline = proj.deadline.strftime('%Y-%m-%d')
+        except Exception:
+            pass
+
+    # Ensure task's own deadline also uses the simple format if it was set
+    if deadline and len(deadline) > 10:
+        # If it was an ISO string from t.deadline.isoformat(), take first 10 chars
+        deadline = deadline[:10]
+
     return {
         'id': str(t.id),
         'title': t.title,
@@ -29,9 +54,11 @@ def serialize_task(t):
         'status': t.status,
         'employees': employee_data,
         'project_id': str(t.project.id) if getattr(t, 'project', None) else None,
+        'project_name': project_name,
         'department_id': str(t.department.id) if getattr(t, 'department', None) else None,
         'source_project_task_id': getattr(t, 'source_project_task_id', None),
         'is_archived': getattr(t, 'is_archived', False),
+        'deadline': deadline,
     }
 
 
@@ -134,10 +161,14 @@ def update_task_status(request, pk):
         return Response({'error': 'You can only update tasks you are assigned to'}, status=403)
 
     status = request.data.get('status')
+    rejection_reason = request.data.get('rejection_reason')
+    
     if status is not None:
         if status not in ('BLOCKED', 'IN_PROGRESS', 'REVIEW', 'DONE', 'ARCHIVED'):
             return Response({'error': 'Invalid status. Must be BLOCKED, IN_PROGRESS, REVIEW, DONE, or ARCHIVED'}, status=400)
         task.status = status
+        if status == 'BLOCKED' and rejection_reason:
+            task.rejection_reason = rejection_reason
         # Synchronize is_archived with status
         if status == 'ARCHIVED':
             task.is_archived = True
@@ -219,6 +250,9 @@ def archive_task_view(request, pk):
     except DoesNotExist:
         return Response({'error': 'Task not found'}, status=404)
     
+    task.is_archived = True
+    task.save()
+    return Response(serialize_task(task))
     task.is_archived = True
     task.save()
     return Response(serialize_task(task))

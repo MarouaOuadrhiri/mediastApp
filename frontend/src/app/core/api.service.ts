@@ -33,10 +33,11 @@ export class ApiService {
   getMyTasks(): Observable<any> { return this.http.get(`${this.baseUrl}/tasks/`); }
   createTask(data: any): Observable<any> { return this.http.post(`${this.baseUrl}/tasks/`, data); }
   updateTask(id: string, data: any): Observable<any> { return this.http.put(`${this.baseUrl}/tasks/${id}/`, data); }
-  updateTaskStatus(id: string, status?: string, isArchived?: boolean): Observable<any> { 
+  updateTaskStatus(id: string, status?: string, isArchived?: boolean, rejection_reason?: string): Observable<any> { 
     const payload: any = {};
     if (status) payload.status = status;
     if (isArchived !== undefined) payload.is_archived = isArchived;
+    if (rejection_reason) payload.rejection_reason = rejection_reason;
     return this.http.patch(`${this.baseUrl}/tasks/${id}/status/`, payload); 
   }
 
@@ -46,8 +47,8 @@ export class ApiService {
   createProject(data: any): Observable<any> { return this.http.post(`${this.baseUrl}/projects/`, data); }
   updateProject(id: string, data: any): Observable<any> { return this.http.put(`${this.baseUrl}/projects/${id}/`, data); }
   deleteProject(id: string): Observable<any> { return this.http.delete(`${this.baseUrl}/projects/${id}/`); }
-  updateProjectTaskStatus(projectId: string, taskId: string, status: string): Observable<any> {
-    return this.http.patch(`${this.baseUrl}/projects/${projectId}/tasks/${taskId}/status/`, { status });
+  updateProjectTaskStatus(projectId: string, taskId: string, status: string, rejection_reason?: string): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/projects/${projectId}/tasks/${taskId}/status/`, { status, rejection_reason });
   }
 
   // Attendance

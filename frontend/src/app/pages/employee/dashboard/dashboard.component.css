@@ -37,6 +37,7 @@
   vertical-align: middle;
   color: #FFFFFF;
 }
+
 .nav-indicator {
   width: 4px;
   height: 24px;
@@ -48,6 +49,7 @@
   box-shadow: 0 0 10px rgba(229, 57, 53, 0.5);
   border-radius: 4px;
 }
+
 .task-card {
   width: 100%;
   height: auto;
@@ -99,7 +101,8 @@
   background: rgba(229, 57, 53, 0.25);
   border-radius: 2px;
 }
-.Schedule{
+
+.Schedule {
   font-family: 'Inter';
   font-weight: 700;
   font-style: Bold;
@@ -108,7 +111,8 @@
   letter-spacing: 0px;
   vertical-align: middle;
 }
-.count-meeting{
+
+.count-meeting {
   font-family: 'Inter';
   font-weight: 700;
   font-style: Bold;
@@ -119,7 +123,8 @@
   text-transform: uppercase;
   color: #FF1A1A;
 }
-.date-meeting{
+
+.date-meeting {
   font-family: 'Inter';
   font-weight: 700;
   font-size: 14px;
@@ -129,7 +134,8 @@
   vertical-align: middle;
   color: #FFFFFF;
 }
-.date{
+
+.date {
   font-family: 'Inter';
   font-weight: 400;
   font-size: 10px;
@@ -140,7 +146,8 @@
   text-transform: uppercase;
   color: #808080;
 }
-.m-title{
+
+.m-title {
   font-family: 'Inter';
   font-weight: 600;
   font-style: Semi Bold;
@@ -150,7 +157,8 @@
   vertical-align: middle;
   color: #FFFFFF;
 }
-.m-description{
+
+.m-description {
   font-family: 'Inter';
   font-weight: 400;
   font-style: Regular;
@@ -160,7 +168,8 @@
   vertical-align: middle;
   color: #808080;
 }
-.timer{
+
+.timer {
   font-family: 'Inter';
   font-weight: 700;
   font-style: Bold;
@@ -172,17 +181,19 @@
   text-transform: uppercase;
   color: #808080;
 }
-.timer-title{
+
+.timer-title {
   font-family: 'Space Grotesk';
-font-weight: 400;
-font-style: Regular;
-font-size: 60px;
-line-height: 60px;
-letter-spacing: -3px;
-vertical-align: middle;
-color: #FFFFFF;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 60px;
+  line-height: 60px;
+  letter-spacing: -3px;
+  vertical-align: middle;
+  color: #FFFFFF;
 }
-.th{
+
+.th {
   font-family: 'Inter';
   font-weight: 600;
   font-style: Semi Bold;
@@ -193,7 +204,8 @@ color: #FFFFFF;
   text-transform: uppercase;
   color: #808080;
 }
-.project-progress{
+
+.project-progress {
   font-family: 'Inter';
   font-weight: 400;
   font-style: Regular;
@@ -203,7 +215,8 @@ color: #FFFFFF;
   vertical-align: middle;
   color: #808080;
 }
-.project-deadline{
+
+.project-deadline {
   font-family: 'Inter';
   font-weight: 400;
   font-style: Regular;

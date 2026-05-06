@@ -376,12 +376,16 @@ def update_project_task_status(request, pk, task_id):
         return Response({'error': 'Unauthorized'}, status=403)
 
     status = request.data.get('status')
-    if status not in ('TODO', 'IN_PROGRESS', 'DONE'):
+    rejection_reason = request.data.get('rejection_reason')
+    
+    if status not in ('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'BLOCKED'):
         return Response({'error': 'Invalid status'}, status=400)
 
     for task in project.tasks:
         if str(task.id) == task_id:
             task.status = status
+            if status == 'BLOCKED' and rejection_reason:
+                task.rejection_reason = rejection_reason
             if status == 'DONE':
                 task.completed_by = request.user
                 task.completed_at = datetime.utcnow()

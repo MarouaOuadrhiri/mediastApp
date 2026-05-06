@@ -59,7 +59,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private zone: NgZone,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadSeenMeetingIds();
@@ -73,7 +73,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
 
       this.loadData();
-      
+
       this.refreshInterval = setInterval(() => {
         this.loadData(true);
       }, 30000);
@@ -118,11 +118,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
       this.checkStoredEmployeeShowPanel();
       this.restoreTimerState();
-    this.ui.notifications$.subscribe((n: any) => {
-      this.systemNotifications.unshift(n);
-      if (this.systemNotifications.length > 10) this.systemNotifications.pop();
-      this.cdr.detectChanges();
-    });
+      this.ui.notifications$.subscribe((n: any) => {
+        this.systemNotifications.unshift(n);
+        if (this.systemNotifications.length > 10) this.systemNotifications.pop();
+        this.cdr.detectChanges();
+      });
     }
   }
 
@@ -142,7 +142,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         try {
           const ids = JSON.parse(raw);
           if (Array.isArray(ids)) this.lastSeenMeetingIds = new Set(ids);
-        } catch (e) {}
+        } catch (e) { }
       }
     }
   }
@@ -184,20 +184,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
         if (this.isDragging || this.isUpdating) return;
         this.runInZone(() => { this.processMeetings(r || [], isRefresh); this.cdr.detectChanges(); });
       },
-      error: () => {}
+      error: () => { }
     });
 
     if (!isRefresh) {
       this.api.getMe().subscribe({
         next: (r: any) => {
           if (this.isDragging || this.isUpdating) return;
-          this.runInZone(() => { 
-            this.user = r; 
+          this.runInZone(() => {
+            this.user = r;
             this.checkSystemStatus(); // Run automated checks on launch
-            this.cdr.detectChanges(); 
+            this.cdr.detectChanges();
           });
         },
-        error: () => {}
+        error: () => { }
       });
 
       this.api.getCurrentAttendance().subscribe({
@@ -217,7 +217,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.cdr.detectChanges();
           });
         },
-        error: () => {}
+        error: () => { }
       });
     }
   }
@@ -248,10 +248,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const created = new Date(m.created_at).getTime();
         return (now - created) < 300000; // 5 minutes
       });
-      
+
       raw.forEach(m => { if (m.id) this.lastSeenMeetingIds.add(m.id); });
       this.saveSeenMeetingIds();
-      
+
       if (veryRecent.length > 0) {
         this.showToast(veryRecent[veryRecent.length - 1]);
       }
@@ -303,7 +303,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (raw) {
       try {
         this.systemNotifications = JSON.parse(raw);
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 
@@ -348,7 +348,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.handleEmployeeShowPanel();
           }
         }
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 
@@ -417,14 +417,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
     this.sessionStartTime = startTime;
     if (!this.isLunchBreak) this.timerRunning = true;
-    
+
     if (this.timerInterval) clearInterval(this.timerInterval);
     if (!this.zone) return;
 
     this.zone.runOutsideAngular(() => {
       this.timerInterval = setInterval(() => {
         const nowTs = new Date().getTime();
-        
+
         if (this.isLunchBreak) {
           const lunchStart = localStorage.getItem('employee_timer_start');
           if (lunchStart) {
@@ -479,7 +479,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.timerValue = '00:00:00';
       this.elapsedTime = '00:00:00';
     }
-    
+
     if (this.timerRunning) {
       this.api.endAttendance().subscribe(() => {
         this.timerRunning = false;
@@ -648,22 +648,85 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.getAllTasks().filter(t => t.status === 'DONE').length;
   }
 
+  getProgressByStatus(status: string): number {
+    switch (status) {
+      case 'DONE': return 100;
+      case 'REVIEW': return 90;
+      case 'IN_PROGRESS': return 50;
+      default: return 0;
+    }
+  }
+
+  isUrgent(task: any): boolean {
+    if (!task.deadline) return false;
+    const deadline = new Date(task.deadline);
+    const now = new Date();
+    const diff = deadline.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return days <= 2;
+  }
+
+  getDeadlineClass(deadlineStr: any): string {
+    if (!deadlineStr) return '';
+    const deadline = new Date(deadlineStr);
+    const now = new Date();
+    const diff = deadline.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    if (days < 0) return 'overdue';
+    if (days <= 2) return 'urgent';
+    if (days <= 5) return 'soon';
+    return 'safe';
+  }
+
+  getDaysLeftText(deadlineStr: any): string {
+    if (!deadlineStr) return 'NO DEADLINE';
+    const deadline = new Date(deadlineStr);
+    const now = new Date();
+    const diff = deadline.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    if (days < 0) return `OVERDUE ${Math.abs(days)}D`;
+    if (days === 0) return 'DUE TODAY';
+    return `${days} DAYS LEFT`;
+  }
+
   getProductivityScore(): number {
     return this.getCompletedTasks() * 4; // Arbitrary calculation for UI
   }
 
   getAllTasks(): any[] {
-    // this.standaloneTasks contains tasks specifically assigned to the employee
-    return this.standaloneTasks.map(t => {
+    const all: any[] = [];
+    
+    // Add standalone tasks with project context
+    this.standaloneTasks.forEach(t => {
       let projectName = t.project_name || 'BrandShift';
       if (t.project_id) {
         const p = this.projects.find(proj => proj.id === t.project_id);
-        if (p) {
-          projectName = p.name;
-        }
+        if (p) projectName = p.name;
       }
-      return { ...t, project_name: projectName };
+      all.push({ ...t, project_name: projectName, is_project_task: false });
     });
+
+    // Aggregate project tasks that are assigned to the employee
+    this.projects.forEach(p => {
+      if (p.tasks) {
+        p.tasks.forEach((pt: any) => {
+          // Only add if not already in standaloneTasks (prevent duplicates)
+          const exists = this.standaloneTasks.some(st => st.source_project_task_id === pt.id || st.title === pt.title);
+          if (!exists) {
+            all.push({
+              ...pt,
+              project_id: p.id,
+              project_name: p.name,
+              is_project_task: true
+            });
+          }
+        });
+      }
+    });
+
+    return all;
   }
 
   getTasksByStatus(status: string): any[] {
@@ -686,34 +749,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
       const task = event.previousContainer.data[event.previousIndex];
-      // Map frontend status to backend expected status
-      const apiStatus = targetStatus === 'TODO' || targetStatus === 'IN PROGRESS' ? 
-                       (targetStatus === 'TODO' ? 'BLOCKED' : 'IN_PROGRESS') : 
-                       targetStatus;
+      const apiStatus = targetStatus;
 
-      // Immediately mutate the status on the task object inside standaloneTasks[] directly
-      const sourceTask = this.standaloneTasks.find(t => t.id === task.id);
-      if (sourceTask) {
-        sourceTask.status = apiStatus;
-      }
-
-      // Optimistic update to prevent snapping back
-      task.status = apiStatus;
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex,
-      );
-      
       this.isUpdating = true;
-      this.updateStandaloneTaskStatus(task.id, apiStatus);
-      
-      if (this.updateTimeout) clearTimeout(this.updateTimeout);
-      this.updateTimeout = setTimeout(() => { 
-        this.isUpdating = false; 
-        this.cdr.detectChanges();
-      }, 5000);
+
+      const updateObs = task.is_project_task 
+        ? this.api.updateProjectTaskStatus(task.project_id, task.id, apiStatus)
+        : this.api.updateTaskStatus(task.id, apiStatus);
+
+      updateObs.subscribe({
+        next: () => {
+          transferArrayItem(
+            event.previousContainer.data,
+            event.container.data,
+            event.previousIndex,
+            event.currentIndex
+          );
+          task.status = apiStatus;
+          this.isUpdating = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.isUpdating = false;
+          this.loadData();
+          this.cdr.detectChanges();
+        }
+      });
     }
     this.isDragging = false;
     this.runInZone(() => { this.cdr.detectChanges(); });
