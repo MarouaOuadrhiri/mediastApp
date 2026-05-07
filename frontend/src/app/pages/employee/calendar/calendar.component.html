@@ -1,27 +1,47 @@
 <div class="calendar-container animate-fade-up">
+
   <!-- Header -->
   <div class="calendar-header">
-    <div>
-      <h1 class="calendar-title">Calendar</h1>
-      <p class="calendar-subtitle">View your tasks &amp; deadlines</p>
+    <div class="calendar-title-block">
+      <h1 class="calendar-title">{{ monthNames[currentMonth] }} {{ currentYear }}</h1>
+      <div class="month-nav">
+        <button (click)="prevMonth()" class="month-btn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <button (click)="nextMonth()" class="month-btn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
     </div>
-    <div class="month-nav">
-      <button (click)="prevMonth()" class="month-btn">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-      </button>
-      <span class="month-label">{{ monthNames[currentMonth] }} {{ currentYear }}</span>
-      <button (click)="nextMonth()" class="month-btn">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-      </button>
+
+    <!-- Legend + View switcher -->
+    <div style="display:flex;align-items:center;gap:20px;">
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#6366F1;"></div> Project</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#F59E0B;"></div> Task</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#14B8A6;"></div> Meeting</div>
+      </div>
+      <div class="view-switcher">
+        <button class="view-btn active">Month</button>
+        <button class="view-btn">Week</button>
+        <button class="view-btn">Day</button>
+      </div>
     </div>
   </div>
 
   <div class="calendar-body">
-    <!-- Calendar Grid -->
+
+    <!-- ===================== CALENDAR GRID ===================== -->
     <div class="calendar-grid-wrapper">
+
       <div class="day-headers">
         <div *ngFor="let d of dayNames" class="day-header">{{ d }}</div>
       </div>
+
       <div class="weeks">
         <div *ngFor="let week of weeks" class="week-row">
           <div *ngFor="let day of week"
@@ -29,35 +49,94 @@
                [class.empty]="!day"
                [class.today]="isToday(day)"
                [class.selected]="isSelected(day)"
-               [class.has-tasks]="hasTasksOnDate(day)"
                (click)="selectDate(day)">
-            <span *ngIf="day" class="day-number">{{ day.getDate() }}</span>
-            <div *ngIf="hasTasksOnDate(day)" class="task-dot"></div>
+
+            <!-- Day number -->
+            <span *ngIf="day" class="day-number">{{ day?.getDate() }}</span>
+
+            <!-- Deadline indicator dot -->
+            <div *ngIf="day && hasDeadlineOnDate(day)" class="deadline-dot"></div>
+
+            <!-- Event pills for this cell -->
+            <div *ngIf="day" class="event-pills">
+
+              <!-- Project spans: show bar on every day inside the range -->
+              <ng-container *ngFor="let proj of getProjectsForDate(day)">
+                <div class="event-pill pill-project" [title]="proj.name">
+                  <span *ngIf="isProjectStart(proj, day)">▐ </span>{{ isProjectStart(proj, day) ? proj.name : '' }}
+                  <span *ngIf="!isProjectStart(proj, day)" style="opacity:0.5;">━</span>
+                </div>
+              </ng-container>
+
+              <!-- Tasks on this date -->
+              <ng-container *ngFor="let task of getTasksForDate(day)">
+                <div class="event-pill pill-task" [title]="task.title || task.name">
+                  {{ task.title || task.name }}
+                </div>
+              </ng-container>
+
+              <!-- Meetings on this date -->
+              <ng-container *ngFor="let meet of getMeetingsForDate(day)">
+                <div class="event-pill pill-meeting" [title]="meet.title || meet.name">
+                  {{ meet.title || meet.name }}
+                </div>
+              </ng-container>
+
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Selected date tasks panel -->
-    <div class="tasks-panel">
-      <div *ngIf="!selectedDate" class="empty-panel">
-        <svg class="w-10 h-10 text-white/10 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-        <p class="text-white/20 text-sm">Select a date to view tasks</p>
-      </div>
-      <div *ngIf="selectedDate">
-        <p class="panel-date">{{ selectedDate | date:'fullDate' }}</p>
-        <div *ngIf="getTasksForDate(selectedDate).length === 0" class="no-tasks">
-          <p class="text-white/30 text-xs">No tasks due on this date</p>
+    <!-- ===================== RIGHT PANEL ===================== -->
+    <div class="right-panel">
+
+      <!-- Upcoming Deadlines -->
+      <div class="panel-card">
+        <div class="panel-section-label">Upcoming Deadlines</div>
+
+        <div *ngIf="upcomingDeadlines.length === 0" style="text-align:center;padding:20px 0;">
+          <p style="font-size:11px;color:rgba(255,255,255,0.2);">No upcoming deadlines</p>
         </div>
-        <div *ngFor="let task of getTasksForDate(selectedDate)" class="task-card">
-          <div class="task-status-dot" [class.completed]="task.status === 'completed'" [class.in-progress]="task.status === 'in_progress'"></div>
-          <div class="task-info">
-            <p class="task-name">{{ task.title || task.name }}</p>
-            <p class="task-project">{{ task.project_name || 'No Project' }}</p>
+
+        <div *ngFor="let item of upcomingDeadlines" class="deadline-item" (click)="selectDate(item._date)">
+          <div class="deadline-item-info">
+            <div class="deadline-name">{{ item.title || item.name }}</div>
+            <div class="deadline-meta">{{ item._dateLabel }} • {{ item.time || item._timeStr }}</div>
           </div>
-          <span class="task-priority" [class]="task.priority || 'medium'">{{ task.priority || 'medium' }}</span>
+          <span class="deadline-badge"
+            [class.badge-urgent]="item._type === 'task'"
+            [class.badge-meeting]="item._type === 'meeting'"
+            [class.badge-project]="item._type === 'project'">
+            {{ item._typeLabel }}
+          </span>
         </div>
       </div>
+
+      <!-- Quick Reminders -->
+      <div class="panel-card">
+        <div class="panel-section-label">Quick Reminders</div>
+        <div *ngFor="let r of reminders" class="reminder-item" [class.done]="r.done" (click)="toggleReminder(r)">
+          <div class="reminder-check">
+            <svg *ngIf="r.done" width="9" height="9" fill="none" stroke="#fff" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <span class="reminder-text">{{ r.text }}</span>
+        </div>
+      </div>
+
+      <!-- Weekly Progress -->
+      <div class="panel-card">
+        <div class="progress-row">
+          <span class="progress-label">Weekly Progress</span>
+          <span class="progress-pct">{{ weeklyProgress }}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="weeklyProgress"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

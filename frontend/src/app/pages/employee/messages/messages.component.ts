@@ -12,6 +12,7 @@ import { ApiService } from '../../../core/api.service';
 })
 export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('chatFeed') private chatFeed!: ElementRef;
+
   user: any = null;
   teamMembers: any[] = [];
   selectedMember: any = null;
@@ -19,6 +20,14 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
   newMessage = '';
   searchQuery = '';
   isSending = false;
+  sharedMedia: string[] = [];
+
+  // Static team channels for the sidebar
+  teamChannels = [
+    { name: 'brand-strategy', members: 12, hasUnread: true },
+    { name: 'design-review', members: 8, hasUnread: false },
+  ];
+
   private pollInterval: any;
 
   constructor(
@@ -29,8 +38,8 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.api.getMe().subscribe({
-        next: (r: any) => { 
-          this.user = r; 
+        next: (r: any) => {
+          this.user = r;
           this.loadTeamMembers();
         },
         error: () => {
@@ -49,7 +58,7 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
       if (this.chatFeed) {
         this.chatFeed.nativeElement.scrollTop = this.chatFeed.nativeElement.scrollHeight;
       }
-    } catch(err) { }
+    } catch (err) {}
   }
 
   ngOnDestroy() {
@@ -64,7 +73,6 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
       },
       error: (err: any) => {
         console.warn('Failed to load specific team members, falling back to full employee list', err);
-        // Fallback to all employees if team-specific endpoint fails
         this.api.getEmployees().subscribe({
           next: (res: any) => {
             const members = Array.isArray(res) ? res : (res.results || []);
@@ -85,7 +93,6 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.teamMembers = others.map(m => ({ ...m, id: this.getId(m) }));
     }
 
-    // Auto-select first real member if none selected
     if (this.teamMembers.length > 0 && !this.selectedMember) {
       this.selectMember(this.teamMembers[0]);
     }
@@ -101,9 +108,9 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   selectMember(member: any) {
     this.selectedMember = member;
+    this.sharedMedia = []; // Reset; could be fetched from API in the future
     this.loadMessages(member.id);
-    
-    // Start polling for new messages every 1 second
+
     if (this.pollInterval) clearInterval(this.pollInterval);
     this.pollInterval = setInterval(() => {
       if (this.selectedMember && this.selectedMember.id !== 'system_support') {
@@ -125,8 +132,6 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.api.getMessages(memberId).subscribe({
       next: (res: any) => {
         const allMessages = Array.isArray(res) ? res : (res.results || []);
-        if (!isSilent) console.log(`Received ${allMessages.length} raw messages from API`);
-        
         const currentId = this.getId(this.user);
         const targetId = memberId;
 
@@ -137,16 +142,14 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
                  (mSender === targetId && mReceiver === currentId);
         });
 
-        // Sort by timestamp ascending
-        filtered.sort((a: any, b: any) => {
-          return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-        });
+        filtered.sort((a: any, b: any) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        );
 
         this.messages = filtered.map((m: any) => this.mapMessage(m));
-        if (!isSilent) console.log(`Filtered and sorted ${this.messages.length} messages`);
       },
       error: (err) => {
-        if (!isSilent) console.error('Failed to load real messages', err);
+        if (!isSilent) console.error('Failed to load messages', err);
       }
     });
   }
@@ -155,11 +158,13 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
     const currentUserId = this.getId(this.user);
     const mSender = this.getId(m.sender);
     const isIncoming = mSender !== currentUserId;
-    
+
     return {
       id: this.getId(m),
       text: m.text,
-      time: m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now',
+      time: m.timestamp
+        ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : 'Just now',
       incoming: isIncoming,
       fromId: mSender
     };
@@ -167,10 +172,10 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   sendMessage() {
     if (!this.newMessage.trim() || !this.selectedMember || this.isSending) return;
-    
+
     this.isSending = true;
     const currentText = this.newMessage;
-    this.newMessage = ''; // Clear immediately for better feel
+    this.newMessage = '';
 
     const payload = {
       receiver: this.selectedMember.id,
@@ -183,9 +188,9 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.isSending = false;
       },
       error: (err) => {
-        this.newMessage = currentText; // Restore on error
+        this.newMessage = currentText;
         this.isSending = false;
-        console.error('Failed to send real message', err);
+        console.error('Failed to send message', err);
       }
     });
   }
@@ -193,8 +198,6 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // For now, we'll send it as a special text message
-      // In a real app, you'd upload it to S3/Cloudinary and send the URL
       this.newMessage = `📎 Shared a file: ${file.name}`;
       this.sendMessage();
     }
@@ -202,5 +205,9 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   getInitial(member: any): string {
     return (member?.first_name || 'U').charAt(0).toUpperCase();
+  }
+
+  getCurrentTime(): string {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 }

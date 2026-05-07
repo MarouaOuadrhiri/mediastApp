@@ -1,135 +1,293 @@
 <div class="messages-page-wrapper animate-fade-up">
-  <!-- Dynamic Page Header -->
-  <div class="flex items-center justify-between mb-10 px-4">
-    <div class="relative pl-5">
-      <span class="nav-indicator" style="left: 0;"></span>
-      <h1 class="text-2xl font-black text-white tracking-tight">Team Hub</h1>
-      <p class="text-[10px] uppercase tracking-[0.3em] text-white/30 font-bold mt-1">Real-time collaboration • {{ teamMembers.length }} Active Contacts</p>
-    </div>
-  </div>
 
   <div class="messages-layout-grid">
-    <!-- Contacts Sidebar -->
+
+    <!-- =====================
+         LEFT: Contacts Sidebar
+         ===================== -->
     <div class="contacts-sidebar">
-      <div class="search-container">
-        <div class="relative group">
-          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+
+      <div class="sidebar-header">
+        <span class="sidebar-title">Direct Messages</span>
+        <button class="compose-btn" title="New Message">
+          <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 20.025C1.45 20.025 0.979167 19.8292 0.5875 19.4375C0.195833 19.0458 0 18.575 0 18.025V4.025C0 3.475 0.195833 3.00417 0.5875 2.6125C0.979167 2.22083 1.45 2.025 2 2.025H10.925L8.925 4.025H2V18.025H16V11.075L18 9.075V18.025C18 18.575 17.8042 19.0458 17.4125 19.4375C17.0208 19.8292 16.55 20.025 16 20.025H2ZM6 14.025V9.775L15.175 0.6C15.375 0.4 15.6 0.25 15.85 0.15C16.1 0.05 16.35 0 16.6 0C16.8667 0 17.1208 0.05 17.3625 0.15C17.6042 0.25 17.825 0.4 18.025 0.6L19.425 2.025C19.6083 2.225 19.75 2.44583 19.85 2.6875C19.95 2.92917 20 3.175 20 3.425C20 3.675 19.9542 3.92083 19.8625 4.1625C19.7708 4.40417 19.625 4.625 19.425 4.825L10.25 14.025H6ZM18.025 3.425L16.625 2.025L18.025 3.425ZM8 12.025H9.4L15.2 6.225L14.5 5.525L13.775 4.825L8 10.6V12.025ZM14.5 5.525L13.775 4.825L14.5 5.525L15.2 6.225L14.5 5.525Z" fill="#FD0000"/>
           </svg>
-          <input type="text" [(ngModel)]="searchQuery" placeholder="Search team..." class="modern-search-input">
-        </div>
+        </button>
       </div>
 
       <div class="contacts-scroll-area custom-scrollbar">
-        <div *ngFor="let member of filteredMembers" 
+
+        <!-- Team Channels -->
+        <p class="section-label">Team Channels</p>
+
+        <div class="channel-item" *ngFor="let channel of teamChannels">
+          <div class="channel-icon">#</div>
+          <div class="flex-1 min-w-0">
+            <div class="channel-name">{{ channel.name }}</div>
+            <div class="channel-count">{{ channel.members }} members</div>
+          </div>
+          <div class="unread-dot" *ngIf="channel.hasUnread"></div>
+        </div>
+
+        <!-- Recent Chats -->
+        <p class="section-label" style="margin-top:8px;">Recent Chats</p>
+
+        <div *ngFor="let member of filteredMembers"
              (click)="selectMember(member)"
              class="modern-contact-card"
              [class.active-contact]="selectedMember?.id === member.id">
-          
-          <div class="relative shrink-0">
+
+          <div class="avatar-wrapper">
             <div class="avatar-ring">
-              <img *ngIf="member.profile_photo" [src]="member.profile_photo" class="avatar-img">
+              <img *ngIf="member.profile_photo" [src]="member.profile_photo" class="avatar-img" alt="">
               <div *ngIf="!member.profile_photo" class="avatar-placeholder">{{ getInitial(member) }}</div>
             </div>
             <div class="status-badge"></div>
           </div>
 
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between mb-0.5">
-              <h3 class="contact-display-name">{{ member.first_name }} {{ member.last_name }}</h3>
-              <span class="text-[9px] text-white/20 font-medium">10:30 AM</span>
+          <div class="contact-info">
+            <div class="contact-name-row">
+              <span class="contact-display-name">{{ member.first_name }} {{ member.last_name }}</span>
+              <span class="live-badge" *ngIf="selectedMember?.id === member.id">Live</span>
+              <span class="contact-time" *ngIf="selectedMember?.id !== member.id">2h</span>
             </div>
             <p class="contact-preview-text">{{ member.position || member.department_name || 'Department Member' }}</p>
           </div>
         </div>
 
-        <div *ngIf="filteredMembers.length === 0" class="empty-state-small">
-          <div class="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center mb-4 mx-auto">
-             <svg class="w-5 h-5 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          </div>
+        <div *ngIf="filteredMembers.length === 0" class="py-8 text-center">
           <p class="text-[10px] uppercase tracking-widest text-white/20 font-bold">No members found</p>
         </div>
       </div>
     </div>
 
-    <!-- Chat Interface -->
+    <!-- =====================
+         CENTER: Chat Interface
+         ===================== -->
     <div class="chat-main-container">
+
+      <!-- Empty State -->
       <div *ngIf="!selectedMember" class="chat-empty-view">
         <div class="premium-empty-state">
           <div class="empty-state-icon">
             <svg class="w-8 h-8 text-red-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
             </svg>
           </div>
           <h2 class="text-white font-bold text-lg mb-2">Secure Team Encryption</h2>
-          <p class="text-white/30 text-xs max-w-[280px] mx-auto leading-relaxed">Select a colleague from your department to begin a secure encrypted communication session.</p>
+          <p class="text-white/30 text-xs max-w-[260px] mx-auto leading-relaxed">Select a colleague to begin a secure encrypted communication session.</p>
         </div>
       </div>
 
+      <!-- Active Chat -->
       <div *ngIf="selectedMember" class="chat-active-view">
-        <!-- Top Navigation / User Header -->
+
+        <!-- Header -->
         <div class="chat-active-header">
-          <div class="flex items-center gap-4">
-             <div class="avatar-ring-small">
-              <img *ngIf="selectedMember.profile_photo" [src]="selectedMember.profile_photo" class="avatar-img">
+          <div class="header-user-info">
+            <div class="header-avatar">
+              <img *ngIf="selectedMember.profile_photo" [src]="selectedMember.profile_photo" class="avatar-img" alt="">
               <div *ngIf="!selectedMember.profile_photo" class="avatar-placeholder">{{ getInitial(selectedMember) }}</div>
             </div>
             <div>
-              <h3 class="text-white font-bold text-sm tracking-tight">{{ selectedMember.first_name }} {{ selectedMember.last_name }}</h3>
-              <div class="flex items-center gap-2 mt-0.5">
-                <span class="flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                  <span class="text-[9px] text-green-500 font-black uppercase tracking-widest">Live</span>
+              <div class="header-name">{{ selectedMember.first_name }} {{ selectedMember.last_name }}</div>
+              <div class="header-status-row">
+                <span class="live-indicator">
+                  <!-- <span class="live-dot"></span> -->
+                  <span class="live-text">Active now</span>
                 </span>
-                <span class="text-[10px] text-white/40 font-bold uppercase tracking-widest">• Active Now</span>
+                <span class="header-subtitle">• {{ selectedMember.position || selectedMember.department_name }}</span>
               </div>
             </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button class="header-action-btn"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg></button>
-            <button class="header-action-btn"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button>
+          <div class="header-actions">
+            <button class="header-action-btn" title="Video call">
+              <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 16C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14V2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0H14C14.55 0 15.0208 0.195833 15.4125 0.5875C15.8042 0.979167 16 1.45 16 2V6.5L20 2.5V13.5L16 9.5V14C16 14.55 15.8042 15.0208 15.4125 15.4125C15.0208 15.8042 14.55 16 14 16H2ZM2 14H14V2H2V14ZM2 14V2V14Z" fill="#A1A1AA"/>
+              </svg>
+            </button>
+            <button class="header-action-btn" title="Voice call">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16.95 18C14.8667 18 12.8083 17.5458 10.775 16.6375C8.74167 15.7292 6.89167 14.4417 5.225 12.775C3.55833 11.1083 2.27083 9.25833 1.3625 7.225C0.454167 5.19167 0 3.13333 0 1.05C0 0.75 0.1 0.5 0.3 0.3C0.5 0.1 0.75 0 1.05 0H5.1C5.33333 0 5.54167 0.0791667 5.725 0.2375C5.90833 0.395833 6.01667 0.583333 6.05 0.8L6.7 4.3C6.73333 4.56667 6.725 4.79167 6.675 4.975C6.625 5.15833 6.53333 5.31667 6.4 5.45L3.975 7.9C4.30833 8.51667 4.70417 9.1125 5.1625 9.6875C5.62083 10.2625 6.125 10.8167 6.675 11.35C7.19167 11.8667 7.73333 12.3458 8.3 12.7875C8.86667 13.2292 9.46667 13.6333 10.1 14L12.45 11.65C12.6 11.5 12.7958 11.3875 13.0375 11.3125C13.2792 11.2375 13.5167 11.2167 13.75 11.25L17.2 11.95C17.4333 12.0167 17.625 12.1375 17.775 12.3125C17.925 12.4875 18 12.6833 18 12.9V16.95C18 17.25 17.9 17.5 17.7 17.7C17.5 17.9 17.25 18 16.95 18ZM3.025 6L4.675 4.35L4.25 2H2.025C2.10833 2.68333 2.225 3.35833 2.375 4.025C2.525 4.69167 2.74167 5.35 3.025 6ZM11.975 14.95C12.625 15.2333 13.2875 15.4583 13.9625 15.625C14.6375 15.7917 15.3167 15.9 16 15.95V13.75L13.65 13.275L11.975 14.95Z" fill="#A1A1AA"/>
+              </svg>
+            </button>
+            <button class="header-action-btn" title="More options">
+              <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 16C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14C0 13.45 0.195833 12.9792 0.5875 12.5875C0.979167 12.1958 1.45 12 2 12C2.55 12 3.02083 12.1958 3.4125 12.5875C3.80417 12.9792 4 13.45 4 14C4 14.55 3.80417 15.0208 3.4125 15.4125C3.02083 15.8042 2.55 16 2 16ZM2 10C1.45 10 0.979167 9.80417 0.5875 9.4125C0.195833 9.02083 0 8.55 0 8C0 7.45 0.195833 6.97917 0.5875 6.5875C0.979167 6.19583 1.45 6 2 6C2.55 6 3.02083 6.19583 3.4125 6.5875C3.80417 6.97917 4 7.45 4 8C4 8.55 3.80417 9.02083 3.4125 9.4125C3.02083 9.80417 2.55 10 2 10ZM2 4C1.45 4 0.979167 3.80417 0.5875 3.4125C0.195833 3.02083 0 2.55 0 2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0C2.55 0 3.02083 0.195833 3.4125 0.5875C3.80417 0.979167 4 1.45 4 2C4 2.55 3.80417 3.02083 3.4125 3.4125C3.02083 3.80417 2.55 4 2 4Z" fill="#A1A1AA"/>
+              </svg>
+            </button>
           </div>
         </div>
 
-        <!-- Scrollable Message Feed -->
+        <!-- Chat Feed -->
         <div class="chat-feed custom-scrollbar" #chatFeed>
-          <div *ngFor="let msg of messages" class="message-row animate-fade-in" [class.msg-sent]="!msg.incoming">
-            <div class="message-meta" *ngIf="msg.incoming">
-               <div class="avatar-mini">
-                 <img *ngIf="selectedMember.profile_photo" [src]="selectedMember.profile_photo" class="avatar-img">
-                 <div *ngIf="!selectedMember.profile_photo" class="avatar-placeholder">{{ getInitial(selectedMember) }}</div>
-               </div>
+
+          <!-- Date Divider -->
+          <div class="date-divider">
+            <span>Yesterday</span>
+          </div>
+
+          <div *ngFor="let msg of messages"
+               class="message-row animate-fade-in"
+               [class.msg-sent]="!msg.incoming">
+
+            <div class="avatar-mini" *ngIf="msg.incoming">
+              <img *ngIf="selectedMember.profile_photo" [src]="selectedMember.profile_photo" class="avatar-img" alt="">
+              <div *ngIf="!selectedMember.profile_photo" class="avatar-placeholder" style="font-size:10px;">{{ getInitial(selectedMember) }}</div>
             </div>
-            <div class="message-wrapper">
-              <div class="msg-bubble" [class.msg-bubble-sent]="!msg.incoming">
-                <p class="msg-text">{{ msg.text }}</p>
-                <div class="flex items-center justify-end gap-1 mt-1">
-                  <span class="msg-time">{{ msg.time }}</span>
-                  <svg *ngIf="!msg.incoming" class="w-3 h-3 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+
+            <div>
+              <!-- File attachment style -->
+              <ng-container *ngIf="msg.text && msg.text.startsWith('📎')">
+                <div class="file-bubble">
+                  <div class="file-icon-wrap">
+                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="file-name">{{ msg.text.replace('📎 Shared a file: ', '') }}</div>
+                    <div class="file-meta">PDF Document</div>
+                  </div>
                 </div>
-              </div>
+              </ng-container>
+
+              <!-- Regular message -->
+              <ng-container *ngIf="!msg.text || !msg.text.startsWith('📎')">
+                <div class="msg-bubble" [class.msg-bubble-sent]="!msg.incoming">
+                  <p class="msg-text">{{ msg.text }}</p>
+                  <div class="msg-footer">
+                    
+                    <svg *ngIf="!msg.incoming" class="w-3 h-3 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                </div>
+                <span class="msg-time">{{ msg.time }}</span>
+              </ng-container>
             </div>
           </div>
+
         </div>
 
-        <!-- Dynamic Input Section -->
+        <!-- Input Area -->
         <div class="chat-input-area">
           <div class="input-glass-container">
             <input type="file" #fileInput (change)="onFileSelected($event)" class="hidden">
-            <button class="attachment-btn" (click)="fileInput.click()">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414a4 4 0 00-5.656-5.656l-6.415 6.414a6 6 0 108.486 8.486L20.5 13"></path></svg>
+            <button class="input-add-btn" (click)="fileInput.click()" title="Add attachment">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+              </svg>
             </button>
-            <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Sync message with {{ selectedMember.first_name }}..." class="modern-chat-input" />
-            <div class="flex items-center gap-2 pr-2">
-              <button class="emoji-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+            <input
+              type="text"
+              [(ngModel)]="newMessage"
+              (keyup.enter)="sendMessage()"
+              placeholder="Type your message to {{ selectedMember.first_name }}..."
+              class="modern-chat-input"
+            />
+            <div class="input-right-actions">
+              <button class="emoji-btn" title="Emoji">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </button>
+              <button class="attachment-btn" title="Attach file" (click)="fileInput.click()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414a4 4 0 00-5.656-5.656l-6.415 6.414a6 6 0 108.486 8.486L20.5 13"/>
+                </svg>
+              </button>
               <button (click)="sendMessage()" class="modern-send-btn" [disabled]="!newMessage.trim()">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
               </button>
             </div>
           </div>
         </div>
+
       </div>
     </div>
+
+    <!-- =====================
+         RIGHT: Profile Panel
+         ===================== -->
+    <div class="profile-panel custom-scrollbar">
+
+      <div *ngIf="!selectedMember" class="profile-panel-empty">
+        <p class="text-[10px] uppercase tracking-widest text-white/15 font-bold text-center px-6">Select a contact</p>
+      </div>
+
+      <ng-container *ngIf="selectedMember">
+
+        <!-- Avatar + Name -->
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar-large">
+            <img *ngIf="selectedMember.profile_photo" [src]="selectedMember.profile_photo" class="avatar-img" alt="">
+            <div *ngIf="!selectedMember.profile_photo" class="avatar-placeholder" style="font-size:20px;">{{ getInitial(selectedMember) }}</div>
+          </div>
+          <div class="profile-name">{{ selectedMember.first_name }} {{ selectedMember.last_name }}</div>
+          <div class="profile-role">{{ selectedMember.position || selectedMember.department_name || 'Team Member' }}</div>
+          <div class="profile-actions">
+            <button class="profile-action-btn" title="Email">
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.16667 9.33333C0.845833 9.33333 0.571181 9.2191 0.342708 8.99063C0.114236 8.76215 0 8.4875 0 8.16667V1.16667C0 0.845833 0.114236 0.571181 0.342708 0.342708C0.571181 0.114236 0.845833 0 1.16667 0H10.5C10.8208 0 11.0955 0.114236 11.324 0.342708C11.5524 0.571181 11.6667 0.845833 11.6667 1.16667V8.16667C11.6667 8.4875 11.5524 8.76215 11.324 8.99063C11.0955 9.2191 10.8208 9.33333 10.5 9.33333H1.16667ZM5.83333 5.25L1.16667 2.33333V8.16667H10.5V2.33333L5.83333 5.25ZM5.83333 4.08333L10.5 1.16667H1.16667L5.83333 4.08333ZM1.16667 2.33333V1.16667V2.33333V8.16667V2.33333Z" fill="#E5E2E3"/>
+            </svg>
+            </button>
+            <button class="profile-action-btn" title="Profile">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.66667 4.66667C4.025 4.66667 3.47569 4.43819 3.01875 3.98125C2.56181 3.52431 2.33333 2.975 2.33333 2.33333C2.33333 1.69167 2.56181 1.14236 3.01875 0.685417C3.47569 0.228472 4.025 0 4.66667 0C5.30833 0 5.85764 0.228472 6.31458 0.685417C6.77153 1.14236 7 1.69167 7 2.33333C7 2.975 6.77153 3.52431 6.31458 3.98125C5.85764 4.43819 5.30833 4.66667 4.66667 4.66667ZM0 9.33333V7.7C0 7.36944 0.0850694 7.06563 0.255208 6.78854C0.425347 6.51146 0.651389 6.3 0.933333 6.15417C1.53611 5.85278 2.14861 5.62674 2.77083 5.47604C3.39306 5.32535 4.025 5.25 4.66667 5.25C5.30833 5.25 5.94028 5.32535 6.5625 5.47604C7.18472 5.62674 7.79722 5.85278 8.4 6.15417C8.68194 6.3 8.90799 6.51146 9.07812 6.78854C9.24826 7.06563 9.33333 7.36944 9.33333 7.7V9.33333H0ZM1.16667 8.16667H8.16667V7.7C8.16667 7.59306 8.13993 7.49583 8.08646 7.40833C8.03299 7.32083 7.9625 7.25278 7.875 7.20417C7.35 6.94167 6.82014 6.74479 6.28542 6.61354C5.75069 6.48229 5.21111 6.41667 4.66667 6.41667C4.12222 6.41667 3.58264 6.48229 3.04792 6.61354C2.51319 6.74479 1.98333 6.94167 1.45833 7.20417C1.37083 7.25278 1.30035 7.32083 1.24688 7.40833C1.1934 7.49583 1.16667 7.59306 1.16667 7.7V8.16667ZM4.66667 3.5C4.9875 3.5 5.26215 3.38576 5.49062 3.15729C5.7191 2.92882 5.83333 2.65417 5.83333 2.33333C5.83333 2.0125 5.7191 1.73785 5.49062 1.50937C5.26215 1.2809 4.9875 1.16667 4.66667 1.16667C4.34583 1.16667 4.07118 1.2809 3.84271 1.50937C3.61424 1.73785 3.5 2.0125 3.5 2.33333C3.5 2.65417 3.61424 2.92882 3.84271 3.15729C4.07118 3.38576 4.34583 3.5 4.66667 3.5Z" fill="#E5E2E3"/>
+              </svg>
+            </button>
+            <button class="profile-action-btn" title="More">
+              <svg width="10" height="3" viewBox="0 0 10 3" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.16667 2.33333C0.845833 2.33333 0.571181 2.2191 0.342708 1.99063C0.114236 1.76215 0 1.4875 0 1.16667C0 0.845833 0.114236 0.571181 0.342708 0.342708C0.571181 0.114236 0.845833 0 1.16667 0C1.4875 0 1.76215 0.114236 1.99063 0.342708C2.2191 0.571181 2.33333 0.845833 2.33333 1.16667C2.33333 1.4875 2.2191 1.76215 1.99063 1.99063C1.76215 2.2191 1.4875 2.33333 1.16667 2.33333ZM4.66667 2.33333C4.34583 2.33333 4.07118 2.2191 3.84271 1.99063C3.61424 1.76215 3.5 1.4875 3.5 1.16667C3.5 0.845833 3.61424 0.571181 3.84271 0.342708C4.07118 0.114236 4.34583 0 4.66667 0C4.9875 0 5.26215 0.114236 5.49062 0.342708C5.7191 0.571181 5.83333 0.845833 5.83333 1.16667C5.83333 1.4875 5.7191 1.76215 5.49062 1.99063C5.26215 2.2191 4.9875 2.33333 4.66667 2.33333ZM8.16667 2.33333C7.84583 2.33333 7.57118 2.2191 7.34271 1.99063C7.11424 1.76215 7 1.4875 7 1.16667C7 0.845833 7.11424 0.571181 7.34271 0.342708C7.57118 0.114236 7.84583 0 8.16667 0C8.4875 0 8.76215 0.114236 8.99063 0.342708C9.2191 0.571181 9.33333 0.845833 9.33333 1.16667C9.33333 1.4875 9.2191 1.76215 8.99063 1.99063C8.76215 2.2191 8.4875 2.33333 8.16667 2.33333Z" fill="#E5E2E3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Information -->
+        <div class="profile-info-section">
+          <div class="info-label">Information</div>
+          <div class="info-row">
+            <div class="info-key">Local Time</div>
+            <div class="info-value">{{ getCurrentTime() }} (GMT+1)</div>
+          </div>
+          <div class="info-row">
+            <div class="info-key">Department</div>
+            <div class="info-value">{{ selectedMember.department_name || 'N/A' }}</div>
+          </div>
+          <div class="info-row" *ngIf="selectedMember.email">
+            <div class="info-key">Email</div>
+            <div class="info-value" style="font-size:11px; word-break:break-all;">{{ selectedMember.email }}</div>
+          </div>
+        </div>
+
+        <!-- Shared Media -->
+        <div class="profile-media-section">
+          <div class="info-label-sharedMedia">Shared Media</div>
+          <div class="media-grid">
+            <div class="media-thumb" *ngFor="let img of sharedMedia.slice(0,3)">
+              <img [src]="img" alt="">
+            </div>
+            <div class="media-thumb" *ngIf="sharedMedia.length > 3">
+              <div class="media-more-overlay">+{{ sharedMedia.length - 3 }}</div>
+            </div>
+            <div class="media-thumb" *ngIf="sharedMedia.length === 0" style="background:rgba(255,255,255,0.04);">
+            </div>
+            <div class="media-thumb" *ngIf="sharedMedia.length === 0" style="background:rgba(255,255,255,0.04);">
+            </div>
+            <div class="media-thumb" *ngIf="sharedMedia.length === 0" style="background:rgba(255,255,255,0.04);">
+            </div>
+            <div class="media-thumb" *ngIf="sharedMedia.length === 0" style="background:rgba(255,255,255,0.04);">
+            </div>
+          </div>
+        </div>
+
+      </ng-container>
+    </div>
+
   </div>
 </div>
-
