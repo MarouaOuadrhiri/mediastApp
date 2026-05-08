@@ -162,6 +162,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadData(isRefresh = false) {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (this.isDragging || this.isUpdating) return;
     this.api.getMyProjects().subscribe({
       next: (r: any) => {

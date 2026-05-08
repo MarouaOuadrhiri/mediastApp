@@ -1,5 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ApiService } from '../../../core/api.service';
 import { FormsModule } from '@angular/forms';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
@@ -34,11 +34,14 @@ export class TasksComponent implements OnInit {
 
   constructor(
     private api: ApiService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
   ngOnInit() {
-    this.loadData();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadData();
+    }
   }
 
   loadData() {
@@ -253,8 +256,8 @@ export class TasksComponent implements OnInit {
     this.isUpdating = true;
     
     const updateObs = task.is_project_task 
-      ? this.api.updateProjectTaskStatus(task.project_id, task.id, apiStatus, this.rejectionReason)
-      : this.api.updateTaskStatus(task.id, apiStatus, undefined, this.rejectionReason);
+      ? this.api.updateProjectTaskStatus(task.project_id, task.id, apiStatus, this.rejectionReason, true)
+      : this.api.updateTaskStatus(task.id, apiStatus, undefined, this.rejectionReason, true);
 
     updateObs.subscribe({
       next: () => {

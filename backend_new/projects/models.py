@@ -14,6 +14,8 @@ class ProjectTask(EmbeddedDocument):
     completed_by = ReferenceField(User, null=True)
     completed_at = DateTimeField()
     rejection_reason = StringField()
+    refusal_pending = BooleanField(default=False)
+    refused_by = ReferenceField(User, null=True)
 
 class Project(Document):
     meta = {'strict': False}

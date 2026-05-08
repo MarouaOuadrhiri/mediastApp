@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID, NgZone } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
@@ -66,14 +67,36 @@ export class TasksComponent implements OnInit {
     private api: ApiService,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private zone: NgZone
+    private zone: NgZone,
+    private route: ActivatedRoute
   ) {}
 
   expandedStatusGroups = new Set<string>(['BLOCKED', 'IN PROGRESS', 'REVIEW', 'DONE']);
   listStatuses = ['IN PROGRESS', 'REVIEW', 'BLOCKED', 'DONE'];
 
   ngOnInit() {
-    this.loadData();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadData();
+      this.route.queryParams.subscribe(params => {
+        if (params['edit']) {
+          this.waitForTasksAndEdit(params['edit']);
+        }
+      });
+    }
+  }
+
+  waitForTasksAndEdit(taskId: string) {
+    const check = () => {
+      if (this.tasks.length > 0) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+          this.resolveRejection(task);
+        }
+      } else {
+        setTimeout(check, 100);
+      }
+    };
+    check();
   }
 
   loadData() {
@@ -321,7 +344,7 @@ export class TasksComponent implements OnInit {
   }
 
   executeCreateTask() {
-    const taskData = {
+    const taskData: any = {
       title: this.taskTitle, 
       description: this.taskDesc, 
       employee_ids: this.taskEmployeeIds,
@@ -332,21 +355,49 @@ export class TasksComponent implements OnInit {
       deadline: this.taskDeadline, 
       progress: this.taskProgress
     };
-    this.api.createTask(taskData).subscribe({
+
+    // If updating, also clear refusal status
+    if (this.editTaskId) {
+      taskData.refusal_pending = false;
+      taskData.rejection_reason = '';
+    }
+
+    const obs = this.editTaskId 
+      ? this.api.updateTask(this.editTaskId, taskData)
+      : this.api.createTask(taskData);
+
+    obs.subscribe({
       next: () => { 
         this.isSubmitting = false; 
         this.closeModal(); 
         this.loadData(); 
       },
       error: (err: any) => { 
-        this.errorMsg = err.error?.error || 'Failed to create task.'; 
+        this.errorMsg = err.error?.error || 'Operation failed.'; 
         this.isSubmitting = false; 
         this.isConfirmingPassword = false;
       }
     });
   }
 
-  startEditTask(t: any) { this.editTaskId = t.id; t.editTitle = t.title; t.editDesc = t.description; t.editEmployeeId = t.employee_id; }
+  startEditTask(t: any) {
+    this.editTaskId = t.id;
+    this.taskTitle = t.title;
+    this.taskDesc = t.description || '';
+    this.taskProjectId = t.project_id || '';
+    this.taskDepartmentId = t.department_id || '';
+    this.taskPriority = t.priority || 'MEDIUM';
+    this.taskStatus = this.mapStatus(t.status);
+    this.taskDeadline = t.deadline || '';
+    this.taskProgress = t.progress || 0;
+    
+    // Pre-remove the employee who refused if it's a refusal approval
+    let employeeIds = (t.employees || []).map((e: any) => e.id);
+    if (t.refusal_pending && t.refused_by) {
+      employeeIds = employeeIds.filter((id: string) => id !== t.refused_by);
+    }
+    this.taskEmployeeIds = employeeIds;
+  }
   saveEditTask(t: any) {
     this.isConfirmingPassword = true;
     this.adminPassword = '';
@@ -392,8 +443,8 @@ export class TasksComponent implements OnInit {
   dismissRejection(task: any) {
     if (!confirm('Dismiss this rejection and move task back to IN PROGRESS?')) return;
     
-    // Move back to IN PROGRESS and clear rejection reason
-    this.api.updateTaskStatus(task.id, 'IN_PROGRESS', false, '').subscribe({
+    // Move back to IN PROGRESS, clear rejection reason AND refusal_pending
+    this.api.updateTaskStatus(task.id, 'IN_PROGRESS', false, '', false).subscribe({
       next: () => {
         this.loadData();
       },

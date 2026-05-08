@@ -13,13 +13,15 @@ from mongoengine.errors import DoesNotExist
 def serialize_task(t):
     employee_data = []
     for emp in getattr(t, 'employees', []):
+        if not emp:
+            continue
         try:
             employee_data.append({
                 'id': str(emp.id),
-                'name': f"{emp.first_name} {emp.last_name}",
+                'name': f"{getattr(emp, 'first_name', 'Unknown')} {getattr(emp, 'last_name', '')}".strip(),
                 'photo': getattr(emp, 'profile_photo', '')
             })
-        except DoesNotExist:
+        except Exception:
             continue
 
     # Fetch deadline and project name from linked ProjectTask
@@ -29,16 +31,9 @@ def serialize_task(t):
         try:
             proj = t.project
             project_name = proj.name
-            if not deadline:
-                if getattr(t, 'source_project_task_id', None):
-                    for pt in proj.tasks:
-                        if str(pt.id) == str(t.source_project_task_id):
-                            if pt.deadline:
-                                deadline = pt.deadline.strftime('%Y-%m-%d')
-                            break
-                # Fallback to project deadline if no task-level deadline
-                if not deadline and proj.deadline:
-                    deadline = proj.deadline.strftime('%Y-%m-%d')
+            # Fallback to project deadline if no task-level deadline
+            if not deadline and proj.deadline:
+                deadline = proj.deadline.strftime('%Y-%m-%d')
         except Exception:
             pass
 
@@ -46,6 +41,13 @@ def serialize_task(t):
     if deadline and len(deadline) > 10:
         # If it was an ISO string from t.deadline.isoformat(), take first 10 chars
         deadline = deadline[:10]
+
+    refused_by_name = None
+    if getattr(t, 'refused_by', None):
+        try:
+            refused_by_name = f"{t.refused_by.first_name} {t.refused_by.last_name}"
+        except Exception:
+            pass
 
     return {
         'id': str(t.id),
@@ -56,9 +58,12 @@ def serialize_task(t):
         'project_id': str(t.project.id) if getattr(t, 'project', None) else None,
         'project_name': project_name,
         'department_id': str(t.department.id) if getattr(t, 'department', None) else None,
-        'source_project_task_id': getattr(t, 'source_project_task_id', None),
         'is_archived': getattr(t, 'is_archived', False),
         'deadline': deadline,
+        'rejection_reason': getattr(t, 'rejection_reason', ''),
+        'refusal_pending': getattr(t, 'refusal_pending', False),
+        'refused_by': str(t.refused_by.id) if getattr(t, 'refused_by', None) else None,
+        'refused_by_name': refused_by_name,
     }
 
 
@@ -122,28 +127,10 @@ def task_list_create(request):
             employees=assigned_employees, 
             project=project,
             department=department,
-            source_project_task_id=source_project_task_id,
             status=request.data.get('status', 'BLOCKED'),
             is_archived=(request.data.get('status') == 'ARCHIVED' or request.data.get('is_archived', False))
         )
         task.save()
-
-        # Sync with Project if linked
-        if project:
-            status_map = {'IN_PROGRESS': 'IN_PROGRESS', 'DONE': 'DONE'}
-            p_status = status_map.get(task.status, 'TODO')
-            
-            p_task = ProjectTask(
-                title=task.title,
-                description=task.description or '',
-                status=p_status
-            )
-            project.tasks.append(p_task)
-            project.save()
-            
-            # Store the internal ID back to the main task
-            task.source_project_task_id = str(p_task.id)
-            task.save()
 
         return Response(serialize_task(task), status=201)
 
@@ -162,7 +149,18 @@ def update_task_status(request, pk):
 
     status = request.data.get('status')
     rejection_reason = request.data.get('rejection_reason')
+    refusal_pending = request.data.get('refusal_pending')
     
+    if refusal_pending is not None:
+        task.refusal_pending = refusal_pending
+        if refusal_pending:
+            task.refused_by = request.user
+            if rejection_reason:
+                task.rejection_reason = rejection_reason
+        else:
+            task.refused_by = None
+            task.rejection_reason = ''
+
     if status is not None:
         if status not in ('BLOCKED', 'IN_PROGRESS', 'REVIEW', 'DONE', 'ARCHIVED'):
             return Response({'error': 'Invalid status. Must be BLOCKED, IN_PROGRESS, REVIEW, DONE, or ARCHIVED'}, status=400)
@@ -184,23 +182,6 @@ def update_task_status(request, pk):
             task.status = 'ARCHIVED'
     task.save()
 
-    # Sync with Project status if linked
-    if getattr(task, 'project', None) and getattr(task, 'source_project_task_id', None):
-        try:
-            proj = Project.objects.get(id=task.project.id)
-            for pt in proj.tasks:
-                if str(pt.id) == str(task.source_project_task_id):
-                    status_map = {'IN_PROGRESS': 'IN_PROGRESS', 'DONE': 'DONE'}
-                    pt.status = status_map.get(task.status, 'TODO')
-                    if pt.status == 'DONE':
-                        pt.completed_by = request.user
-                        from datetime import datetime
-                        pt.completed_at = datetime.utcnow()
-                    break
-            proj.save()
-        except DoesNotExist:
-            pass
-
     return Response(serialize_task(task))
 
 
@@ -215,8 +196,19 @@ def update_task(request, pk):
 
     task.title = request.data.get('title', task.title)
     task.description = request.data.get('description', task.description)
-    employee_ids = request.data.get('employee_ids', [])
+    task.status = request.data.get('status', task.status)
+    task.priority = request.data.get('priority', task.priority)
+    task.deadline = request.data.get('deadline', task.deadline)
+    
+    # Handle refusal flags
+    if 'refusal_pending' in request.data:
+        task.refusal_pending = request.data['refusal_pending']
+    if 'rejection_reason' in request.data:
+        task.rejection_reason = request.data['rejection_reason']
+    if task.refusal_pending == False:
+        task.refused_by = None
 
+    employee_ids = request.data.get('employee_ids', [])
     if employee_ids:
         assigned_employees = []
         for eid in employee_ids:
@@ -224,21 +216,27 @@ def update_task(request, pk):
                 assigned_employees.append(User.objects.get(id=eid))
             except DoesNotExist:
                 continue
-    task.save()
+        task.employees = assigned_employees
 
-    # Sync metadata with Project
-    if getattr(task, 'project', None) and getattr(task, 'source_project_task_id', None):
+    project_id = request.data.get('project_id')
+    if project_id:
         try:
-            proj = Project.objects.get(id=task.project.id)
-            for pt in proj.tasks:
-                if str(pt.id) == str(task.source_project_task_id):
-                    pt.title = task.title
-                    pt.description = task.description or ''
-                    break
-            proj.save()
+            task.project = Project.objects.get(id=project_id)
         except DoesNotExist:
             pass
+    elif 'project_id' in request.data:
+        task.project = None
 
+    department_id = request.data.get('department_id')
+    if department_id:
+        try:
+            task.department = Department.objects.get(id=department_id)
+        except DoesNotExist:
+            pass
+    elif 'department_id' in request.data:
+        task.department = None
+
+    task.save()
     return Response(serialize_task(task))
 
 @api_view(['PATCH'])
@@ -250,9 +248,6 @@ def archive_task_view(request, pk):
     except DoesNotExist:
         return Response({'error': 'Task not found'}, status=404)
     
-    task.is_archived = True
-    task.save()
-    return Response(serialize_task(task))
     task.is_archived = True
     task.save()
     return Response(serialize_task(task))

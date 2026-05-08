@@ -74,11 +74,11 @@ export class ProjectsComponent implements OnInit {
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.selectedPriorityProjectId = localStorage.getItem('selectedPriorityProjectId') || '';
-    }
-    this.loadData();
-    this.modalSub = this.ui.projectEdited$.subscribe(() => {
       this.loadData();
-    });
+      this.modalSub = this.ui.projectEdited$.subscribe(() => {
+        this.loadData();
+      });
+    }
   }
 
   ngOnDestroy() {

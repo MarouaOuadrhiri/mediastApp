@@ -33,6 +33,8 @@ export class AdminComponent implements OnInit, OnDestroy {
   private meetingCreatedListener: any;
   private lastSeenMeetingIds: Set<string> = new Set();
   systemNotifications: any[] = [];
+  refusalRequests: any[] = [];
+  private refusalPollInterval: any;
 
   constructor(
     private api: ApiService,
@@ -44,23 +46,25 @@ export class AdminComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    setTimeout(() => {
-      this.api.getMe().subscribe({
-        next: (r: any) => {
-          this.zone.run(() => { 
-            this.user = r; 
-            this.cdr.markForCheck(); 
-            this.checkSystemStatus(); // Run automated checks on launch
-          });
-        },
-        error: () => { }
-      });
-      this.loadMeetings(true); // initial load — mark all existing as "seen"
-    }, 0);
-
     if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        this.api.getMe().subscribe({
+          next: (r: any) => {
+            this.zone.run(() => { 
+              this.user = r; 
+              this.cdr.markForCheck(); 
+              this.checkSystemStatus(); // Run automated checks on launch
+            });
+          },
+          error: () => { }
+        });
+        this.loadMeetings(true); // initial load — mark all existing as "seen"
+        this.loadRefusalRequests();
+      }, 0);
+
       // Poll for new meetings every 30s
       this.meetingPollInterval = setInterval(() => this.loadMeetings(false), 30000);
+      this.refusalPollInterval = setInterval(() => this.loadRefusalRequests(), 30000);
 
       this.meetingCreatedListener = (event: any) => {
         const meeting = event?.detail;
@@ -82,8 +86,68 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.meetingPollInterval) clearInterval(this.meetingPollInterval);
+    if (this.refusalPollInterval) clearInterval(this.refusalPollInterval);
     if (this.toastTimer) clearTimeout(this.toastTimer);
     if (this.meetingCreatedListener) window.removeEventListener('meeting-created', this.meetingCreatedListener);
+  }
+
+  loadRefusalRequests() {
+    // 1. Fetch standalone tasks
+    this.api.getTasks().subscribe({
+      next: (r: any) => {
+        const tasks: any[] = r || [];
+        const standaloneRefusals = tasks.filter(t => t.refusal_pending);
+        
+        // 2. Fetch projects to find project-only tasks with refusal_pending
+        this.api.getProjects().subscribe({
+          next: (projects: any[]) => {
+            const projectRefusals: any[] = [];
+            projects.forEach(p => {
+              if (p.tasks) {
+                p.tasks.forEach((t: any) => {
+                  if (t.refusal_pending) {
+                    // Check if we already have this refusal via standalone (source_project_task_id)
+                    const isAlreadyCounted = standaloneRefusals.some(s => s.source_project_task_id === t.id);
+                    if (!isAlreadyCounted) {
+                      projectRefusals.push({
+                        ...t,
+                        project_id: p.id,
+                        project_name: p.name,
+                        is_project_task: true
+                      });
+                    }
+                  }
+                });
+              }
+            });
+            
+            this.refusalRequests = [...standaloneRefusals, ...projectRefusals];
+            this.cdr.markForCheck();
+          }
+        });
+      }
+    });
+  }
+
+  approveRefusal(task: any) {
+    if (task.is_project_task) {
+      this.router.navigate(['/admin/projects'], { queryParams: { id: task.project_id, editTask: task.id } });
+    } else {
+      this.router.navigate(['/admin/tasks'], { queryParams: { edit: task.id } });
+    }
+  }
+
+  rejectRefusal(task: any) {
+    const obs = task.is_project_task
+      ? this.api.updateProjectTaskStatus(task.project_id, task.id, 'IN_PROGRESS', '', false)
+      : this.api.updateTaskStatus(task.id, 'IN_PROGRESS', false, '', false);
+    
+    obs.subscribe({
+      next: () => {
+        this.ui.notify('Refus décliné. La tâche est remise en cours.', 'info');
+        this.loadRefusalRequests();
+      }
+    });
   }
 
   loadMeetings(isInitial = false) {

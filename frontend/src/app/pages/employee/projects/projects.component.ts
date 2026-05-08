@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ApiService } from '../../../core/api.service';
 
 @Component({
@@ -22,11 +22,16 @@ export class ProjectsComponent implements OnInit {
   showDetailsModal: boolean = false;
   showUpdateModal: boolean = false;
 
-  constructor(private api: ApiService) {}
+  constructor(
+    private api: ApiService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit() {
-    this.loadProjects();
-    this.loadActivityStream();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadProjects();
+      this.loadActivityStream();
+    }
   }
 
   loadProjects() {

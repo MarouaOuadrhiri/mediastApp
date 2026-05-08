@@ -11,9 +11,9 @@ class Task(Document):
     employees = ListField(ReferenceField(User))
     project = ReferenceField('Project', null=True)
     department = ReferenceField('Department', null=True)
-    source_project_task_id = StringField()
     is_archived = BooleanField(default=False)
-    deadline = DateTimeField()
     rejection_reason = StringField()  # For task rejection flow
+    refusal_pending = BooleanField(default=False)
+    refused_by = ReferenceField(User, null=True)
     
     meta = {'collection': 'tasks'}

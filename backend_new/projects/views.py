@@ -71,6 +71,18 @@ def serialize_project(p, user_map=None, dept_map=None):
                 user_obj = User.objects.filter(id=cb_id).first()
                 completed_by_name = f"{user_obj.first_name} {user_obj.last_name}" if user_obj else None
 
+        refused_by_name = None
+        if t.refused_by:
+            rb_id = get_id_str(t.refused_by)
+            if user_map and rb_id in user_map:
+                user_obj = user_map[rb_id]
+                refused_by_name = f"{user_obj.first_name} {user_obj.last_name}"
+            elif not isinstance(t.refused_by, bson.DBRef) and hasattr(t.refused_by, 'first_name'):
+                refused_by_name = f"{t.refused_by.first_name} {t.refused_by.last_name}"
+            else:
+                user_obj = User.objects.filter(id=rb_id).first()
+                refused_by_name = f"{user_obj.first_name} {user_obj.last_name}" if user_obj else None
+
         serialized_tasks.append({
             'id': str(t.id),
             'title': t.title,
@@ -80,6 +92,10 @@ def serialize_project(p, user_map=None, dept_map=None):
             'deadline': t.deadline.isoformat() if getattr(t, 'deadline', None) else None,
             'completed_by_name': completed_by_name,
             'completed_at': t.completed_at.isoformat() if getattr(t, 'completed_at', None) else None,
+            'rejection_reason': getattr(t, 'rejection_reason', ''),
+            'refusal_pending': getattr(t, 'refusal_pending', False),
+            'refused_by': str(t.refused_by.id) if getattr(t, 'refused_by', None) else None,
+            'refused_by_name': refused_by_name,
         })
 
     return {
@@ -311,6 +327,16 @@ def project_detail(request, pk):
                 existing.description = t.get('description', '')
                 existing.note = t.get('note', '')
                 existing.deadline = task_deadline
+                # Clear refusal flags if explicitly requested or by default if not present
+                if 'refusal_pending' in t:
+                    existing.refusal_pending = t['refusal_pending']
+                else:
+                    existing.refusal_pending = False
+                
+                if not existing.refusal_pending:
+                    existing.refused_by = None
+                    existing.rejection_reason = ''
+                    
                 new_tasks.append(existing)
             else:
                 new_tasks.append(ProjectTask(
@@ -377,21 +403,36 @@ def update_project_task_status(request, pk, task_id):
 
     status = request.data.get('status')
     rejection_reason = request.data.get('rejection_reason')
+    refusal_pending = request.data.get('refusal_pending')
     
-    if status not in ('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'BLOCKED'):
+    if status is not None and status not in ('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'BLOCKED'):
         return Response({'error': 'Invalid status'}, status=400)
 
     for task in project.tasks:
         if str(task.id) == task_id:
-            task.status = status
-            if status == 'BLOCKED' and rejection_reason:
-                task.rejection_reason = rejection_reason
-            if status == 'DONE':
-                task.completed_by = request.user
-                task.completed_at = datetime.utcnow()
-            else:
-                task.completed_by = None
-                task.completed_at = None
+            if status is not None:
+                task.status = status
+                if status == 'BLOCKED' and rejection_reason:
+                    task.rejection_reason = rejection_reason
+                if status == 'DONE':
+                    task.completed_by = request.user
+                    task.completed_at = datetime.utcnow()
+                else:
+                    task.completed_by = None
+                    task.completed_at = None
+            
+            if refusal_pending is not None:
+                task.refusal_pending = refusal_pending
+                if refusal_pending:
+                    task.refused_by = request.user
+                    if rejection_reason:
+                        task.rejection_reason = rejection_reason
+                else:
+                    task.refused_by = None
+                    task.rejection_reason = ''
+                
+                # No more sync with standalone Task as they are now independent
+                pass
             break
     else:
         return Response({'error': 'Task not found'}, status=404)
