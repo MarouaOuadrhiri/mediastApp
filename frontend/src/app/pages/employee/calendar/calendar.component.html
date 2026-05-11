@@ -5,12 +5,12 @@
     <div class="calendar-title-block">
       <h1 class="calendar-title">{{ monthNames[currentMonth] }} {{ currentYear }}</h1>
       <div class="month-nav">
-        <button (click)="prevMonth()" class="month-btn">
+        <button (click)="prev()" class="month-btn">
           <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
           </svg>
         </button>
-        <button (click)="nextMonth()" class="month-btn">
+        <button (click)="next()" class="month-btn">
           <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
           </svg>
@@ -26,9 +26,9 @@
         <div class="legend-item"><div class="legend-dot" style="background:#14B8A6;"></div> Meeting</div>
       </div>
       <div class="view-switcher">
-        <button class="view-btn active">Month</button>
-        <button class="view-btn">Week</button>
-        <button class="view-btn">Day</button>
+        <button (click)="setViewMode('month')" class="view-btn" [class.active]="viewMode === 'month'">Month</button>
+        <button (click)="setViewMode('week')" class="view-btn" [class.active]="viewMode === 'week'">Week</button>
+        <button (click)="setViewMode('day')" class="view-btn" [class.active]="viewMode === 'day'">Day</button>
       </div>
     </div>
   </div>
@@ -38,12 +38,12 @@
     <!-- ===================== CALENDAR GRID ===================== -->
     <div class="calendar-grid-wrapper">
 
-      <div class="day-headers">
-        <div *ngFor="let d of dayNames" class="day-header">{{ d }}</div>
+      <div class="day-headers" [style.gridTemplateColumns]="viewMode === 'day' ? '1fr' : 'repeat(7, 1fr)'">
+        <div *ngFor="let d of (viewMode === 'day' ? [dayNames[currentDate.getDay()]] : dayNames)" class="day-header">{{ d }}</div>
       </div>
 
       <div class="weeks">
-        <div *ngFor="let week of weeks" class="week-row">
+        <div *ngFor="let week of weeks" class="week-row" [style.gridTemplateColumns]="viewMode === 'day' ? '1fr' : 'repeat(7, 1fr)'">
           <div *ngFor="let day of week"
                class="day-cell"
                [class.empty]="!day"
@@ -60,27 +60,38 @@
             <!-- Event pills for this cell -->
             <div *ngIf="day" class="event-pills">
 
-              <!-- Project spans: show bar on every day inside the range -->
+              <!-- Project Timeline Bars: Contiguous horizontal bars -->
               <ng-container *ngFor="let proj of getProjectsForDate(day)">
-                <div class="event-pill pill-project" [title]="proj.name">
-                  <span *ngIf="isProjectStart(proj, day)">▐ </span>{{ isProjectStart(proj, day) ? proj.name : '' }}
-                  <span *ngIf="!isProjectStart(proj, day)" style="opacity:0.5;">━</span>
+                <div *ngIf="proj" class="project-bar-segment" 
+                     [title]="proj.name"
+                     [style.backgroundColor]="getProjectColor(proj) + '33'" 
+                     [style.borderColor]="getProjectColor(proj)"
+                     [class.start-segment]="isProjectStart(proj, day)"
+                     [class.end-segment]="isProjectEnd(proj, day)">
+                  <div class="project-bar-content">
+                    <span class="project-bar-title">{{ isProjectStart(proj, day) ? proj.name : '' }}</span>
+                    <div *ngIf="isProjectEnd(proj, day) && isNearDeadline(proj)" class="urgency-indicator"></div>
+                  </div>
                 </div>
+                <!-- Spacer for empty lanes to maintain vertical alignment -->
+                <div *ngIf="!proj" class="project-bar-spacer"></div>
               </ng-container>
 
-              <!-- Tasks on this date -->
-              <ng-container *ngFor="let task of getTasksForDate(day)">
-                <div class="event-pill pill-task" [title]="task.title || task.name">
-                  {{ task.title || task.name }}
-                </div>
-              </ng-container>
+              <!-- Tasks on this date (shown below projects) -->
+              <div class="task-meeting-row">
+                <ng-container *ngFor="let task of getTasksForDate(day)">
+                  <div class="event-pill pill-task" [title]="task.title || task.name">
+                    {{ task.title || task.name }}
+                  </div>
+                </ng-container>
 
-              <!-- Meetings on this date -->
-              <ng-container *ngFor="let meet of getMeetingsForDate(day)">
-                <div class="event-pill pill-meeting" [title]="meet.title || meet.name">
-                  {{ meet.title || meet.name }}
-                </div>
-              </ng-container>
+                <!-- Meetings on this date -->
+                <ng-container *ngFor="let meet of getMeetingsForDate(day)">
+                  <div class="event-pill pill-meeting" [title]="meet.title || meet.name">
+                    {{ meet.title || meet.name }}
+                  </div>
+                </ng-container>
+              </div>
 
             </div>
           </div>

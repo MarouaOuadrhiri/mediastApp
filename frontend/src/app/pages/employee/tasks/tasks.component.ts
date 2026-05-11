@@ -88,12 +88,19 @@ export class TasksComponent implements OnInit {
 
   getAllTasks(): any[] {
     const all: any[] = [];
+
+    const getStrId = (id: any) => {
+      if (!id) return null;
+      if (typeof id === 'object') return id.$oid || id.toString();
+      return id.toString();
+    };
     
     // Add standalone tasks with project context
     this.standaloneTasks.forEach(t => {
       let projectName = t.project_name || 'BrandShift';
-      if (t.project_id) {
-        const p = this.projects.find(proj => proj.id === t.project_id);
+      const tProjId = getStrId(t.project_id);
+      if (tProjId) {
+        const p = this.projects.find(proj => getStrId(proj.id) === tProjId);
         if (p) projectName = p.name;
       }
       all.push({ ...t, project_name: projectName, is_project_task: false });
@@ -101,10 +108,15 @@ export class TasksComponent implements OnInit {
 
     // Aggregate project tasks that are assigned to the employee
     this.projects.forEach(p => {
+      const pId = getStrId(p.id);
       if (p.tasks) {
         p.tasks.forEach((pt: any) => {
+          const ptId = getStrId(pt.id);
           // Only add if not already in standaloneTasks (prevent duplicates)
-          const exists = this.standaloneTasks.some(st => st.source_project_task_id === pt.id || st.title === pt.title);
+          const exists = this.standaloneTasks.some(st => {
+            const stSourceId = getStrId(st.source_project_task_id);
+            return (stSourceId && ptId && stSourceId === ptId) || st.title === pt.title;
+          });
           if (!exists) {
             all.push({
               ...pt,
