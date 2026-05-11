@@ -134,291 +134,187 @@
     <!-- LEFT: Task Board -->
     <div class="lg:col-span-9 space-y-6">
       <!-- Task Board Header -->
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-8">
+          <h2 class="relative inline-block pl-4"
+            style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 20px; line-height: 28px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
+            <span class="nav-indicator" style="left: 0;"></span>
+            <span class="text-white font-medium">My Tasks Board</span>
+          </h2>
 
-        <h2 class="relative inline-block pl-4"
-          style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 20px; line-height: 28px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
-          <span class="nav-indicator" style="left: 0;"></span>My Tasks Board
-        </h2>
-        <div class="flex items-center gap-2">
-          <button (click)="viewMode = 'kanban'" [class.!text-white]="viewMode === 'kanban'"
-            [class.bg-white/5]="viewMode === 'kanban'"
-            class="w-8 h-8 rounded-lg flex items-center justify-center text-white/30 hover:text-white transition-all">
-            <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 12V10H11V12H7ZM3 7V5H15V7H3ZM0 2V0H18V2H0Z" fill="currentColor" />
-            </svg>
-          </button>
-          <button (click)="viewMode = 'list'" [class.!text-white]="viewMode === 'list'"
-            [class.bg-white/5]="viewMode === 'list'"
-            class="w-8 h-8 rounded-lg flex items-center justify-center text-white/30 hover:text-white transition-all">
-            <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M2 16C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14C0 13.45 0.195833 12.9792 0.5875 12.5875C0.979167 12.1958 1.45 12 2 12C2.55 12 3.02083 12.1958 3.4125 12.5875C3.80417 12.9792 4 13.45 4 14C4 14.55 3.80417 15.0208 3.4125 15.4125C3.02083 15.8042 2.55 16 2 16ZM2 10C1.45 10 0.979167 9.80417 0.5875 9.4125C0.195833 9.02083 0 8.55 0 8C0 7.45 0.195833 6.97917 0.5875 6.5875C0.979167 6.19583 1.45 6 2 6C2.55 6 3.02083 6.19583 3.4125 6.5875C3.80417 6.97917 4 7.45 4 8C4 8.55 3.80417 9.02083 3.4125 9.4125C3.02083 9.80417 2.55 10 2 10ZM2 4C1.45 4 0.979167 3.80417 0.5875 3.4125C0.195833 3.02083 0 2.55 0 2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0C2.55 0 3.02083 0.195833 3.4125 0.5875C3.80417 0.979167 4 1.45 4 2C4 2.55 3.80417 3.02083 3.4125 3.4125C3.02083 3.80417 2.55 4 2 4Z"
-                fill="currentColor" />
-            </svg>
-          </button>
+          <!-- Critical Projects Tabs -->
+          <div class="hidden md:flex items-center gap-8">
+             <div *ngFor="let p of getCriticalProjects()" 
+                  (click)="selectProject(p)"
+                  [class.text-white]="selectedProject?.id === p.id"
+                  [class.text-white/30]="selectedProject?.id !== p.id"
+                  class="cursor-pointer group relative py-1 transition-all duration-300">
+                <span class="text-sm font-bold tracking-tight uppercase" style="font-family: 'Space Grotesk', sans-serif;">
+                  {{p.name}}
+                </span>
+                <div *ngIf="selectedProject?.id === p.id" 
+                     class="absolute -bottom-1 left-0 right-0 h-0.5 bg-red-600 rounded-full animate-in fade-in zoom-in duration-300">
+                </div>
+                <div *ngIf="selectedProject?.id !== p.id" 
+                     class="absolute -bottom-1 left-0 w-0 group-hover:w-full h-0.5 bg-white/10 rounded-full transition-all duration-300">
+                </div>
+             </div>
+          </div>
         </div>
       </div>
 
-      <!-- KANBAN VIEW -->
-      <div class="flex gap-4 overflow-x-auto lg:overflow-x-hidden pb-4 lg:pb-0 custom-scrollbar" cdkDropListGroup
-        *ngIf="viewMode === 'kanban'">
+      <!-- KANBAN BOARD (FULL WIDTH) -->
+      <div *ngIf="selectedProject" class="grid grid-cols-4 gap-6 animate-in fade-in zoom-in-95 duration-500">
         <!-- TO DO -->
-        <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col">
-          <div class="flex items-center gap-2 mb-4 shrink-0">
-            <span
-              style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #2563EB;">
-              To Do
-            </span>
-            <span
-              style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #2563EB33; background: #1A1A1C; font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{todoTasks.length}}</span>
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center justify-between px-2">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">To Do</span>
+            <span class="text-[10px] font-bold text-white/20 px-2 bg-white/5 rounded-full">{{todoTasks.length}}</span>
           </div>
-          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32" id="todoList" cdkDropList
-            [cdkDropListData]="todoTasks" [cdkDropListConnectedTo]="['inProgressList', 'reviewList', 'doneList']"
-            (cdkDropListDropped)="drop($event, 'TODO')">
-            <div *ngFor="let t of todoTasks; trackBy: trackById"
-              class="task-card todo-card border border-[#2563EB52] cursor-grab active:cursor-grabbing" cdkDrag
-              [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <span class="tag" [class.urgent-tag]="isUrgent(t)" [ngClass]="getDeadlineClass(t.deadline)">{{ isUrgent(t) ? 'URGENT ACTION' : getDaysLeftText(t.deadline) }}</span>
-                  <p
-                    style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
-                    {{t.title}}</p>
-                  <p class="text-[11px] text-white/30 mt-1">{{t.description || ''}}</p>
+          <div class="space-y-3 min-h-[400px]" id="todoList" 
+               cdkDropList [cdkDropListData]="todoTasks" 
+               [cdkDropListConnectedTo]="['inProgressList', 'reviewList', 'doneList', 'priorityTasksList']"
+               (cdkDropListDropped)="drop($event, 'TODO')">
+            <div *ngFor="let t of todoTasks" cdkDrag class="kanban-card cursor-grab group border-l-2 border-l-transparent hover:border-l-red-500">
+              <div class="flex items-start justify-between">
+                <p class="text-sm font-bold text-white leading-relaxed group-hover:text-red-500 transition-colors flex-1">{{t.title}}</p>
+                <!-- Grab Handle Icon -->
+                <div class="opacity-0 group-hover:opacity-100 text-white/20 transition-opacity ml-2 mt-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
+                    <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
+                  </svg>
                 </div>
               </div>
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-[9px] text-white/20 uppercase">Deadline</p>
-                  <p class="text-[11px] text-white/50 font-bold">{{t.deadline ? (t.deadline | date:'MMM dd') : 'N/A'}}
-                  </p>
+              <div class="flex items-center justify-between mt-4">
+                <div class="flex items-center gap-2">
+                   <div *ngFor="let emp of (t.employees || []).slice(0, 1)" class="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center text-[10px] font-bold text-red-400 border border-red-500/10">
+                     {{(emp.name || 'U').charAt(0)}}
+                   </div>
+                   <span class="text-[10px] text-white/40 truncate">{{ (t.employees && t.employees.length > 0) ? t.employees[0].name : 'Unassigned' }}</span>
                 </div>
-                <div class="text-right">
-                  <p class="text-[9px] text-white/20 uppercase">Progress</p>
-                  <p class="text-[11px] text-white/50 font-bold">{{getProgressByStatus(t.status)}}%</p>
-                </div>
-              </div>
-              <div class="h-1 bg-white/5 rounded-full mt-2 overflow-hidden">
-                <div class="h-full bg-[#2563EB] rounded-full" [style.width.%]="getProgressByStatus(t.status)"></div>
+                <span class="text-[10px] font-bold text-white/20 uppercase tracking-tighter">{{getDaysLeftText(t.deadline)}}</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- IN PROGRESS -->
-        <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col">
-          <div class="flex items-center gap-2 mb-4 shrink-0">
-            <span
-              style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #FFFFFF;">
-              In Progress
-            </span>
-            <span
-              style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #FFFFFF33;background: #1A1A1C;font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{inProgressTasks.length}}</span>
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center justify-between px-2">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">In Progress</span>
+            <span class="text-[10px] font-bold text-white/20 px-2 bg-white/5 rounded-full">{{inProgressTasks.length}}</span>
           </div>
-          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32" id="inProgressList" cdkDropList
-            [cdkDropListData]="inProgressTasks" [cdkDropListConnectedTo]="['todoList', 'reviewList', 'doneList']"
-            (cdkDropListDropped)="drop($event, 'IN_PROGRESS')">
-            <div *ngFor="let t of inProgressTasks; trackBy: trackById"
-              class="task-card inprogress-card border border-[#FFFFFF52] cursor-grab active:cursor-grabbing" cdkDrag
-              [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <span class="tag" [class.urgent-tag]="isUrgent(t)" [ngClass]="getDeadlineClass(t.deadline)">{{ isUrgent(t) ? 'URGENT ACTION' : getDaysLeftText(t.deadline) }}</span>
-                  <p
-                    style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
-                    {{t.title}}</p>
-                  <p class="text-[11px] text-white/30 mt-1">Project: {{t.project_name || 'BrandShift'}}</p>
+          <div class="space-y-3 min-h-[400px]" id="inProgressList" 
+               cdkDropList [cdkDropListData]="inProgressTasks" 
+               [cdkDropListConnectedTo]="['todoList', 'reviewList', 'doneList', 'priorityTasksList']"
+               (cdkDropListDropped)="drop($event, 'IN_PROGRESS')">
+            <div *ngFor="let t of inProgressTasks" cdkDrag class="kanban-card cursor-grab border-l-2 border-l-blue-500 bg-blue-500/5 group">
+              <div class="flex items-start justify-between">
+                <p class="text-sm font-bold text-white leading-relaxed flex-1">{{t.title}}</p>
+                <!-- Grab Handle Icon -->
+                <div class="opacity-0 group-hover:opacity-100 text-white/20 transition-opacity ml-2 mt-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
+                    <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
+                  </svg>
                 </div>
               </div>
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-[9px] text-white/20 uppercase">Deadline</p>
-                  <p class="text-[11px] text-white/50 font-bold">{{t.deadline ? (t.deadline | date:'MMM dd') : 'N/A'}}
-                  </p>
+              <div class="flex items-center justify-between mt-4">
+                <div class="flex items-center gap-2">
+                   <div *ngFor="let emp of (t.employees || []).slice(0, 1)" class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-400 border border-blue-500/10">
+                     {{(emp.name || 'U').charAt(0)}}
+                   </div>
+                   <span class="text-[10px] text-white/40 truncate">{{ (t.employees && t.employees.length > 0) ? t.employees[0].name : 'Unassigned' }}</span>
                 </div>
-                <div class="text-right">
-                  <p class="text-[9px] text-white/20 uppercase">Progress</p>
-                  <p class="text-[11px] text-white/50 font-bold">{{getProgressByStatus(t.status)}}%</p>
+                <div class="flex items-center gap-1.5">
+                  <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+                  <span class="text-[9px] font-bold text-blue-500/60 uppercase">Active</span>
                 </div>
-              </div>
-              <div class="h-1 bg-white/5 rounded-full mt-2 overflow-hidden">
-                <div class="h-full bg-[#FFFFFF] rounded-full" [style.width.%]="getProgressByStatus(t.status)"></div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- REVIEW -->
-        <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col">
-          <div class="flex items-center gap-2 mb-4 shrink-0">
-            <span
-              style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #F59E0B;">
-              Review
-            </span>
-            <span
-              style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #F59E0B33;background: #1A1A1C;font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{reviewTasks.length}}</span>
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center justify-between px-2">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Review</span>
+            <span class="text-[10px] font-bold text-white/20 px-2 bg-white/5 rounded-full">{{reviewTasks.length}}</span>
           </div>
-          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32" id="reviewList" cdkDropList
-            [cdkDropListData]="reviewTasks" [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'doneList']"
-            (cdkDropListDropped)="drop($event, 'REVIEW')">
-            <div *ngFor="let t of reviewTasks; trackBy: trackById"
-              class="task-card review-card border border-[#F59E0B52] cursor-grab active:cursor-grabbing" cdkDrag
-              [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <span class="tag review-tag" [class.urgent-tag]="isUrgent(t)" [ngClass]="getDeadlineClass(t.deadline)">{{ isUrgent(t) ? 'URGENT ACTION' : getDaysLeftText(t.deadline) }}</span>
-                  <p
-                    style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
-                    {{t.title}}</p>
-                  <p class="text-[11px] text-white/30 mt-1">Project: {{t.project_name || 'BrandShift'}}</p>
+          <div class="space-y-3 min-h-[400px]" id="reviewList" 
+               cdkDropList [cdkDropListData]="reviewTasks" 
+               [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'doneList', 'priorityTasksList']"
+               (cdkDropListDropped)="drop($event, 'REVIEW')">
+            <div *ngFor="let t of reviewTasks" cdkDrag class="kanban-card cursor-grab border-l-2 border-l-purple-500 bg-purple-500/5 group">
+              <div class="flex items-start justify-between">
+                <p class="text-sm font-bold text-white leading-relaxed flex-1">{{t.title}}</p>
+                <!-- Grab Handle Icon -->
+                <div class="opacity-0 group-hover:opacity-100 text-white/20 transition-opacity ml-2 mt-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
+                    <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
+                  </svg>
                 </div>
               </div>
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-[9px] text-white/20 uppercase">Deadline</p>
-                  <p class="text-[11px] text-white/50 font-bold">{{t.deadline ? (t.deadline | date:'MMM dd') : 'N/A'}}
-                  </p>
+              <div class="flex items-center justify-between mt-4">
+                <div class="flex items-center gap-2">
+                   <div *ngFor="let emp of (t.employees || []).slice(0, 1)" class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center text-[10px] font-bold text-purple-400 border border-purple-500/10">
+                     {{(emp.name || 'U').charAt(0)}}
+                   </div>
+                   <span class="text-[10px] text-white/40 truncate">{{ (t.employees && t.employees.length > 0) ? t.employees[0].name : 'Unassigned' }}</span>
                 </div>
-                <div class="text-right">
-                  <p class="text-[9px] text-white/20 uppercase">Progress</p>
-                  <p class="text-[11px] text-white/50 font-bold">{{getProgressByStatus(t.status)}}%</p>
+                <div class="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-500 border border-purple-500/10">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                  </svg>
                 </div>
-              </div>
-              <div class="h-1 bg-white/5 rounded-full mt-2 overflow-hidden">
-                <div class="h-full bg-[#F59E0B] rounded-full" [style.width.%]="getProgressByStatus(t.status)"></div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- DONE -->
-        <div class="min-w-[280px] lg:min-w-0 flex-1 flex flex-col">
-          <div class="flex items-center gap-2 mb-4 shrink-0">
-            <span
-              style="font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 12px; line-height: 16px; letter-spacing: 0.6px; vertical-align: middle; text-transform: uppercase; color: #10B981;">
-              Done
-            </span>
-            <span
-              style="width: 20px; height: 20px; border-radius: 9999px; border: 1px solid #10B98152;background: #1A1A1C;font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 10px; line-height: 20px; letter-spacing: 0px; text-align: center; vertical-align: middle; color: #808080; display: inline-flex; align-items: center; justify-content: center;">{{doneTasks.length}}</span>
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center justify-between px-2">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Done</span>
+            <span class="text-[10px] font-bold text-white/20 px-2 bg-white/5 rounded-full">{{doneTasks.length}}</span>
           </div>
-          <div class="flex flex-col gap-3 min-h-[500px] flex-1 pb-32" id="doneList" cdkDropList
-            [cdkDropListData]="doneTasks" [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'reviewList']"
-            (cdkDropListDropped)="drop($event, 'DONE')">
-            <div *ngFor="let t of doneTasks; trackBy: trackById"
-              class="task-card done-card border border-[#10B98152] cursor-grab active:cursor-grabbing" cdkDrag
-              [cdkDragData]="t" (cdkDragStarted)="onDragStarted()">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <p
-                    style="padding-bottom: 5px; font-family: 'Inter', sans-serif; font-weight: 700; font-style: normal; font-size: 15px; line-height: 18.75px; letter-spacing: 0px; vertical-align: middle; color: #FFFFFF;">
-                    {{t.title}}</p>
-                  <p class="text-[11px] text-white/30 mt-1">Project: {{t.project_name || 'BrandShift'}}</p>
+          <div class="space-y-3 min-h-[400px]" id="doneList" 
+               cdkDropList [cdkDropListData]="doneTasks" 
+               [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'reviewList', 'priorityTasksList']"
+               (cdkDropListDropped)="drop($event, 'DONE')">
+            <div *ngFor="let t of doneTasks" cdkDrag class="kanban-card cursor-grab opacity-40 hover:opacity-100 transition-opacity grayscale hover:grayscale-0 group">
+              <div class="flex items-start justify-between">
+                <p class="text-sm font-bold text-white/60 leading-relaxed line-through flex-1">{{t.title}}</p>
+                <!-- Grab Handle Icon -->
+                <div class="opacity-0 group-hover:opacity-100 text-white/20 transition-opacity ml-2 mt-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
+                    <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
+                  </svg>
                 </div>
               </div>
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-[9px] text-white/20 uppercase">Deadline</p>
-                  <p class="text-[11px] text-white/50 font-bold">{{t.deadline ? (t.deadline | date:'MMM dd') : 'N/A'}}
-                  </p>
+              <div class="mt-4 flex justify-between items-center">
+                <span class="text-[10px] text-white/20">Completed</span>
+                <div class="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 border border-green-500/10">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M20 6L9 17L4 12"/></svg>
                 </div>
-                <div class="text-right">
-                  <p class="text-[9px] text-white/20 uppercase">Progress</p>
-                  <p class="text-[11px] text-white/50 font-bold">100%</p>
-                </div>
-              </div>
-              <div class="h-1 bg-white/5 rounded-full mt-2 overflow-hidden">
-                <div class="h-full bg-[#10B981] rounded-full" style="width:100%"></div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- LIST VIEW -->
-      <div class="space-y-6" *ngIf="viewMode === 'list'" cdkDropListGroup>
-        <!-- Table Headers -->
-        <div
-          class="flex items-center justify-between px-5 pb-3 border-b border-white/[0.04] text-[10px] font-bold uppercase tracking-[0.2em] text-[#737373]">
-          <div class="w-[45%]">Task Details</div>
-          <div class="w-[20%]">Status</div>
-          <div class="w-[15%]">Deadline</div>
-          <div class="w-[20%] text-right">Progress</div>
+      <!-- Empty State -->
+      <div *ngIf="!selectedProject" class="py-24 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-[40px] bg-white/[0.01] animate-in fade-in duration-700">
+        <div class="w-24 h-24 rounded-[32px] bg-gradient-to-br from-white/[0.05] to-transparent flex items-center justify-center mb-8 text-white/5">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
         </div>
-
-        <div class="status-group" *ngFor="let status of listStatuses">
-          <!-- Group Header -->
-          <div
-            class="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-colors mb-2"
-            (click)="toggleStatusGroup(status)">
-            <div class="flex items-center gap-3">
-              <span
-                class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border border-white/10 text-white/60">{{
-                status }}</span>
-              <span class="text-xs font-bold text-white/20">{{ getTasksByListStatus(status).length }}</span>
-            </div>
-            <svg class="w-4 h-4 text-white/20 transition-transform"
-              [class.rotate-180]="expandedStatusGroups.has(status)" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-
-          <!-- Group Content -->
-          <div class="space-y-2 min-h-[20px]" *ngIf="expandedStatusGroups.has(status)" cdkDropList
-            [cdkDropListData]="getTasksByListStatus(status)" (cdkDropListDropped)="drop($event, status)">
-            <div *ngFor="let t of getTasksByListStatus(status); trackBy: trackById" cdkDrag
-              (cdkDragStarted)="onDragStarted()"
-              class="flex items-center justify-between p-4 bg-[#1C1C1E] hover:bg-[#252529] border border-white/[0.03] rounded-xl transition-all cursor-grab active:cursor-grabbing group">
-
-              <div *cdkDragPlaceholder class="bg-white/5 border border-dashed border-white/10 rounded-xl h-16 w-full">
-              </div>
-
-              <!-- 1. Task Title & Project -->
-              <div class="flex items-center gap-3 w-[45%]">
-                <div
-                  class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/30 group-hover:text-white/60 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                </div>
-                <div class="flex flex-col min-w-0">
-                  <span class="font-bold text-sm text-white truncate">{{ t.title }}</span>
-                  <span class="text-[10px] text-white/30 truncate">{{ t.project_name || 'BrandShift' }}</span>
-                </div>
-              </div>
-
-              <!-- 2. Status Pill -->
-              <div class="w-[20%]">
-                <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md border" [ngClass]="{
-                        'bg-green-500/10 text-green-400 border-green-500/20': t.status === 'DONE',
-                        'bg-blue-500/10 text-blue-400 border-blue-500/20': t.status === 'IN_PROGRESS',
-                        'bg-yellow-500/10 text-yellow-400 border-yellow-500/20': t.status === 'REVIEW',
-                        'bg-red-500/10 text-red-400 border-red-500/20': t.status === 'BLOCKED' || t.status === 'TODO'
-                      }">
-                  {{ t.status }}
-                </span>
-              </div>
-
-              <!-- 3. Deadline -->
-              <div class="w-[15%]">
-                <span class="text-xs text-white/40 font-medium">{{ t.deadline ? (t.deadline | date:'MMM dd') : 'N/A'
-                  }}</span>
-              </div>
-
-              <!-- 4. Progress -->
-              <div class="w-[20%] text-right">
-                <div class="flex flex-col items-end gap-1.5">
-                  <span class="text-[11px] font-bold text-white/60">{{ getProgressByStatus(t.status) }}%</span>
-                  <div class="w-16 h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div class="h-full bg-white/20" [style.width.%]="getProgressByStatus(t.status)"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <h4 class="text-xl font-bold text-white/30 mb-3">Select a Critical Project</h4>
+        <p class="text-sm text-white/10 text-center max-w-[320px] leading-relaxed">Please choose one of your most urgent projects from the tabs above to manage its tasks and track daily progress.</p>
       </div>
     </div>
 
@@ -459,11 +355,21 @@
       <!-- Priority Tasks -->
       <div class="dash-panel">
         <h3 class="Schedule mb-4">Priority Tasks</h3>
-        <div class="space-y-3">
-          <div *ngFor="let t of getPriorityTasks().slice(0,3); let first = first" class="flex items-center gap-3">
-            <span class="w-1.5 h-1.5 rounded-full shrink-0" [ngClass]="first ? 'bg-[#FF1A1A]' : 'bg-white/20'"></span>
+        <div class="space-y-3" id="priorityTasksList" 
+             cdkDropList [cdkDropListData]="getPriorityTasks()"
+             [cdkDropListConnectedTo]="['todoList', 'inProgressList', 'reviewList', 'doneList']">
+          <div *ngFor="let t of getPriorityTasks().slice(0,3); let first = first" 
+               cdkDrag class="flex items-center gap-3 cursor-grab group py-1.5 px-2 hover:bg-white/[0.03] rounded-xl transition-all">
+            <div class="w-1.5 h-1.5 rounded-full shrink-0" [ngClass]="first ? 'bg-[#FF1A1A]' : 'bg-white/20'"></div>
             <p style="font-family: 'Inter', sans-serif; font-weight: 400; font-style: normal; font-size: 14px; line-height: 20px; letter-spacing: 0px; vertical-align: middle;"
-              [style.color]="first ? '#FFFFFF' : '#808080'">{{t.title}}</p>
+              [style.color]="first ? '#FFFFFF' : '#808080'" class="flex-1 group-hover:text-white transition-colors truncate">{{t.title}}</p>
+            <!-- Grab Handle -->
+            <div class="opacity-0 group-hover:opacity-100 text-white/20 transition-opacity">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
+                <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
+              </svg>
+            </div>
           </div>
           <div *ngIf="getPriorityTasks().length === 0" class="text-xs text-white/20 italic">No priority tasks</div>
         </div>

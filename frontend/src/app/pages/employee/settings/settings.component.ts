@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
 
@@ -12,44 +12,99 @@ import { ApiService } from '../../../core/api.service';
 })
 export class SettingsComponent implements OnInit {
   user: any = null;
+  firstName = '';
+  lastName = '';
+  profilePhoto = '';
 
-  // Notification preferences
-  emailNotifications = true;
-  pushNotifications = true;
-  taskReminders = true;
-  meetingAlerts = true;
-  projectUpdates = false;
+  // Active nav section
+  activeSection = 'appearance';
 
   // Appearance
-  darkMode = true;
-  compactView = false;
+  selectedTheme: 'dark' | 'light' = 'dark';
 
-  // Privacy
-  showOnlineStatus = true;
-  showEmail = false;
+  // Localization
+  interfaceLanguage = 'English (United States)';
+  timeZone = '(GMT-08:00) Pacific Time';
+
+  languages = [
+    'English (United States)',
+    'Français (France)',
+    'Español (España)',
+    'Deutsch (Deutschland)',
+    'العربية'
+  ];
+
+  timeZones = [
+    '(GMT-08:00) Pacific Time',
+    '(GMT-05:00) Eastern Time',
+    '(GMT+00:00) UTC',
+    '(GMT+01:00) Central European Time',
+    '(GMT+03:00) Arabia Standard Time'
+  ];
+
+  // Account Preferences
+  publicProfile = false;
+  activityTracking = true;
+  twoFactorEnabled = false;
 
   saved = false;
 
-  constructor(private api: ApiService) {}
+  constructor(
+    private api: ApiService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit() {
     this.api.getMe().subscribe({
       next: (r: any) => {
         this.user = r;
+        this.firstName = r.first_name || '';
+        this.lastName = r.last_name || '';
+        this.profilePhoto = r.profile_photo || '';
         if (r.preferences) {
-          this.emailNotifications = r.preferences.email_notifications ?? true;
-          this.pushNotifications = r.preferences.push_notifications ?? true;
-          this.taskReminders = r.preferences.task_reminders ?? true;
-          this.meetingAlerts = r.preferences.meeting_alerts ?? true;
-          this.projectUpdates = r.preferences.project_updates ?? false;
+          this.publicProfile = r.preferences.public_profile ?? false;
+          this.activityTracking = r.preferences.activity_tracking ?? true;
         }
       },
       error: () => {}
     });
   }
 
+  setTheme(theme: 'dark' | 'light') {
+    this.selectedTheme = theme;
+  }
+
+  scrollTo(section: string) {
+    this.activeSection = section;
+    const el = document.getElementById(section);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  enableTwoFactor() {
+    this.twoFactorEnabled = true;
+  }
+
+  deactivateAccount() {
+    if (confirm('Are you sure you want to deactivate your account? This action cannot be undone.')) {
+      // handle deactivation
+    }
+  }
+
   saveSettings() {
-    this.saved = true;
-    setTimeout(() => this.saved = false, 2500);
+    const payload = {
+      preferences: {
+        public_profile: this.publicProfile,
+        activity_tracking: this.activityTracking,
+        interface_language: this.interfaceLanguage,
+        time_zone: this.timeZone,
+        theme: this.selectedTheme
+      }
+    };
+    this.api.updatePreferences(payload).subscribe({
+      next: () => {
+        this.saved = true;
+        setTimeout(() => this.saved = false, 2500);
+      }
+    });
   }
 }

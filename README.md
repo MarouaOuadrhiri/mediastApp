@@ -1,6 +1,8 @@
 "# mediastApp" 
-when user reject task the respond of admin 
+Calendrier page don't match with project page
 color tag card tasks 
-message page(live from h ,fix show last messages of yesterday ... with date add AM or PM on message )
-calendar page 
-tasks project dashboard employe
+settings page 
+profile page 
+dashboard kanban board design tasks 
+remove add task on a project that already have 4 tasks
+all emails should be end with @brandshift.ma

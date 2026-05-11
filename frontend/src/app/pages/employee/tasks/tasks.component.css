@@ -211,6 +211,55 @@ header {
   opacity: 0.85;
 }
 
+/* Refusal Pending State */
+.task-card.refusal-pending {
+  filter: blur(2px);
+  pointer-events: none;
+  opacity: 0.6;
+  position: relative;
+}
+
+.task-card.refusal-pending::after {
+  content: 'WAITING FOR ADMIN RESPONSE';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #FD0000;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(253, 0, 0, 0.3);
+}
+
+.list-row-container .refusal-pending {
+  filter: blur(2px);
+  pointer-events: none;
+  opacity: 0.5;
+  position: relative;
+}
+
+.list-row-container .refusal-pending::after {
+  content: 'PENDING RESPONSE';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #FD0000;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  z-index: 10;
+}
+
 /* ── Card Top Row ──────────────────────────── */
 .card-top {
   display: flex;

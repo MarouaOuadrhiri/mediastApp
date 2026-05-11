@@ -70,7 +70,8 @@ export class TasksComponent implements OnInit {
   }
 
   updateTaskLists() {
-    const all = this.getAllTasks();
+    let all = this.getAllTasks();
+    
     // Sort non-done tasks by deadline urgency (closest deadline first)
     const sortByDeadline = (a: any, b: any) => {
       if (!a.deadline && !b.deadline) return 0;
@@ -274,5 +275,11 @@ export class TasksComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  getProjectProgress(p: any): number {
+    if (!p.tasks || p.tasks.length === 0) return 0;
+    const done = p.tasks.filter((t: any) => t.status === 'DONE').length;
+    return Math.round((done / p.tasks.length) * 100);
   }
 }

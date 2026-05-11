@@ -1,135 +1,206 @@
-<div class="settings-container animate-fade-up">
-  <div class="settings-header">
-    <h1 class="settings-title">Settings</h1>
-    <p class="settings-subtitle">Manage your preferences</p>
-  </div>
+<div class="settings-root">
+  <!-- Page Sub-header -->
+  <p class="settings-subtitle">Manage your workspace environment and account protocols</p>
 
-  <!-- Success toast -->
-  <div *ngIf="saved" class="save-toast">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-    Settings saved successfully
-  </div>
+  <div class="settings-layout">
+    <!-- LEFT SIDEBAR -->
+    <aside class="settings-sidebar">
+      <!-- Profile Card -->
+      <div class="profile-mini-card">
+        <div class="profile-mini-avatar-wrap">
+          <img [src]="profilePhoto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&h=80'"
+               class="profile-mini-avatar" alt="avatar">
+        </div>
+        <div class="profile-mini-info">
+          <h3 class="profile-mini-name">{{firstName}} {{lastName}}</h3>
+          <span class="profile-mini-role">Senior Designer</span>
+        </div>
+        <div class="profile-mini-status">
+          <span class="status-label">Account Security</span>
+          <span class="status-badge-verified">Verified</span>
+        </div>
+      </div>
 
-  <div class="settings-grid">
-    <!-- Notifications -->
-    <div class="settings-card">
-      <div class="card-header">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-        <h2 class="card-title">Notifications</h2>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <p class="setting-name">Email Notifications</p>
-          <p class="setting-desc">Receive updates via email</p>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="emailNotifications" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <p class="setting-name">Push Notifications</p>
-          <p class="setting-desc">Browser push notifications</p>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="pushNotifications" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <p class="setting-name">Task Reminders</p>
-          <p class="setting-desc">Get reminded before deadlines</p>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="taskReminders" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <p class="setting-name">Meeting Alerts</p>
-          <p class="setting-desc">Upcoming meeting notifications</p>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="meetingAlerts" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <p class="setting-name">Project Updates</p>
-          <p class="setting-desc">Notifications for project changes</p>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="projectUpdates" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
+      <!-- Navigation -->
+      <nav class="settings-nav">
+        <button class="nav-item" [class.nav-item-active]="activeSection === 'appearance'" (click)="scrollTo('appearance')">
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+            </svg>
+          </span>
+          Appearance
+        </button>
+        <button class="nav-item" [class.nav-item-active]="activeSection === 'notifications'" (click)="scrollTo('notifications')">
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+          </span>
+          Notifications
+        </button>
+        <button class="nav-item" [class.nav-item-active]="activeSection === 'language'" (click)="scrollTo('language')">
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/>
+            </svg>
+          </span>
+          Language
+        </button>
+        <button class="nav-item" [class.nav-item-active]="activeSection === 'privacy'" (click)="scrollTo('privacy')">
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </span>
+          Privacy
+        </button>
+      </nav>
+    </aside>
 
-    <!-- Appearance -->
-    <div class="settings-card">
-      <div class="card-header">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
-        <h2 class="card-title">Appearance</h2>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <p class="setting-name">Dark Mode</p>
-          <p class="setting-desc">Use dark theme (default)</p>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="darkMode" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <p class="setting-name">Compact View</p>
-          <p class="setting-desc">Reduce spacing in lists</p>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="compactView" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
+    <!-- MAIN CONTENT -->
+    <main class="settings-main">
 
-    <!-- Privacy -->
-    <div class="settings-card">
-      <div class="card-header">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-        <h2 class="card-title">Privacy</h2>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <p class="setting-name">Show Online Status</p>
-          <p class="setting-desc">Let others see when you're active</p>
+      <!-- Visual Environment -->
+      <section id="appearance" class="settings-section scroll-mt-8">
+        <div class="section-header">
+          <h2 class="section-title">Visual Environment</h2>
+          <span class="section-badge">Default: Obsidian Dark</span>
         </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="showOnlineStatus" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <p class="setting-name">Show Email Address</p>
-          <p class="setting-desc">Display email to team members</p>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="showEmail" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
-  </div>
 
-  <div class="save-bar">
-    <button (click)="saveSettings()" class="save-btn">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-      Save Changes
-    </button>
+        <div class="theme-grid">
+          <!-- Dark Theme Card -->
+          <div class="theme-card" [class.theme-card-active]="selectedTheme === 'dark'" (click)="setTheme('dark')">
+            <div class="theme-preview-dark">
+              <div class="theme-preview-dot-red"></div>
+              <div class="theme-preview-lines">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="theme-check" *ngIf="selectedTheme === 'dark'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17L4 12"/></svg>
+            </div>
+            <div class="theme-info">
+              <div class="theme-dot-red"></div>
+              <div>
+                <p class="theme-name">Studio Dark</p>
+                <p class="theme-desc">High-contrast obsidian with tactical red accents.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Light Theme Card -->
+          <div class="theme-card theme-card-light" [class.theme-card-active-light]="selectedTheme === 'light'" (click)="setTheme('light')">
+            <div class="theme-preview-light">
+              <div class="theme-preview-lines-dark">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="theme-check theme-check-dark" *ngIf="selectedTheme === 'light'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17L4 12"/></svg>
+            </div>
+            <div class="theme-info">
+              <div class="theme-dot-gray"></div>
+              <div>
+                <p class="theme-name-dark">Studio Light</p>
+                <p class="theme-desc-dark">Clean, bright minimalist workspace environment.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Localization -->
+      <section id="language" class="settings-section scroll-mt-8">
+        <h2 class="section-title">Localization</h2>
+        <div class="localization-grid">
+          <div class="input-group">
+            <label class="input-label">Interface Language</label>
+            <div class="select-wrap">
+              <select [(ngModel)]="interfaceLanguage" class="settings-select">
+                <option *ngFor="let lang of languages" [value]="lang">{{lang}}</option>
+              </select>
+              <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Time Zone</label>
+            <div class="select-wrap">
+              <select [(ngModel)]="timeZone" class="settings-select">
+                <option *ngFor="let tz of timeZones" [value]="tz">{{tz}}</option>
+              </select>
+              <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Account Preferences -->
+      <section id="notifications" class="settings-section scroll-mt-8">
+        <h2 class="section-title">Account Preferences</h2>
+
+        <div class="prefs-list">
+          <!-- Public Profile Toggle -->
+          <div class="pref-row">
+            <div class="pref-info">
+              <p class="pref-title">Public Professional Profile</p>
+              <p class="pref-desc">Allow colleagues outside your team to view your portfolio.</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="publicProfile">
+              <span class="toggle-track" [class.toggle-track-on]="publicProfile">
+                <span class="toggle-thumb"></span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Activity Status Toggle -->
+          <div class="pref-row">
+            <div class="pref-info">
+              <p class="pref-title">Activity Status Tracking</p>
+              <p class="pref-desc">Show "Online" status when you are active on the platform.</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="activityTracking">
+              <span class="toggle-track" [class.toggle-track-on]="activityTracking">
+                <span class="toggle-thumb"></span>
+              </span>
+            </label>
+          </div>
+
+          <!-- 2FA Row -->
+          <div class="pref-row">
+            <div class="pref-info">
+              <p class="pref-title">Two-Factor Authentication</p>
+              <p class="pref-desc">Enhanced security for administrative actions.</p>
+            </div>
+            <button *ngIf="!twoFactorEnabled" (click)="enableTwoFactor()" class="btn-enable">Enable</button>
+            <span *ngIf="twoFactorEnabled" class="badge-enabled">Enabled</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Critical Zones -->
+      <section id="privacy" class="settings-section scroll-mt-8">
+        <h2 class="section-title-red">Critical Zones</h2>
+
+        <div class="critical-card">
+          <div class="critical-info">
+            <p class="critical-title">Deactivate Account</p>
+            <p class="critical-desc">Temporarily suspend your workspace access and activity.</p>
+          </div>
+          <button class="btn-deactivate" (click)="deactivateAccount()">Deactivate</button>
+        </div>
+      </section>
+
+      <!-- Save Button -->
+      <div class="save-row">
+        <button class="btn-save" (click)="saveSettings()">
+          <svg *ngIf="saved" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17L4 12"/></svg>
+          {{ saved ? 'Saved!' : 'Save Changes' }}
+        </button>
+      </div>
+
+    </main>
   </div>
 </div>

@@ -5,10 +5,18 @@
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.header-title h1{
+
+.header-title h1 {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   font-style: Bold;
@@ -18,7 +26,8 @@
   vertical-align: middle;
   color: #E5E2E3;
 }
-.header-title p{
+
+.header-title p {
   font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-style: Regular;
@@ -28,6 +37,7 @@
   vertical-align: middle;
   color: #C6C6CC;
 }
+
 /* Sidebar Nav */
 .nav-item {
   display: flex;
@@ -72,7 +82,7 @@
 }
 
 /* Cards */
-.title{
+.title {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   font-style: Bold;
@@ -82,7 +92,8 @@
   vertical-align: middle;
   color: #E5E2E3;
 }
-.title-2{
+
+.title-2 {
   font-family: Space Grotesk;
   font-weight: 700;
   font-style: Bold;
@@ -92,7 +103,8 @@
   vertical-align: middle;
   color: #E5E2E3;
 }
-.desc{
+
+.desc {
   font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-style: Regular;
@@ -102,7 +114,8 @@
   vertical-align: middle;
   color: #A3A3A3;
 }
-.title-3{
+
+.title-3 {
   font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-style: Bold;
@@ -112,7 +125,8 @@
   vertical-align: middle;
   color: #FFFFFF;
 }
-.description{
+
+.description {
   font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-style: Regular;
@@ -122,6 +136,7 @@
   vertical-align: middle;
   color: #737373;
 }
+
 .settings-card {
   background: #2A2A2B;
   backdrop-filter: blur(16px);
@@ -152,34 +167,34 @@
 .admin-badge {
 
   font-family: 'Space Grotesk';
-font-weight: 700;
-font-style: Bold;
-font-size: 10px;
-line-height: 15px;
-letter-spacing: 1px;
-vertical-align: middle;
-text-transform: uppercase;
-color:rgba(183, 184, 190, 1);
-background:rgba(71, 73, 78, 1);
-padding: 0.4rem 0.8rem;
-border-radius: 99px;
-border: 1px solid rgba(255, 255, 255, 0.05);
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 10px;
+  line-height: 15px;
+  letter-spacing: 1px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  color: rgba(183, 184, 190, 1);
+  background: rgba(71, 73, 78, 1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Inputs */
 .input-label {
 
   font-family: 'Space Grotesk';
-font-weight: 400;
-font-style: Regular;
-font-size: 12px;
-line-height: 16px;
-letter-spacing: 1.2px;
-vertical-align: middle;
-text-transform: uppercase;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 1.2px;
+  vertical-align: middle;
+  text-transform: uppercase;
   display: block;
   margin-left: 0.5rem;
-  color:rgba(115, 115, 115, 1);
+  color: rgba(115, 115, 115, 1);
 }
 
 .settings-input {
@@ -294,14 +309,14 @@ text-transform: uppercase;
   background-color: white;
   transition: .4s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: #FE0707;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(24px);
 }
 
@@ -341,13 +356,18 @@ input:checked + .slider:before {
 .modal-content.glass {
   background: #161616;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(20px);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .password-modal {
@@ -355,8 +375,15 @@ input:checked + .slider:before {
 }
 
 @keyframes modalIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .btn-validation {

@@ -17,12 +17,13 @@
           <span class="nav-indicator"></span>
           Workspace
         </button> -->
-        <button *ngIf="isAdmin()" (click)="scrollToSection('notifications')" [class.active-nav]="activeTab === 'notifications'"
-          class="nav-item">
+        <button *ngIf="isAdmin()" (click)="scrollToSection('notifications')"
+          [class.active-nav]="activeTab === 'notifications'" class="nav-item">
           <span class="nav-indicator"></span>
           Notifications
         </button>
-        <button *ngIf="isAdmin()" (click)="scrollToSection('security')" [class.active-nav]="activeTab === 'security'" class="nav-item">
+        <button *ngIf="isAdmin()" (click)="scrollToSection('security')" [class.active-nav]="activeTab === 'security'"
+          class="nav-item">
           <span class="nav-indicator"></span>
           Security
         </button>
@@ -42,13 +43,17 @@
         <!-- Profile Photo Section -->
         <div class="flex items-center gap-8 mb-10">
           <div class="relative group">
-            <div class="w-24 h-24 rounded-full overflow-hidden border-2 border-white/5 bg-white/5 flex items-center justify-center shadow-2xl">
+            <div
+              class="w-24 h-24 rounded-full overflow-hidden border-2 border-white/5 bg-white/5 flex items-center justify-center shadow-2xl">
               <img *ngIf="profilePhoto" [src]="profilePhoto" class="w-full h-full object-cover">
-              <svg *ngIf="!profilePhoto" class="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              <svg *ngIf="!profilePhoto" class="w-10 h-10 text-white/20" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <label class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-all border-2 border-white/10">
+            <label
+              class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-all border-2 border-white/10">
               <span class="text-[10px] font-bold text-white uppercase tracking-widest">Change</span>
               <input type="file" (change)="onFileSelected($event)" class="hidden" accept="image/*">
             </label>
@@ -85,8 +90,8 @@
       <!-- <section id="workspace" class="space-y-6 scroll-mt-8">
         <h2 class="title">Workspace Configuration</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6"> -->
-          <!-- Atmospheric Mode -->
-          <!-- <div class="settings-card-mini">
+      <!-- Atmospheric Mode -->
+      <!-- <div class="settings-card-mini">
             <div class="flex items-start justify-between">
               <div class="space-y-3">
                 <div class="flex items-center gap-3">
@@ -107,8 +112,8 @@
               </label>
             </div>
           </div> -->
-          <!-- Performance Render -->
-          <!-- <div class="settings-card-mini">
+      <!-- Performance Render -->
+      <!-- <div class="settings-card-mini">
             <div class="flex items-start justify-between">
               <div class="space-y-3">
                 <div class="flex items-center gap-3">
@@ -130,7 +135,7 @@
               </label>
             </div>
           </div> -->
-        <!-- </div>
+      <!-- </div>
       </section> -->
 
       <!-- System Communications Section -->
@@ -233,7 +238,8 @@
               </div>
               <div class="space-y-1">
                 <h3 class="title-3">Active Sessions</h3>
-                <p class="description">{{ activeSessions.length }} device{{ activeSessions.length > 1 ? 's' : '' }} currently authorized</p>
+                <p class="description">{{ activeSessions.length }} device{{ activeSessions.length > 1 ? 's' : '' }}
+                  currently authorized</p>
               </div>
             </div>
             <button (click)="showSessionsList = !showSessionsList"
@@ -244,27 +250,33 @@
 
           <!-- Sessions List -->
           <div *ngIf="showSessionsList" class="mt-6 space-y-4 animate-fade-up">
-            <div *ngFor="let session of activeSessions" 
-                 class="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+            <div *ngFor="let session of activeSessions"
+              class="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
               <div class="flex items-center gap-4">
                 <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400">
-                  <svg *ngIf="session.device_info.includes('Mobi')" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  <svg *ngIf="session.device_info.includes('Mobi')" class="w-5 h-5" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
-                  <svg *ngIf="!session.device_info.includes('Mobi')" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <svg *ngIf="!session.device_info.includes('Mobi')" class="w-5 h-5" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
                 <div>
                   <div class="flex items-center gap-2">
                     <p class="text-sm font-bold text-white">{{ session.device_info }}</p>
-                    <span *ngIf="session.is_current" class="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-black uppercase tracking-widest">Current</span>
+                    <span *ngIf="session.is_current"
+                      class="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-black uppercase tracking-widest">Current</span>
                   </div>
-                  <p class="text-xs text-gray-500">{{ session.ip_address }} • Connected on {{ session.created_at | date:'mediumDate' }}</p>
+                  <p class="text-xs text-gray-500">{{ session.ip_address }} • Connected on {{ session.created_at |
+                    date:'mediumDate' }}</p>
                 </div>
               </div>
               <button *ngIf="!session.is_current" (click)="disconnectSession(session.id)"
-                      class="px-4 py-2 rounded-xl bg-red-500/10 text-red-500 text-xs font-bold hover:bg-red-500 hover:text-white transition-all">
+                class="px-4 py-2 rounded-xl bg-red-500/10 text-red-500 text-xs font-bold hover:bg-red-500 hover:text-white transition-all">
                 Disconnect
               </button>
             </div>

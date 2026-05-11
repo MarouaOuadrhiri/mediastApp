@@ -24,6 +24,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   upcomingMeetings: any[] = [];
   newMeetingCount = 0;
   showMeetingPanel = false;
+  selectedProject: any = null;
   toastMeeting: any = null;
   systemNotifications: any[] = [];
   private notificationStorageKey = 'employee_system_notifications';
@@ -667,38 +668,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return days <= 2;
   }
 
-  getDeadlineClass(deadlineStr: any): string {
-    if (!deadlineStr) return '';
-    const deadline = new Date(deadlineStr);
-    const now = new Date();
-    const diff = deadline.getTime() - now.getTime();
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-    if (days < 0) return 'overdue';
-    if (days <= 2) return 'urgent';
-    if (days <= 5) return 'soon';
-    return 'safe';
-  }
-
-  getDaysLeftText(deadlineStr: any): string {
-    if (!deadlineStr) return 'NO DEADLINE';
-    const deadline = new Date(deadlineStr);
-    const now = new Date();
-    const diff = deadline.getTime() - now.getTime();
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-    if (days < 0) return `OVERDUE ${Math.abs(days)}D`;
-    if (days === 0) return 'DUE TODAY';
-    return `${days} DAYS LEFT`;
-  }
-
   getProductivityScore(): number {
     return this.getCompletedTasks() * 4; // Arbitrary calculation for UI
   }
 
   getAllTasks(): any[] {
     const all: any[] = [];
-    
+
     // Add standalone tasks with project context
     this.standaloneTasks.forEach(t => {
       let projectName = t.project_name || 'BrandShift';
@@ -738,11 +714,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateTaskLists() {
-    const all = this.getAllTasks();
+    let all = this.getAllTasks();
+    
+    // Filter by selected project if one is active
+    if (this.selectedProject) {
+      all = all.filter(t => {
+        const pId = typeof t.project_id === 'object' ? t.project_id.$oid : t.project_id;
+        const selId = typeof this.selectedProject.id === 'object' ? this.selectedProject.id.$oid : this.selectedProject.id;
+        return pId === selId;
+      });
+    }
+
     this.todoTasks = all.filter(t => t.status === 'TODO' || t.status === 'BLOCKED');
     this.inProgressTasks = all.filter(t => t.status === 'IN_PROGRESS');
     this.reviewTasks = all.filter(t => t.status === 'REVIEW');
     this.doneTasks = all.filter(t => t.status === 'DONE');
+  }
+
+  getCriticalProjects(): any[] {
+    if (!this.projects) return [];
+    return [...this.projects]
+      .sort((a, b) => {
+        const dateA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+        const dateB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+        return dateA - dateB;
+      })
+      .slice(0, 3);
+  }
+
+  selectProject(project: any) {
+    this.selectedProject = project;
+    this.updateTaskLists();
+    this.cdr.detectChanges();
   }
 
   drop(event: CdkDragDrop<any[]>, targetStatus: string) {
@@ -752,27 +755,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const task = event.previousContainer.data[event.previousIndex];
       const apiStatus = targetStatus;
 
+      // Optimistic UI Update: Move immediately
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+      task.status = apiStatus;
+      
       this.isUpdating = true;
 
-      const updateObs = task.is_project_task 
+      const updateObs = task.is_project_task
         ? this.api.updateProjectTaskStatus(task.project_id, task.id, apiStatus)
         : this.api.updateTaskStatus(task.id, apiStatus);
 
       updateObs.subscribe({
         next: () => {
-          transferArrayItem(
-            event.previousContainer.data,
-            event.container.data,
-            event.previousIndex,
-            event.currentIndex
-          );
-          task.status = apiStatus;
           this.isUpdating = false;
           this.cdr.detectChanges();
         },
         error: () => {
           this.isUpdating = false;
-          this.loadData();
+          this.loadData(); // Revert on error
           this.cdr.detectChanges();
         }
       });
@@ -809,6 +814,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getProjectInitials(name: string): string {
     return name.substring(0, 2).toUpperCase();
+  }
+
+  getDaysLeftText(deadline: any): string {
+    if (!deadline) return 'No Date';
+    const now = new Date();
+    const target = new Date(deadline);
+    const diff = target.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    
+    if (days < 0) return 'Overdue';
+    if (days === 0) return 'Due Today';
+    if (days === 1) return 'Tomorrow';
+    return `${days} days left`;
+  }
+
+  getDeadlineClass(deadline: any): string {
+    if (!deadline) return '';
+    const now = new Date();
+    const target = new Date(deadline);
+    const diff = target.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    
+    if (days <= 2) return 'urgent';
+    if (days <= 5) return 'near';
+    return '';
   }
 }
 

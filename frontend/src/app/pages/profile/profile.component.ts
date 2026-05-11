@@ -62,7 +62,7 @@ export class ProfileComponent implements OnInit {
   showSessionsList = false;
 
   constructor(
-    private api: ApiService, 
+    private api: ApiService,
     private ui: UiService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
@@ -349,7 +349,7 @@ export class ProfileComponent implements OnInit {
 
   disconnectSession(sessionId: string) {
     if (!confirm('Are you sure you want to disconnect this device?')) return;
-    
+
     this.api.revokeSession(sessionId).subscribe({
       next: () => {
         this.ui.notify('Device disconnected.', 'success');

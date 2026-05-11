@@ -1,4 +1,5 @@
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+import datetime
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from users.authentication import JWTAuthentication
@@ -25,7 +26,14 @@ def serialize_task(t):
             continue
 
     # Fetch deadline and project name from linked ProjectTask
-    deadline = t.deadline.strftime('%Y-%m-%d') if getattr(t, 'deadline', None) else None
+    raw_deadline = getattr(t, 'deadline', None)
+    deadline = None
+    if raw_deadline:
+        if isinstance(raw_deadline, str):
+            deadline = raw_deadline[:10]
+        else:
+            deadline = raw_deadline.strftime('%Y-%m-%d')
+    
     project_name = None
     if getattr(t, 'project', None):
         try:
@@ -33,7 +41,10 @@ def serialize_task(t):
             project_name = proj.name
             # Fallback to project deadline if no task-level deadline
             if not deadline and proj.deadline:
-                deadline = proj.deadline.strftime('%Y-%m-%d')
+                if isinstance(proj.deadline, str):
+                    deadline = proj.deadline[:10]
+                else:
+                    deadline = proj.deadline.strftime('%Y-%m-%d')
         except Exception:
             pass
 
@@ -197,7 +208,6 @@ def update_task(request, pk):
     task.title = request.data.get('title', task.title)
     task.description = request.data.get('description', task.description)
     task.status = request.data.get('status', task.status)
-    task.priority = request.data.get('priority', task.priority)
     task.deadline = request.data.get('deadline', task.deadline)
     
     # Handle refusal flags

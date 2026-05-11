@@ -226,3 +226,80 @@
   vertical-align: middle;
   color: #808080;
 }
+
+/* Critical Project Card (Vertical List) */
+.critical-project-card {
+  background: #1C1C1E;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 24px;
+  cursor: pointer;
+}
+
+.critical-project-card.active-project-card {
+  border-color: #FD0000;
+  background: linear-gradient(145deg, #1C1C1E 0%, #252529 100%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.critical-project-card:hover:not(.active-project-card) {
+  background: #252529;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Kanban in Two-Panel Layout */
+.kanban-col {
+  background: rgba(255, 255, 255, 0.01);
+  border-radius: 24px;
+  padding: 12px;
+  min-height: 400px;
+}
+
+.kanban-card {
+  background: #1A1A1C;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 16px;
+  border-radius: 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.kanban-card:hover {
+  transform: translateY(-2px);
+  background: #222224;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Drag & Drop Styles */
+.cursor-grab {
+  cursor: grab !important;
+}
+
+.cursor-grab:active {
+  cursor: grabbing !important;
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 18px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  background: #222224;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px;
+  color: white;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.kanban-col.cdk-drop-list-dragging .kanban-card:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
