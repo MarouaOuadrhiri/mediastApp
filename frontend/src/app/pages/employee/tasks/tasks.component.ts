@@ -18,6 +18,7 @@ export class TasksComponent implements OnInit {
   inProgressTasks: any[] = [];
   reviewTasks: any[] = [];
   doneTasks: any[] = [];
+  selectedProject: any = null;
 
   viewMode: 'kanban' | 'list' = 'kanban';
   listStatuses = ['TODO', 'IN PROGRESS', 'REVIEW', 'DONE'];
@@ -50,6 +51,11 @@ export class TasksComponent implements OnInit {
     this.api.getMyProjects().subscribe({
       next: (r: any) => {
         this.projects = r || [];
+        
+        if (!this.selectedProject) {
+          this.selectedProject = { id: 'general', name: 'My Tasks' };
+        }
+        
         this.updateTaskLists();
         this.cdr.detectChanges();
       }
@@ -69,9 +75,27 @@ export class TasksComponent implements OnInit {
     });
   }
 
+  getAllTasks(): any[] {
+    const all: any[] = [];
+
+    // Add standalone tasks with project context
+    this.standaloneTasks.forEach(t => {
+      let projectName = t.project_name || 'General';
+      const tProjId = this.parseId(t.project_id);
+      if (tProjId) {
+        const p = this.projects.find(proj => this.parseId(proj.id) === tProjId);
+        if (p) projectName = p.name;
+      }
+      all.push({ ...t, project_name: projectName, is_project_task: false });
+    });
+
+    return all;
+  }
+
   updateTaskLists() {
-    let all = this.getAllTasks();
-    
+    // Tasks page shows all standalone tasks assigned to the user
+    const all = this.standaloneTasks.map(t => ({ ...t, is_project_task: false }));
+
     // Sort non-done tasks by deadline urgency (closest deadline first)
     const sortByDeadline = (a: any, b: any) => {
       if (!a.deadline && !b.deadline) return 0;
@@ -80,56 +104,27 @@ export class TasksComponent implements OnInit {
       return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
     };
 
-    this.todoTasks = all.filter(t => t.status === 'TODO' || t.status === 'BLOCKED').sort(sortByDeadline);
-    this.inProgressTasks = all.filter(t => t.status === 'IN_PROGRESS').sort(sortByDeadline);
-    this.reviewTasks = all.filter(t => t.status === 'REVIEW').sort(sortByDeadline);
-    this.doneTasks = all.filter(t => t.status === 'DONE');
+    this.todoTasks = all.filter(t => {
+      const s = (t.status || '').toUpperCase();
+      return s === 'TODO' || s === 'BLOCKED';
+    }).sort(sortByDeadline);
+
+    this.inProgressTasks = all.filter(t => (t.status || '').toUpperCase() === 'IN_PROGRESS').sort(sortByDeadline);
+    this.reviewTasks = all.filter(t => (t.status || '').toUpperCase() === 'REVIEW').sort(sortByDeadline);
+    this.doneTasks = all.filter(t => (t.status || '').toUpperCase() === 'DONE').sort(sortByDeadline);
   }
 
-  getAllTasks(): any[] {
-    const all: any[] = [];
+  selectProject(p: any) {
+    this.selectedProject = p;
+    this.updateTaskLists();
+    this.cdr.detectChanges();
+  }
 
-    const getStrId = (id: any) => {
-      if (!id) return null;
-      if (typeof id === 'object') return id.$oid || id.toString();
-      return id.toString();
-    };
-    
-    // Add standalone tasks with project context
-    this.standaloneTasks.forEach(t => {
-      let projectName = t.project_name || 'BrandShift';
-      const tProjId = getStrId(t.project_id);
-      if (tProjId) {
-        const p = this.projects.find(proj => getStrId(proj.id) === tProjId);
-        if (p) projectName = p.name;
-      }
-      all.push({ ...t, project_name: projectName, is_project_task: false });
-    });
-
-    // Aggregate project tasks that are assigned to the employee
-    this.projects.forEach(p => {
-      const pId = getStrId(p.id);
-      if (p.tasks) {
-        p.tasks.forEach((pt: any) => {
-          const ptId = getStrId(pt.id);
-          // Only add if not already in standaloneTasks (prevent duplicates)
-          const exists = this.standaloneTasks.some(st => {
-            const stSourceId = getStrId(st.source_project_task_id);
-            return (stSourceId && ptId && stSourceId === ptId) || st.title === pt.title;
-          });
-          if (!exists) {
-            all.push({
-              ...pt,
-              project_id: p.id,
-              project_name: p.name,
-              is_project_task: true
-            });
-          }
-        });
-      }
-    });
-
-    return all;
+  private parseId(id: any): string | null {
+    if (!id || id === 'null' || id === 'undefined') return null;
+    if (typeof id === 'object') return id.$oid || id.toString();
+    const str = id.toString();
+    return (str === 'null' || str === 'undefined') ? null : str;
   }
 
   toggleStatusGroup(status: string) {

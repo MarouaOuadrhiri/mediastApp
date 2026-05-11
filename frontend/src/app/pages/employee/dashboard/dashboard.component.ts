@@ -168,7 +168,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.api.getMyProjects().subscribe({
       next: (r: any) => {
         if (this.isDragging || this.isUpdating) return;
-        this.runInZone(() => { this.projects = r || []; this.updateTaskLists(); this.cdr.detectChanges(); });
+        this.runInZone(() => { 
+          this.projects = r || []; 
+          
+          // Initialize selectedProject to "My Tasks" if nothing selected
+          if (!this.selectedProject) {
+            this.selectedProject = { id: 'general', name: 'My Tasks' };
+          }
+          
+          this.updateTaskLists(); 
+          this.cdr.detectChanges(); 
+        });
       },
       error: () => { if (!isRefresh) this.errorMsg = 'Failed to load project data.'; }
     });
@@ -672,47 +682,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.getCompletedTasks() * 4; // Arbitrary calculation for UI
   }
 
+  private parseId(id: any): string | null {
+    if (!id || id === 'null' || id === 'undefined') return null;
+    if (typeof id === 'object') return id.$oid || id.toString();
+    const str = id.toString();
+    return (str === 'null' || str === 'undefined') ? null : str;
+  }
+
   getAllTasks(): any[] {
     const all: any[] = [];
 
-    const getStrId = (id: any) => {
-      if (!id) return null;
-      if (typeof id === 'object') return id.$oid || id.toString();
-      return id.toString();
-    };
-
     // Add standalone tasks with project context
     this.standaloneTasks.forEach(t => {
-      let projectName = t.project_name || 'BrandShift';
-      const tProjId = getStrId(t.project_id);
+      let projectName = t.project_name || 'General';
+      const tProjId = this.parseId(t.project_id);
       if (tProjId) {
-        const p = this.projects.find(proj => getStrId(proj.id) === tProjId);
+        const p = this.projects.find(proj => this.parseId(proj.id) === tProjId);
         if (p) projectName = p.name;
       }
       all.push({ ...t, project_name: projectName, is_project_task: false });
-    });
-
-    // Aggregate project tasks that are assigned to the employee
-    this.projects.forEach(p => {
-      const pId = getStrId(p.id);
-      if (p.tasks) {
-        p.tasks.forEach((pt: any) => {
-          const ptId = getStrId(pt.id);
-          // Only add if not already in standaloneTasks (prevent duplicates)
-          const exists = this.standaloneTasks.some(st => {
-            const stSourceId = getStrId(st.source_project_task_id);
-            return (stSourceId && ptId && stSourceId === ptId) || st.title === pt.title;
-          });
-          if (!exists) {
-            all.push({
-              ...pt,
-              project_id: p.id,
-              project_name: p.name,
-              is_project_task: true
-            });
-          }
-        });
-      }
     });
 
     return all;
@@ -726,38 +714,53 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateTaskLists() {
-    let all = this.getAllTasks();
+    let all: any[] = [];
     
-    const getStrId = (id: any) => {
-      if (!id) return null;
-      if (typeof id === 'object') return id.$oid || id.toString();
-      return id.toString();
-    };
-
     // Filter by selected project if one is active
     if (this.selectedProject) {
-      const selId = getStrId(this.selectedProject.id);
-      all = all.filter(t => {
-        const pId = getStrId(t.project_id);
-        return pId === selId;
-      });
+      if (this.selectedProject.id === 'general') {
+        // "MY TASKS" tab shows all standalone tasks
+        all = this.standaloneTasks.map(t => ({ ...t, is_project_task: false }));
+      } else {
+        // Project tabs show tasks from the Project model (embedded tasks)
+        if (this.selectedProject.tasks) {
+          all = this.selectedProject.tasks.map((pt: any) => ({
+            ...pt,
+            project_id: this.selectedProject.id,
+            project_name: this.selectedProject.name,
+            is_project_task: true
+          }));
+        }
+      }
     }
 
-    this.todoTasks = all.filter(t => t.status === 'TODO' || t.status === 'BLOCKED');
-    this.inProgressTasks = all.filter(t => t.status === 'IN_PROGRESS');
-    this.reviewTasks = all.filter(t => t.status === 'REVIEW');
-    this.doneTasks = all.filter(t => t.status === 'DONE');
+    this.todoTasks = all.filter(t => {
+      const s = (t.status || '').toUpperCase();
+      return s === 'TODO' || s === 'BLOCKED';
+    });
+    this.inProgressTasks = all.filter(t => (t.status || '').toUpperCase() === 'IN_PROGRESS');
+    this.reviewTasks = all.filter(t => (t.status || '').toUpperCase() === 'REVIEW');
+    this.doneTasks = all.filter(t => (t.status || '').toUpperCase() === 'DONE');
   }
 
   getCriticalProjects(): any[] {
-    if (!this.projects) return [];
-    return [...this.projects]
-      .sort((a, b) => {
-        const dateA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
-        const dateB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
-        return dateA - dateB;
-      })
-      .slice(0, 3);
+    const list: any[] = [];
+    
+    // Always add a "My Tasks" (General) tab
+    list.push({ id: 'general', name: 'My Tasks' });
+
+    if (this.projects) {
+      const sorted = [...this.projects]
+        .sort((a, b) => {
+          const dateA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+          const dateB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+          return dateA - dateB;
+        })
+        .slice(0, 3);
+      list.push(...sorted);
+    }
+    
+    return list;
   }
 
   selectProject(project: any) {
