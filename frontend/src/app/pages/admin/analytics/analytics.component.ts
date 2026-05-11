@@ -202,7 +202,7 @@ export class AnalyticsComponent implements OnInit {
         max: 100
       },
       tooltip: {
-        custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+        custom: ({ series, seriesIndex, dataPointIndex, w }: any) => {
           const val = series[seriesIndex][dataPointIndex];
           const weekLabel = w.globals.categoryLabels[dataPointIndex] || `WK ${dataPointIndex + 1}`;
           

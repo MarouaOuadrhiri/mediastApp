@@ -126,15 +126,78 @@
 
       <!-- LEFT: Search pill -->
       <div class="flex items-center">
-        <div class="flex items-center gap-3"
-          style="height: 52px; padding: 8px 16px; border-radius: 9999px; background: #131314;">
-          <!-- Search input -->
-          <div class="search-pill">
+        <div class="search-pill">
+          <!-- Category Selector -->
+          <div class="category-selector">
+            <button class="category-btn" (click)="toggleSearchCategoryDropdown($event)">
+              {{ selectedSearchCategory | titlecase }}
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="ml-1">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            
+            <div class="category-menu" *ngIf="showSearchCategoryDropdown">
+              <button class="category-item" (click)="setSearchCategory('departement')">Departement</button>
+              <button class="category-item" (click)="setSearchCategory('employe')">Employe</button>
+              <button class="category-item" (click)="setSearchCategory('task')">Task</button>
+              <button class="category-item" (click)="setSearchCategory('project')">Project</button>
+            </div>
+          </div>
+
+          <div class="search-divider"></div>
+
+          <!-- Search Input Wrapper -->
+          <div class="search-input-wrapper">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round" viewBox="0 0 24 24" class="search-icon">
               <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input type="text" placeholder="Search tasks, teams, projects..." class="search-input" />
+            <input type="text" 
+                   [placeholder]="'Search ' + selectedSearchCategory + '...'" 
+                   class="search-input"
+                   [(ngModel)]="searchQuery"
+                   (input)="onSearchInput()"
+                   (focus)="onSearchFocus()"
+                   (click)="$event.stopPropagation()" />
+          </div>
+          <!-- Results Dropdown -->
+          <div class="search-results-menu" *ngIf="showSearchResults && (searchResults.length > 0 || isSearching)">
+            <div class="search-loading" *ngIf="isSearching">
+              <div class="search-skeleton" *ngFor="let i of [1,2,3]">
+                <div class="skeleton-avatar"></div>
+                <div class="skeleton-text">
+                  <div class="skeleton-line-long"></div>
+                  <div class="skeleton-line-short"></div>
+                </div>
+              </div>
+            </div>
+            
+            <ng-container *ngIf="!isSearching">
+              <button class="search-result-item" *ngFor="let result of searchResults" (click)="selectSearchResult(result)">
+                <div class="result-avatar" [style.background]="'hsla(' + (getResultTitle(result).length * 40) + ', 70%, 60%, 0.2)'">
+                  {{ getInitials(getResultTitle(result)) }}
+                </div>
+                <div class="result-info">
+                  <p class="result-title">{{ getResultTitle(result) }}</p>
+                  <p class="result-subtitle">{{ getResultSubtitle(result) }}</p>
+                </div>
+                <div class="result-action">
+                  <span>Détails</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </div>
+              </button>
+              
+              <div class="no-results" *ngIf="searchResults.length === 0">
+                <div class="no-results-icon">
+                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                     <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                   </svg>
+                </div>
+                <p>Aucun résultat pour "{{searchQuery}}"</p>
+              </div>
+            </ng-container>
           </div>
         </div>
       </div>
@@ -146,67 +209,97 @@
         <button (click)="onNewProjectClick()" class="btn-new-project">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" viewBox="0 0 24 24">
-            <path d="M12 4v16m8-8H4" />
+            <path d="M12 5v14M5 12h14" />
           </svg>
           New Project
         </button>
 
-        <!-- Vertical border separator + user zone -->
         <div class="header-user-zone">
-
-          <!-- Notification bell -->
           <button (click)="showNotifPanel = !showNotifPanel" class="notif-btn">
-            <svg width="16" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <path
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
             </svg>
             <span *ngIf="newMeetingCount > 0 || systemNotifications.length > 0" class="notif-dot"></span>
           </button>
 
-          <!-- Username + email -->
           <div class="user-info">
-            <p class="user-name">{{user?.first_name ? (user.first_name + ' ' + user.last_name) : 'Admin'}}</p>
-            <p class="user-email">{{user?.email || 'admin@brandshift.com'}}</p>
+            <p class="user-name">{{user?.first_name}} {{user?.last_name}}</p>
+            <p class="user-email">Administrator</p>
           </div>
 
-          <!-- Click backdrop to close dropdown -->
-          <div *ngIf="showUserDropdown" class="dropdown-backdrop" (click)="showUserDropdown = false"></div>
-
-          <!-- Avatar Toggle -->
           <button (click)="toggleUserDropdown()" class="user-avatar">
-            <img *ngIf="user?.profile_photo" [src]="user.profile_photo"
-              style="width:100%;height:100%;object-fit:cover;border-radius:9999px;">
-            <span *ngIf="!user?.profile_photo">
-              {{(user?.first_name || 'A').charAt(0).toUpperCase()}}
-            </span>
+            {{ (user?.first_name || 'A').charAt(0).toUpperCase() }}
           </button>
 
-          <!-- Dropdown Menu -->
           <div *ngIf="showUserDropdown" class="user-dropdown">
-            <button routerLink="profile" (click)="showUserDropdown = false" class="dropdown-item">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <button routerLink="settings" (click)="showUserDropdown = false" class="dropdown-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
               </svg>
               Settings
             </button>
             <div class="dropdown-divider"></div>
             <button (click)="logout(); showUserDropdown = false" class="dropdown-item logout">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
               Log Out
             </button>
           </div>
-
+          <div *ngIf="showUserDropdown" class="dropdown-backdrop" (click)="showUserDropdown = false"></div>
         </div>
-
       </div>
     </header>
+
+    <!-- SEARCH DETAIL POPUP -->
+    <div class="detail-popup-overlay" *ngIf="searchDetailItem" (click)="closeSearchDetail()">
+      <div class="detail-popup-card" (click)="$event.stopPropagation()">
+        <header class="detail-header">
+          <div class="detail-type-badge">{{ searchDetailItem.type | titlecase }}</div>
+          <button class="btn-close-detail" (click)="closeSearchDetail()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </header>
+
+        <div class="detail-content">
+          <div class="detail-main-info">
+            <div class="detail-avatar" [style.background]="'hsla(' + (getResultTitle(searchDetailItem).length * 40) + ', 70%, 60%, 0.3)'">
+               {{ getInitials(getResultTitle(searchDetailItem)) }}
+            </div>
+            <div class="detail-text">
+              <h2 class="detail-title">{{ getResultTitle(searchDetailItem) }}</h2>
+              <p class="detail-subtitle">{{ getResultSubtitle(searchDetailItem) }}</p>
+            </div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-field" *ngIf="searchDetailItem.email">
+              <label>Email</label>
+              <span>{{ searchDetailItem.email }}</span>
+            </div>
+            <div class="detail-field" *ngIf="searchDetailItem.status">
+              <label>Status</label>
+              <span class="status-pill">{{ searchDetailItem.status }}</span>
+            </div>
+            <div class="detail-field" *ngIf="searchDetailItem.deadline || searchDetailItem.date_limit">
+              <label>Échéance</label>
+              <span>{{ formatDetailDate(searchDetailItem.deadline || searchDetailItem.date_limit) }}</span>
+            </div>
+            <div class="detail-field" *ngIf="searchDetailItem.client_name">
+              <label>Client</label>
+              <span>{{ searchDetailItem.client_name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="detail-footer">
+          <button class="btn-action-primary" (click)="closeSearchDetail()">Fermer</button>
+        </footer>
+      </div>
+    </div>>
 
     <div *ngIf="showNotifPanel"
       class="absolute right-8 top-[80px] z-[120] w-[340px] max-h-[420px] overflow-hidden rounded-3xl border border-white/10 bg-[#111] shadow-2xl">

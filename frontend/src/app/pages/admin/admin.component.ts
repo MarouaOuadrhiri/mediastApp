@@ -1,6 +1,9 @@
-import { Component, OnInit, OnDestroy, PLATFORM_ID, Inject, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, Inject, ChangeDetectorRef, NgZone, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ApiService } from '../../core/api.service';
 import { UiService } from '../../core/ui.service';
 import { ProjectModalComponent } from './projects/project-modal.component';
@@ -8,7 +11,7 @@ import { ProjectModalComponent } from './projects/project-modal.component';
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, ProjectModalComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ProjectModalComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css']
 })
@@ -35,6 +38,17 @@ export class AdminComponent implements OnInit, OnDestroy {
   systemNotifications: any[] = [];
   refusalRequests: any[] = [];
   private refusalPollInterval: any;
+  
+  // Search state
+  selectedSearchCategory = 'task';
+  showSearchCategoryDropdown = false;
+  searchQuery = '';
+  searchResults: any[] = [];
+  showSearchResults = false;
+  isSearching = false;
+  searchDetailItem: any = null;
+  private searchSubject = new Subject<string>();
+  private dataCache: { [key: string]: any[] } = {};
 
   constructor(
     private api: ApiService,
@@ -46,6 +60,11 @@ export class AdminComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.searchSubject.pipe(
+      debounceTime(250),
+      distinctUntilChanged()
+    ).subscribe(() => this.performSearch());
+
     if (isPlatformBrowser(this.platformId)) {
       setTimeout(() => {
         this.api.getMe().subscribe({
@@ -209,6 +228,120 @@ export class AdminComponent implements OnInit, OnDestroy {
     if (diffH === 0) return `Dans ${diffM}min`;
     if (diffH < 24) return `Dans ${diffH}h${diffM > 0 ? diffM + 'min' : ''}`;
     return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // --- Search Implementation ---
+  toggleSearchCategoryDropdown(e: Event) {
+    e.stopPropagation();
+    this.showSearchCategoryDropdown = !this.showSearchCategoryDropdown;
+    this.showSearchResults = false;
+  }
+
+  setSearchCategory(cat: string) {
+    this.selectedSearchCategory = cat;
+    this.showSearchCategoryDropdown = false;
+    this.onSearchInput(); // Refresh results with new category
+  }
+
+  onSearchInput() {
+    this.showSearchResults = !!this.searchQuery.trim();
+    this.searchSubject.next(this.searchQuery);
+  }
+
+  onSearchFocus() {
+    if (this.searchQuery.trim()) {
+      this.showSearchResults = true;
+    }
+  }
+
+  private performSearch() {
+    const query = this.searchQuery.trim().toLowerCase();
+    if (!query) {
+      this.searchResults = [];
+      this.isSearching = false;
+      return;
+    }
+
+    this.isSearching = true;
+
+    // Use cache if available to speed up repeated searches
+    if (this.dataCache[this.selectedSearchCategory]) {
+      this.filterResults(this.dataCache[this.selectedSearchCategory]);
+      return;
+    }
+
+    let obs;
+    switch (this.selectedSearchCategory) {
+      case 'project': obs = this.api.getProjects(); break;
+      case 'employe': obs = this.api.getEmployees(); break;
+      case 'departement': obs = this.api.getDepartments(); break;
+      case 'task': 
+      default: obs = this.api.getTasks(); break;
+    }
+
+    obs.subscribe({
+      next: (data: any[]) => {
+        this.dataCache[this.selectedSearchCategory] = data;
+        this.filterResults(data);
+      },
+      error: () => {
+        this.isSearching = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  private filterResults(data: any[]) {
+    const query = this.searchQuery.toLowerCase();
+    this.searchResults = data.filter(item => {
+      const title = this.getResultTitle(item).toLowerCase();
+      const subtitle = this.getResultSubtitle(item).toLowerCase();
+      return title.includes(query) || subtitle.includes(query);
+    }).slice(0, 10);
+    this.isSearching = false;
+    this.cdr.markForCheck();
+  }
+
+  getResultTitle(item: any): string {
+    if (this.selectedSearchCategory === 'employe') return `${item.first_name} ${item.last_name}`;
+    return item.name || item.title || 'Sans titre';
+  }
+
+  getResultSubtitle(item: any): string {
+    if (this.selectedSearchCategory === 'task') return item.status || 'Tâche';
+    if (this.selectedSearchCategory === 'project') return item.client_name || 'Projet';
+    if (this.selectedSearchCategory === 'employe') return item.role || item.position || 'Employé';
+    if (this.selectedSearchCategory === 'departement') return `${item.employee_count || 0} Membres`;
+    return '';
+  }
+
+  selectSearchResult(item: any) {
+    this.searchDetailItem = { ...item, type: this.selectedSearchCategory };
+    this.showSearchResults = false;
+    this.searchQuery = '';
+  }
+
+  closeSearchDetail() {
+    this.searchDetailItem = null;
+  }
+
+  // Helper to format date in detail view
+  formatDetailDate(d: string) {
+    if (!d) return 'N/A';
+    return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  // Helper to get initials for avatar in detail view
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+
+  // Global click listener to close dropdowns
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.showSearchCategoryDropdown = false;
+    this.showSearchResults = false;
   }
 
   logout() {

@@ -1,389 +1,182 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef, ViewEncapsulation, ViewChild } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { 
+  ScheduleModule, 
+  EventSettingsModel, 
+  DayService, 
+  WeekService, 
+  WorkWeekService, 
+  MonthService, 
+  AgendaService, 
+  ResizeService, 
+  DragAndDropService,
+  EventRenderedArgs,
+  ScheduleComponent,
+  View
+} from '@syncfusion/ej2-angular-schedule';
 import { ApiService } from '../../../core/api.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-employee-calendar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ScheduleModule],
+  providers: [DayService, WeekService, WorkWeekService, MonthService, AgendaService, ResizeService, DragAndDropService],
   templateUrl: './calendar.component.html',
-  styleUrls: ['./calendar.component.css']
+  styleUrls: ['./calendar.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class CalendarComponent implements OnInit {
-  currentDate = new Date();
-  currentMonth = this.currentDate.getMonth();
-  currentYear = this.currentDate.getFullYear();
-  selectedDate: Date | null = null;
-  weeks: (Date | null)[][] = [];
-  viewMode: 'month' | 'week' | 'day' = 'month';
+  @ViewChild('scheduleObj') public scheduleObj?: ScheduleComponent;
 
-  /** Raw data from API */
-  tasks: any[] = [];
-  meetings: any[] = [];
-  projects: any[] = [];   // items with start_date + end_date (or deadline)
+  public selectedDate: Date = new Date();
+  public currentView: View = 'Month';
+  public eventSettings: EventSettingsModel = {
+    dataSource: [],
+    fields: {
+      id: 'Id',
+      subject: { name: 'Subject' },
+      startTime: { name: 'StartTime' },
+      endTime: { name: 'EndTime' },
+      description: { name: 'Description' }
+    }
+  };
 
-  /** Right panel */
+  /** Statistics and Side Panel Data */
   upcomingDeadlines: any[] = [];
+  weeklyProgress = 0;
   reminders = [
-    { text: 'Update timesheets for Q4', done: false },
-    { text: 'Email client regarding revisions', done: false },
-    { text: 'Review PR #822', done: false },
+    { text: 'Mise à jour des feuilles de temps Q4', done: false },
+    { text: 'Email client pour révisions', done: false },
+    { text: 'Révision PR #822', done: false },
   ];
-  weeklyProgress = 74;
-  
-  /** Project lanes for consistent vertical positioning */
-  projectLanes: { [key: string]: number } = {};
-  colorPalette = [
-    '#6366F1', '#8B5CF6', '#EC4899', '#10B981', '#3B82F6', 
-    '#F59E0B', '#06B6D4', '#84CC16', '#A855F7', '#F43F5E'
-  ];
-
-  monthNames = ['January','February','March','April','May','June',
-                'July','August','September','October','November','December'];
-  dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 
   constructor(
     private api: ApiService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
-    this.generateCalendar();
-    this.loadData();
-  }
-
-  /* ---- Calendar Generation ---- */
-  generateCalendar() {
-    this.weeks = [];
-    if (this.viewMode === 'month') {
-      const firstDay = new Date(this.currentYear, this.currentMonth, 1);
-      const lastDay  = new Date(this.currentYear, this.currentMonth + 1, 0);
-      const startDay = firstDay.getDay();
-      const totalDays = lastDay.getDate();
-
-      let week: (Date | null)[] = [];
-      for (let i = 0; i < startDay; i++) week.push(null);
-      for (let day = 1; day <= totalDays; day++) {
-        week.push(new Date(this.currentYear, this.currentMonth, day));
-        if (week.length === 7) { this.weeks.push(week); week = []; }
-      }
-      if (week.length > 0) {
-        while (week.length < 7) week.push(null);
-        this.weeks.push(week);
-      }
-    } else if (this.viewMode === 'week') {
-      const startOfWeek = new Date(this.currentDate);
-      startOfWeek.setDate(this.currentDate.getDate() - this.currentDate.getDay());
-      const week: (Date | null)[] = [];
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(startOfWeek);
-        d.setDate(startOfWeek.getDate() + i);
-        week.push(d);
-      }
-      this.weeks = [week];
-    } else {
-      this.weeks = [[new Date(this.currentDate)]];
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadData();
     }
   }
 
-  setViewMode(mode: 'month' | 'week' | 'day') {
-    this.viewMode = mode;
-    this.generateCalendar();
-  }
-
-  prev() {
-    if (this.viewMode === 'month') this.prevMonth();
-    else if (this.viewMode === 'week') {
-      this.currentDate.setDate(this.currentDate.getDate() - 7);
-      this.syncMonthYear();
-      this.generateCalendar();
-    } else {
-      this.currentDate.setDate(this.currentDate.getDate() - 1);
-      this.syncMonthYear();
-      this.generateCalendar();
-    }
-  }
-
-  next() {
-    if (this.viewMode === 'month') this.nextMonth();
-    else if (this.viewMode === 'week') {
-      this.currentDate.setDate(this.currentDate.getDate() + 7);
-      this.syncMonthYear();
-      this.generateCalendar();
-    } else {
-      this.currentDate.setDate(this.currentDate.getDate() + 1);
-      this.syncMonthYear();
-      this.generateCalendar();
-    }
-  }
-
-  private syncMonthYear() {
-    this.currentMonth = this.currentDate.getMonth();
-    this.currentYear = this.currentDate.getFullYear();
-  }
-
-  prevMonth() {
-    this.currentMonth--;
-    if (this.currentMonth < 0) { this.currentMonth = 11; this.currentYear--; }
-    this.generateCalendar();
-  }
-
-  nextMonth() {
-    this.currentMonth++;
-    if (this.currentMonth > 11) { this.currentMonth = 0; this.currentYear++; }
-    this.generateCalendar();
-  }
-
-  /* ---- Date Helpers ---- */
-  isToday(date: Date | null): boolean {
-    if (!date) return false;
-    const t = new Date();
-    return date.getDate() === t.getDate() &&
-           date.getMonth() === t.getMonth() &&
-           date.getFullYear() === t.getFullYear();
-  }
-
-  isSelected(date: Date | null): boolean {
-    if (!date || !this.selectedDate) return false;
-    return this.isSameDay(date, this.selectedDate);
-  }
-
-  selectDate(date: Date | null) {
-    if (date) this.selectedDate = date;
-  }
-
-  private isSameDay(a: Date, b: Date): boolean {
-    return a.getDate() === b.getDate() &&
-           a.getMonth() === b.getMonth() &&
-           a.getFullYear() === b.getFullYear();
-  }
-
-  private toMidnight(d: Date): Date {
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  }
-
-  /* ---- Task helpers ---- */
-  getTasksForDate(date: Date | null): any[] {
-    if (!date) return [];
-    return this.tasks.filter(t => {
-      const d = new Date(t.deadline || t.due_date);
-      return this.isSameDay(d, date);
-    });
-  }
-
-  hasDeadlineOnDate(date: Date | null): boolean {
-    if (!date) return false;
-    return this.tasks.some(t => {
-      const d = new Date(t.deadline || t.due_date);
-      return this.isSameDay(d, date);
-    });
-  }
-
-  /* ---- Meeting helpers ---- */
-  getMeetingsForDate(date: Date | null): any[] {
-    if (!date) return [];
-    return this.meetings.filter(m => {
-      const d = new Date(m.date || m.scheduled_at || m.start_time);
-      return this.isSameDay(d, date);
-    });
-  }
-
-  /* ---- Project span helpers ---- */
-  /**
-   * Returns projects whose span (start_date … end_date/deadline) covers `date`.
-   * Returns an array where the index corresponds to the assigned lane.
-   */
-  getProjectsForDate(date: Date | null): (any | null)[] {
-    if (!date) return [];
-    const d = this.toMidnight(date);
-    
-    if (Object.keys(this.projectLanes).length === 0 && this.projects.length > 0) {
-      this.calculateProjectLanes();
-    }
-
-    const projectsOnDate = this.projects.filter(p => {
-      const start = this.toMidnight(new Date(p.start_date || p.created_at));
-      const end   = this.toMidnight(new Date(p.deadline || p.end_date));
-      return d >= start && d <= end;
-    });
-
-    if (projectsOnDate.length === 0) return [];
-
-    const maxLane = Math.max(...projectsOnDate.map(p => this.projectLanes[p.id || p.name] || 0));
-    const slots = new Array(maxLane + 1).fill(null);
-
-    projectsOnDate.forEach(p => {
-      const lane = this.projectLanes[p.id || p.name] || 0;
-      slots[lane] = p;
-    });
-
-    return slots;
-  }
-
-  /**
-   * Simple lane assignment to prevent overlaps and jumping
-   */
-  private calculateProjectLanes() {
-    const sortedProjects = [...this.projects].sort((a, b) => 
-      new Date(a.start_date || a.created_at).getTime() - new Date(b.start_date || b.created_at).getTime()
-    );
-
-    const lanes: any[][] = []; // Array of projects per lane
-
-    sortedProjects.forEach(proj => {
-      const start = new Date(proj.start_date || proj.created_at).getTime();
-      let assignedLane = -1;
-
-      for (let i = 0; i < lanes.length; i++) {
-        // Check if project overlaps with any project in this lane
-        const overlaps = lanes[i].some(p => {
-          const pStart = new Date(p.start_date || p.created_at).getTime();
-          const pEnd = new Date(p.deadline || p.end_date).getTime();
-          const projEnd = new Date(proj.deadline || proj.end_date).getTime();
-          return (start <= pEnd && projEnd >= pStart);
-        });
-
-        if (!overlaps) {
-          assignedLane = i;
-          lanes[i].push(proj);
-          break;
-        }
-      }
-
-      if (assignedLane === -1) {
-        assignedLane = lanes.length;
-        lanes.push([proj]);
-      }
-
-      this.projectLanes[proj.id || proj.name] = assignedLane;
-    });
-  }
-
-  getProjectColor(proj: any): string {
-    const id = proj.id || proj.name;
-    const lane = this.projectLanes[id] || 0;
-    return this.colorPalette[lane % this.colorPalette.length];
-  }
-
-  isProjectEnd(proj: any, date: Date | null): boolean {
-    if (!date) return false;
-    const end = this.toMidnight(new Date(proj.deadline || proj.end_date));
-    return this.isSameDay(end, date);
-  }
-
-  isNearDeadline(proj: any): boolean {
-    if (!proj.deadline) return false;
-    const deadline = new Date(proj.deadline).getTime();
-    const now = new Date().getTime();
-    const diffDays = (deadline - now) / (1000 * 86400);
-    return diffDays >= 0 && diffDays <= 7;
-  }
-
-  isProjectStart(proj: any, date: Date | null): boolean {
-    if (!date) return false;
-    const start = this.toMidnight(new Date(proj.start_date));
-    return this.isSameDay(start, date);
-  }
-
-  /* ---- Data Loading ---- */
   loadData() {
-    if (!isPlatformBrowser(this.platformId)) return;
+    forkJoin({
+      projects: this.api.getMyProjects(),
+      tasks: this.api.getMyTasks(),
+      meetings: this.api.getMeetings ? this.api.getMeetings() : forkJoin([])
+    }).subscribe({
+      next: (data: any) => {
+        const events: any[] = [];
 
-    // Load Projects first for the timeline view
-    this.api.getMyProjects().subscribe({
-      next: (res: any) => {
-        this.projects = res || [];
-        this.projectLanes = {}; // Reset lanes for new data
-        this.calculateProjectLanes();
-        this.buildUpcomingDeadlines();
-      },
-      error: () => {}
-    });
-
-    // Load tasks
-    this.api.getMyTasks().subscribe({
-      next: (res: any) => {
-        const all: any[] = Array.isArray(res) ? res : (res.results || []);
-        this.tasks = all;
-        this.buildUpcomingDeadlines();
-        this.computeWeeklyProgress();
-      },
-      error: () => {}
-    });
-
-    // Load meetings
-    if ((this.api as any).getMeetings) {
-      (this.api as any).getMeetings().subscribe({
-        next: (res: any) => {
-          this.meetings = Array.isArray(res) ? res : (res.results || []);
-          this.buildUpcomingDeadlines();
-        },
-        error: () => {}
-      });
-    }
-  }
-
-  buildUpcomingDeadlines() {
-    const today = this.toMidnight(new Date());
-    const inTwoWeeks = new Date(today);
-    inTwoWeeks.setDate(today.getDate() + 30); // Look further for projects
-
-    const items: any[] = [];
-
-    // Projects (Primary focus for sidebar as requested)
-    this.projects.forEach(p => {
-      const d = new Date(p.deadline || p.end_date);
-      if (d >= today) {
-        const diffDays = Math.ceil((d.getTime() - today.getTime()) / 86400000);
-        items.push({
-          ...p,
-          _date: d,
-          _type: 'project',
-          _typeLabel: 'PROJECT',
-          _dateLabel: this.formatDateShort(d),
-          _timeStr: `${diffDays} days left`,
-          _diff: diffDays
-        });
-      }
-    });
-
-    // Sort ascending by deadline urgency
-    items.sort((a, b) => a._diff - b._diff);
-    this.upcomingDeadlines = items.slice(0, 3); // Top 3 projects
-
-    // If we have less than 3 projects, add tasks/meetings
-    if (this.upcomingDeadlines.length < 3) {
-      const extras: any[] = [];
-      this.tasks.forEach(t => {
-        const d = new Date(t.deadline || t.due_date);
-        if (d >= today && d <= inTwoWeeks) {
-          extras.push({
-            ...t,
-            _date: d,
-            _type: 'task',
-            _typeLabel: 'TASK',
-            _dateLabel: this.formatDateShort(d),
-            _timeStr: ''
+        // 1. Projects (Blue/Indigo)
+        if (data.projects) {
+          data.projects.forEach((p: any) => {
+            events.push({
+              Id: `project-${p.id}`,
+              Subject: p.name,
+              StartTime: new Date(p.start_date || p.created_at),
+              EndTime: new Date(p.deadline || p.end_date || new Date(p.start_date || p.created_at).getTime() + 3600000),
+              Description: p.description || '',
+              Category: 'project',
+              RawData: p
+            });
           });
         }
-      });
-      extras.sort((a, b) => a._date.getTime() - b._date.getTime());
-      this.upcomingDeadlines = [...this.upcomingDeadlines, ...extras].slice(0, 3);
-    }
+
+        // 2. Tasks (Emerald/Green)
+        const tasksList = Array.isArray(data.tasks) ? data.tasks : (data.tasks.results || []);
+        tasksList.forEach((t: any) => {
+          const taskDate = new Date(t.deadline || t.due_date || t.created_at);
+          events.push({
+            Id: `task-${t.id}`,
+            Subject: t.title,
+            StartTime: taskDate,
+            EndTime: new Date(taskDate.getTime() + 3600000),
+            IsAllDay: true,
+            Description: t.description || '',
+            Category: 'task',
+            RawData: t
+          });
+        });
+
+        // 3. Meetings (Rose/Red)
+        const meetingsList = Array.isArray(data.meetings) ? data.meetings : (data.meetings.results || []);
+        meetingsList.forEach((m: any) => {
+          events.push({
+            Id: `meeting-${m.id}`,
+            Subject: m.title,
+            StartTime: new Date(m.date_time || m.start_time),
+            EndTime: m.end_time ? new Date(m.end_time) : new Date(new Date(m.date_time || m.start_time).getTime() + 3600000),
+            Description: m.description || '',
+            Category: 'meeting',
+            RawData: m
+          });
+        });
+
+        this.eventSettings = { ...this.eventSettings, dataSource: events };
+        
+        // Update Sidebar/Stats
+        this.computeStats(data.projects, tasksList);
+        this.cdr.markForCheck();
+      },
+      error: (err) => console.error('Error loading scheduler data:', err)
+    });
   }
 
-  computeWeeklyProgress() {
-    const total = this.tasks.length;
-    if (!total) return;
-    const done = this.tasks.filter(t => t.status === 'completed' || t.status === 'done').length;
-    this.weeklyProgress = Math.round((done / total) * 100);
+  computeStats(projects: any[], tasks: any[]) {
+    if (tasks.length > 0) {
+      const done = tasks.filter(t => t.status === 'completed' || t.status === 'done').length;
+      this.weeklyProgress = Math.round((done / tasks.length) * 100);
+    }
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    this.upcomingDeadlines = projects
+      .filter(p => {
+        const d = new Date(p.deadline || p.end_date);
+        return d >= today;
+      })
+      .map(p => {
+        const d = new Date(p.deadline || p.end_date);
+        const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        return {
+          ...p,
+          _diff: diffDays,
+          _dateLabel: d.toLocaleDateString('fr-FR', { month: 'short', day: '2-digit' })
+        };
+      })
+      .sort((a, b) => a._diff - b._diff)
+      .slice(0, 3);
+  }
+
+  onEventRendered(args: EventRenderedArgs): void {
+    const category = args.data['Category'];
+    let backgroundColor = '#3B82F6'; // Default project blue
+    
+    if (category === 'task') {
+      backgroundColor = '#10B981'; // Emerald
+    } else if (category === 'meeting') {
+      backgroundColor = '#F43F5E'; // Rose
+    }
+    
+    args.element.style.backgroundColor = backgroundColor;
+    args.element.style.borderLeft = `4px solid ${backgroundColor}`;
+    args.element.style.borderRadius = '8px';
+  }
+
+  onEventClick(args: any): void {
+    const event = args.event;
+    // Removed alert as requested. 
+    // You can implement a custom modal here if needed.
+    console.log('Event Clicked:', event.Subject, event.Category);
   }
 
   toggleReminder(r: any) {
     r.done = !r.done;
-  }
-
-  private formatDateShort(d: Date): string {
-    return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
   }
 }

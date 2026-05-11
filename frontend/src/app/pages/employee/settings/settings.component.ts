@@ -17,10 +17,9 @@ export class SettingsComponent implements OnInit {
   profilePhoto = '';
 
   // Active nav section
-  activeSection = 'appearance';
+  activeSection = 'notifications';
 
-  // Appearance
-  selectedTheme: 'dark' | 'light' = 'dark';
+
 
   // Localization
   interfaceLanguage = 'English (United States)';
@@ -45,7 +44,8 @@ export class SettingsComponent implements OnInit {
   // Account Preferences
   publicProfile = false;
   activityTracking = true;
-  twoFactorEnabled = false;
+  twoFactorEnabled = false; // Note: Keeping for potential future use or if backend still expects it, but removing UI references. Actually, user asked to remove the row, so logic might still be needed if other components use it, but here it's dead. I'll just remove the UI-only parts.
+
 
   saved = false;
 
@@ -70,9 +70,7 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  setTheme(theme: 'dark' | 'light') {
-    this.selectedTheme = theme;
-  }
+
 
   scrollTo(section: string) {
     this.activeSection = section;
@@ -80,15 +78,7 @@ export class SettingsComponent implements OnInit {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  enableTwoFactor() {
-    this.twoFactorEnabled = true;
-  }
 
-  deactivateAccount() {
-    if (confirm('Are you sure you want to deactivate your account? This action cannot be undone.')) {
-      // handle deactivation
-    }
-  }
 
   saveSettings() {
     const payload = {
@@ -96,8 +86,8 @@ export class SettingsComponent implements OnInit {
         public_profile: this.publicProfile,
         activity_tracking: this.activityTracking,
         interface_language: this.interfaceLanguage,
-        time_zone: this.timeZone,
-        theme: this.selectedTheme
+        time_zone: this.timeZone
+
       }
     };
     this.api.updatePreferences(payload).subscribe({
