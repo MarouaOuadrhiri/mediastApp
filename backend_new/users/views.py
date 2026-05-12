@@ -305,9 +305,11 @@ def employee_list_create(request):
             
             for p in projects:
                 for t in p.tasks:
-                    total_tasks += 1
-                    if t.status == 'DONE':
-                        done_tasks += 1
+                    # Only count tasks assigned to this specific employee
+                    if getattr(t, 'assigned_to', None) and str(t.assigned_to.id) == str(uid):
+                        total_tasks += 1
+                        if t.status == 'DONE':
+                            done_tasks += 1
                         
             standalone = Task.objects(employees=uid)
             for t in standalone:
@@ -490,8 +492,10 @@ def get_employee_history(request, pk):
 
     project_data = []
     for p in projects:
-        total_tasks = len(p.tasks)
-        done_tasks = len([t for t in p.tasks if t.status == 'DONE'])
+        # Filter tasks assigned to this user
+        user_tasks = [t for t in p.tasks if getattr(t, 'assigned_to', None) and str(t.assigned_to.id) == str(uid)]
+        total_tasks = len(user_tasks)
+        done_tasks = len([t for t in user_tasks if t.status == 'DONE'])
         progress = (done_tasks / total_tasks * 100) if total_tasks > 0 else 0
         
         project_data.append({
@@ -509,9 +513,8 @@ def get_employee_history(request, pk):
                     'status': t.status,
                     'completed_at': t.completed_at.isoformat() if getattr(t, 'completed_at', None) else None,
                     'progress': 100 if t.status == 'DONE' else 50 if t.status == 'IN_PROGRESS' else 0,
-                    # Optimization: if completed by the same user, we already have their name in memory
                     'completed_by_name': f"{user.first_name} {user.last_name}" if (getattr(t, 'completed_by', None) and str(t.completed_by.id) == str(uid)) else (f"{t.completed_by.first_name} {t.completed_by.last_name}" if getattr(t, 'completed_by', None) else None)
-                } for t in p.tasks
+                } for t in user_tasks
             ]
         })
 

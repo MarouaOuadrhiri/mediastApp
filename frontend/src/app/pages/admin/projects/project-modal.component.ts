@@ -28,7 +28,7 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
   projectEmployeeIds: string[] = [];
   projectDeadline = '';
   projectStartDate = '';
-  projectTasks: { id?: string, title: string, description?: string, note?: string }[] = [];
+  projectTasks: { id?: string, title: string, description?: string, note?: string, assigned_to?: string, assigned_to_name?: string }[] = [];
 
   // New fields
   projectOwner = '';
@@ -117,7 +117,9 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
       id: t.id,
       title: t.title,
       description: t.description,
-      note: t.note
+      note: t.note,
+      assigned_to: t.assigned_to,
+      assigned_to_name: t.assigned_to_name
     })) || [];
     this.showProjectModal = true;
   }
@@ -196,7 +198,7 @@ export class ProjectModalComponent implements OnInit, OnDestroy {
   }
 
   addProjectTask() {
-    this.projectTasks.push({ title: '' });
+    this.projectTasks.push({ title: '', assigned_to: '' });
   }
 
   removeProjectTask(i: number) {

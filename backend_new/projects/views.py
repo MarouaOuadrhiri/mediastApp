@@ -83,6 +83,18 @@ def serialize_project(p, user_map=None, dept_map=None):
                 user_obj = User.objects.filter(id=rb_id).first()
                 refused_by_name = f"{user_obj.first_name} {user_obj.last_name}" if user_obj else None
 
+        assigned_to_name = None
+        if t.assigned_to:
+            at_id = get_id_str(t.assigned_to)
+            if user_map and at_id in user_map:
+                user_obj = user_map[at_id]
+                assigned_to_name = f"{user_obj.first_name} {user_obj.last_name}"
+            elif not isinstance(t.assigned_to, bson.DBRef) and hasattr(t.assigned_to, 'first_name'):
+                assigned_to_name = f"{t.assigned_to.first_name} {t.assigned_to.last_name}"
+            else:
+                user_obj = User.objects.filter(id=at_id).first()
+                assigned_to_name = f"{user_obj.first_name} {user_obj.last_name}" if user_obj else None
+
         serialized_tasks.append({
             'id': str(t.id),
             'title': t.title,
@@ -90,6 +102,8 @@ def serialize_project(p, user_map=None, dept_map=None):
             'note': getattr(t, 'note', ''),
             'status': t.status,
             'deadline': t.deadline.isoformat() if getattr(t, 'deadline', None) else None,
+            'assigned_to': str(t.assigned_to.id) if getattr(t, 'assigned_to', None) else None,
+            'assigned_to_name': assigned_to_name,
             'completed_by_name': completed_by_name,
             'completed_at': t.completed_at.isoformat() if getattr(t, 'completed_at', None) else None,
             'rejection_reason': getattr(t, 'rejection_reason', ''),
@@ -151,7 +165,9 @@ def project_list_create(request):
         for p in projects_list:
             add_id(dept_ids, p.department)
             for e in p.employees: add_id(user_ids, e)
-            for t in p.tasks: add_id(user_ids, t.completed_by)
+            for t in p.tasks: 
+                add_id(user_ids, t.completed_by)
+                add_id(user_ids, t.assigned_to)
         
         user_map = {str(u.id): u for u in User.objects.filter(id__in=list(user_ids))}
         dept_map = {str(d.id): d for d in Department.objects.filter(id__in=list(dept_ids))}
@@ -217,11 +233,20 @@ def project_list_create(request):
                 task_duration = duration_td / num_tasks
                 task_deadline = start_date + task_duration * (i + 1)
                 
+            assigned_to = None
+            assigned_to_id = t.get('assigned_to')
+            if assigned_to_id:
+                try:
+                    assigned_to = User.objects.get(id=assigned_to_id)
+                except DoesNotExist:
+                    pass
+
             tasks.append(ProjectTask(
                 title=t.get('title', ''), 
                 description=t.get('description', ''),
                 note=t.get('note', ''),
-                deadline=task_deadline
+                deadline=task_deadline,
+                assigned_to=assigned_to
             ))
 
         project = Project(
@@ -322,11 +347,20 @@ def project_detail(request, pk):
                         existing = et
                         break
             
+            assigned_to = None
+            assigned_to_id = t.get('assigned_to')
+            if assigned_to_id:
+                try:
+                    assigned_to = User.objects.get(id=assigned_to_id)
+                except DoesNotExist:
+                    pass
+
             if existing:
                 existing.title = t.get('title')
                 existing.description = t.get('description', '')
                 existing.note = t.get('note', '')
                 existing.deadline = task_deadline
+                existing.assigned_to = assigned_to
                 # Clear refusal flags if explicitly requested or by default if not present
                 if 'refusal_pending' in t:
                     existing.refusal_pending = t['refusal_pending']
@@ -343,7 +377,8 @@ def project_detail(request, pk):
                     title=t.get('title', ''),
                     description=t.get('description', ''),
                     note=t.get('note', ''),
-                    deadline=task_deadline
+                    deadline=task_deadline,
+                    assigned_to=assigned_to
                 ))
 
         project.tasks = new_tasks
@@ -374,7 +409,9 @@ def my_projects(request):
     for p in projects_list:
         add_id(dept_ids, p.department)
         for e in p.employees: add_id(user_ids, e)
-        for t in p.tasks: add_id(user_ids, t.completed_by)
+        for t in p.tasks: 
+            add_id(user_ids, t.completed_by)
+            add_id(user_ids, t.assigned_to)
     
     user_map = {str(u.id): u for u in User.objects.filter(id__in=list(user_ids))}
     dept_map = {str(d.id): d for d in Department.objects.filter(id__in=list(dept_ids))}

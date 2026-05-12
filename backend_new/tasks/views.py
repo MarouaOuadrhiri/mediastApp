@@ -11,6 +11,33 @@ from departments.models import Department
 from mongoengine.errors import DoesNotExist
 
 
+def serialize_project_task(pt, project):
+    """Serialize a ProjectTask embedded document to look like a Task."""
+    assigned_to_data = []
+    if pt.assigned_to:
+        assigned_to_data.append({
+            'id': str(pt.assigned_to.id),
+            'name': f"{pt.assigned_to.first_name} {pt.assigned_to.last_name}".strip(),
+            'photo': pt.assigned_to.profile_photo or ''
+        })
+
+    deadline = pt.deadline.strftime('%Y-%m-%d') if pt.deadline else None
+
+    return {
+        'id': f"{project.id}:{pt.id}",  # Compound ID for easy lookup
+        'title': pt.title,
+        'description': pt.description or '',
+        'status': pt.status,
+        'employees': assigned_to_data,
+        'project_id': str(project.id),
+        'project_name': project.name,
+        'is_project_task': True,
+        'deadline': deadline,
+        'rejection_reason': getattr(pt, 'rejection_reason', ''),
+        'refusal_pending': getattr(pt, 'refusal_pending', False),
+        'refused_by': str(pt.refused_by.id) if getattr(pt, 'refused_by', None) else None,
+    }
+
 def serialize_task(t):
     employee_data = []
     for emp in getattr(t, 'employees', []):
@@ -34,20 +61,6 @@ def serialize_task(t):
         else:
             deadline = raw_deadline.strftime('%Y-%m-%d')
     
-    project_name = None
-    if getattr(t, 'project', None):
-        try:
-            proj = t.project
-            project_name = proj.name
-            # Fallback to project deadline if no task-level deadline
-            if not deadline and proj.deadline:
-                if isinstance(proj.deadline, str):
-                    deadline = proj.deadline[:10]
-                else:
-                    deadline = proj.deadline.strftime('%Y-%m-%d')
-        except Exception:
-            pass
-
     # Ensure task's own deadline also uses the simple format if it was set
     if deadline and len(deadline) > 10:
         # If it was an ISO string from t.deadline.isoformat(), take first 10 chars
@@ -66,8 +79,6 @@ def serialize_task(t):
         'description': t.description or '',
         'status': t.status,
         'employees': employee_data,
-        'project_id': str(t.project.id) if getattr(t, 'project', None) else None,
-        'project_name': project_name,
         'department_id': str(t.department.id) if getattr(t, 'department', None) else None,
         'is_archived': getattr(t, 'is_archived', False),
         'deadline': deadline,
@@ -85,18 +96,36 @@ def task_list_create(request):
     if request.method == 'GET':
         # Admin can see archived tasks in the ARCHIVED column; Employees only see active tasks.
         if request.user.role == 'ADMIN':
-            tasks = Task.objects()
+            standalone_tasks = Task.objects()
+            projects = Project.objects()
         else:
-            tasks = Task.objects(employees=request.user, is_archived=False)
-        return Response([serialize_task(t) for t in tasks])
+            standalone_tasks = Task.objects(employees=request.user, is_archived=False)
+            # Find projects where user is either in team or assigned to a task
+            projects = Project.objects(employees=request.user)
+            # Also find projects where they have assigned tasks but might not be in project.employees
+            # (Though our logic usually adds them to project.employees)
+
+        results = [serialize_task(t) for t in standalone_tasks]
+        
+        # Include ProjectTasks
+        for p in projects:
+            if p.tasks:
+                for pt in p.tasks:
+                    # Filter for employees: only show if assigned to them AND not archived
+                    if request.user.role == 'ADMIN':
+                        results.append(serialize_project_task(pt, p))
+                    elif (pt.assigned_to and str(pt.assigned_to.id) == str(request.user.id)):
+                        if not getattr(pt, 'is_archived', False):
+                            results.append(serialize_project_task(pt, p))
+        
+        return Response(results)
 
     if request.method == 'POST':
         title = request.data.get('title')
         description = request.data.get('description', '')
         employee_ids = request.data.get('employee_ids', [])
-        project_id = request.data.get('project_id')
         department_id = request.data.get('department_id')
-        source_project_task_id = request.data.get('source_project_task_id')
+        project_id = request.data.get('project_id')
 
         # Compatibility: check for singular employee_id
         if not employee_ids and request.data.get('employee_id'):
@@ -118,25 +147,37 @@ def task_list_create(request):
             except DoesNotExist:
                 continue
 
-        project = None
         if project_id:
             try:
                 project = Project.objects.get(id=project_id)
+                
+                # Create a ProjectTask embedded document
+                pt = ProjectTask(
+                    title=title,
+                    description=description,
+                    status=request.data.get('status', 'TODO'),
+                    assigned_to=assigned_employees[0] if assigned_employees else None
+                )
+                
+                if not project.tasks:
+                    project.tasks = []
+                project.tasks.append(pt)
+                
+                # Also ensure the assigned employee is in the project team
+                if assigned_employees:
+                    for emp in assigned_employees:
+                        if emp not in project.employees:
+                            project.employees.append(emp)
+                
+                project.save()
+                return Response(serialize_project_task(pt, project), status=201)
             except DoesNotExist:
-                pass
-
-        department = None
-        if department_id:
-            try:
-                department = Department.objects.get(id=department_id)
-            except DoesNotExist:
-                pass
+                return Response({'error': 'Project not found'}, status=404)
 
         task = Task(
             title=title, 
             description=description, 
             employees=assigned_employees, 
-            project=project,
             department=department,
             status=request.data.get('status', 'BLOCKED'),
             is_archived=(request.data.get('status') == 'ARCHIVED' or request.data.get('is_archived', False))
@@ -150,6 +191,40 @@ def task_list_create(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def update_task_status(request, pk):
+    # Check if it's a ProjectTask (compound ID)
+    if ':' in pk:
+        project_id, task_id = pk.split(':')
+        try:
+            project = Project.objects.get(id=project_id)
+            task = next((t for t in project.tasks if str(t.id) == task_id), None)
+            if not task:
+                return Response({'error': 'Project task not found'}, status=404)
+            
+            # Permission check
+            if request.user.role == 'EMPLOYEE' and (not task.assigned_to or str(task.assigned_to.id) != str(request.user.id)):
+                return Response({'error': 'You can only update tasks you are assigned to'}, status=403)
+
+            status = request.data.get('status')
+            if status:
+                task.status = status
+                if status == 'DONE':
+                    task.completed_at = datetime.datetime.utcnow()
+                    task.completed_by = request.user
+            
+            if 'refusal_pending' in request.data:
+                task.refusal_pending = request.data['refusal_pending']
+                if task.refusal_pending:
+                    task.refused_by = request.user
+                    task.rejection_reason = request.data.get('rejection_reason', '')
+                else:
+                    task.refused_by = None
+                    task.rejection_reason = ''
+
+            project.save()
+            return Response(serialize_project_task(task, project))
+        except DoesNotExist:
+            return Response({'error': 'Project not found'}, status=404)
+
     try:
         task = Task.objects.get(id=pk)
     except DoesNotExist:
@@ -200,6 +275,32 @@ def update_task_status(request, pk):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAdmin])
 def update_task(request, pk):
+    # Handle ProjectTask
+    if ':' in pk:
+        project_id, task_id = pk.split(':')
+        try:
+            project = Project.objects.get(id=project_id)
+            task = next((t for t in project.tasks if str(t.id) == task_id), None)
+            if not task:
+                return Response({'error': 'Project task not found'}, status=404)
+
+            task.title = request.data.get('title', task.title)
+            task.description = request.data.get('description', task.description)
+            task.status = request.data.get('status', task.status)
+            task.deadline = request.data.get('deadline', task.deadline)
+            
+            employee_ids = request.data.get('employee_ids', [])
+            if employee_ids:
+                try:
+                    task.assigned_to = User.objects.get(id=employee_ids[0])
+                except DoesNotExist:
+                    pass
+
+            project.save()
+            return Response(serialize_project_task(task, project))
+        except DoesNotExist:
+            return Response({'error': 'Project not found'}, status=404)
+
     try:
         task = Task.objects.get(id=pk)
     except DoesNotExist:
@@ -228,15 +329,6 @@ def update_task(request, pk):
                 continue
         task.employees = assigned_employees
 
-    project_id = request.data.get('project_id')
-    if project_id:
-        try:
-            task.project = Project.objects.get(id=project_id)
-        except DoesNotExist:
-            pass
-    elif 'project_id' in request.data:
-        task.project = None
-
     department_id = request.data.get('department_id')
     if department_id:
         try:
@@ -253,6 +345,21 @@ def update_task(request, pk):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAdmin])
 def archive_task_view(request, pk):
+    # Handle ProjectTask
+    if ':' in pk:
+        project_id, task_id = pk.split(':')
+        try:
+            project = Project.objects.get(id=project_id)
+            task = next((t for t in project.tasks if str(t.id) == task_id), None)
+            if not task:
+                return Response({'error': 'Project task not found'}, status=404)
+            
+            task.is_archived = True
+            project.save()
+            return Response(serialize_project_task(task, project))
+        except DoesNotExist:
+            return Response({'error': 'Project not found'}, status=404)
+
     try:
         task = Task.objects.get(id=pk)
     except DoesNotExist:

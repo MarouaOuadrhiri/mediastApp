@@ -11,10 +11,12 @@ class ProjectTask(EmbeddedDocument):
     note = StringField()
     status = StringField(choices=('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'BLOCKED'), default='TODO')
     deadline = DateTimeField()
+    assigned_to = ReferenceField(User, null=True)
     completed_by = ReferenceField(User, null=True)
     completed_at = DateTimeField()
     rejection_reason = StringField()
     refusal_pending = BooleanField(default=False)
+    is_archived = BooleanField(default=False)
     refused_by = ReferenceField(User, null=True)
 
 class Project(Document):

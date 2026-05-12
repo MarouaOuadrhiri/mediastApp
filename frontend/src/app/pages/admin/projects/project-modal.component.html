@@ -219,18 +219,28 @@
            </div>
 
            <div class="space-y-4">
-             <div *ngFor="let t of projectTasks; let i = index" 
-               class="grid grid-cols-[1fr,1.5fr,auto] gap-4 p-5 rounded-3xl bg-white/[0.02] border border-white/5 animate-in fade-in slide-in-from-left-2 duration-300">
-               <div class="flex flex-col gap-2">
-                 <label class="text-[9px] font-black text-white/20 tracking-widest">TASK TITLE</label>
-                 <input type="text" [(ngModel)]="t.title" [name]="'task_title_'+i" [disabled]="isReadOnly"
-                   placeholder="e.g. Wireframe Design" class="bg-transparent text-white border-none p-0 text-sm focus:ring-0 w-full" />
-               </div>
-               <div class="flex flex-col gap-2">
-                 <label class="text-[9px] font-black text-white/20 tracking-widest">NOTES / INSTRUCTIONS</label>
-                 <input type="text" [(ngModel)]="t.note" [name]="'task_note_'+i" [disabled]="isReadOnly"
-                   placeholder="Add specific details..." class="bg-transparent text-white border-none p-0 text-sm focus:ring-0 w-full" />
-               </div>
+            <div *ngFor="let t of projectTasks; let i = index" 
+              class="grid grid-cols-[1.5fr,1.5fr,1fr,auto] gap-4 p-5 rounded-3xl bg-white/[0.02] border border-white/5 animate-in fade-in slide-in-from-left-2 duration-300">
+              <div class="flex flex-col gap-2">
+                <label class="text-[9px] font-black text-white/20 tracking-widest">TASK TITLE</label>
+                <input type="text" [(ngModel)]="t.title" [name]="'task_title_'+i" [disabled]="isReadOnly"
+                  placeholder="e.g. Wireframe Design" class="bg-transparent text-white border-none p-0 text-sm focus:ring-0 w-full" />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-[9px] font-black text-white/20 tracking-widest">NOTES / INSTRUCTIONS</label>
+                <input type="text" [(ngModel)]="t.note" [name]="'task_note_'+i" [disabled]="isReadOnly"
+                  placeholder="Add specific details..." class="bg-transparent text-white border-none p-0 text-sm focus:ring-0 w-full" />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-[9px] font-black text-white/20 tracking-widest">ASSIGNED TO</label>
+                <select [(ngModel)]="t.assigned_to" [name]="'task_assignee_'+i" [disabled]="isReadOnly"
+                  class="bg-transparent text-white border-none p-0 text-xs focus:ring-0 w-full cursor-pointer appearance-none">
+                  <option value="" disabled selected class="bg-[#0A0A0A]">Choose Member</option>
+                  <option *ngFor="let e of getSelectedEmployees()" [value]="e.id" class="bg-[#0A0A0A]">
+                    {{ e.first_name }} {{ e.last_name }}
+                  </option>
+                </select>
+              </div>
                <div class="flex items-end">
                  <button type="button" (click)="removeProjectTask(i)" *ngIf="!isReadOnly"
                     class="p-2.5 rounded-xl hover:bg-red-500/10 text-red-500/40 hover:text-red-500 transition-all">

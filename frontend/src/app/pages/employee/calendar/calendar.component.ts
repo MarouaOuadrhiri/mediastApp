@@ -42,12 +42,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
   allTasks: any[] = [];
   allMeetings: any[] = [];
   
-  weeklyProgress = 74;
   reminders = [
     { text: 'Update timesheets for Q4', done: false },
     { text: 'Email client regarding revisions', done: false },
     { text: 'Review PR #822', done: false },
   ];
+  weeklyProgress = 74;
+  currentUserId: string = '';
 
   private refreshInterval: any;
   private currentViewInfo: any;
@@ -61,12 +62,23 @@ export class CalendarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.initCalendarOptions();
+      this.loadUserProfile();
       this.loadData();
       
       this.refreshInterval = setInterval(() => {
         this.loadData(true);
       }, 30000);
     }
+  }
+
+  loadUserProfile() {
+    this.api.getMe().subscribe({
+      next: (user: any) => {
+        this.currentUserId = user.id || user._id;
+        this.cdr.markForCheck();
+      },
+      error: () => {}
+    });
   }
 
   private initCalendarOptions() {
@@ -135,10 +147,30 @@ export class CalendarComponent implements OnInit, OnDestroy {
           });
         });
 
-        // 2. Tasks
-        this.allTasks.forEach((t: any) => {
+        // 2. Tasks (Independent tasks + Project tasks assigned to me)
+        const allFilteredTasks: any[] = [];
+        
+        // Add independent tasks
+        this.allTasks.forEach((t: any) => allFilteredTasks.push(t));
+
+        // Add project-specific tasks assigned to the current user
+        this.allProjects.forEach((p: any) => {
+          if (p.tasks) {
+            p.tasks.forEach((pt: any) => {
+              if (pt.assigned_to === this.currentUserId) {
+                allFilteredTasks.push({
+                  ...pt,
+                  project_name: p.name,
+                  is_project_task: true
+                });
+              }
+            });
+          }
+        });
+
+        allFilteredTasks.forEach((t: any) => {
           events.push({
-            id: `task-${t.id}`,
+            id: t.is_project_task ? `proj-task-${t.id}` : `task-${t.id}`,
             title: t.title,
             start: t.deadline || t.due_date,
             allDay: true,
