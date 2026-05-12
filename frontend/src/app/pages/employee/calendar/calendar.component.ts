@@ -13,6 +13,7 @@ import { forkJoin } from 'rxjs';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-employee-calendar',
@@ -22,7 +23,8 @@ import { TooltipModule } from 'primeng/tooltip';
     FullCalendarModule,
     CardModule,
     ButtonModule,
-    TooltipModule
+    TooltipModule,
+    FormsModule
   ],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.css'],
@@ -30,34 +32,25 @@ import { TooltipModule } from 'primeng/tooltip';
 })
 export class CalendarComponent implements OnInit, OnDestroy {
   public calendarOptions: CalendarOptions = {
-    plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-    },
-    themeSystem: 'standard',
-    editable: false,
-    selectable: true,
-    dayMaxEvents: false,
     locale: 'fr',
-    events: [],
-    eventClick: this.handleEventClick.bind(this),
-    eventContent: this.renderEventContent.bind(this),
-    height: '650px',
   };
 
   /** Statistics and Side Panel Data */
-  upcomingDeadlines: any[] = [];
-  weeklyProgress = 0;
+  currentMonthDeadlines: any[] = [];
+  allProjects: any[] = [];
+  allTasks: any[] = [];
+  allMeetings: any[] = [];
+  
+  weeklyProgress = 74;
   reminders = [
-    { text: 'Mise à jour des feuilles de temps Q4', done: false },
-    { text: 'Email client pour révisions', done: false },
-    { text: 'Révision PR #822', done: false },
+    { text: 'Update timesheets for Q4', done: false },
+    { text: 'Email client regarding revisions', done: false },
+    { text: 'Review PR #822', done: false },
   ];
 
   private refreshInterval: any;
+  private currentViewInfo: any;
 
   constructor(
     private api: ApiService,
@@ -67,19 +60,51 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
+      this.initCalendarOptions();
       this.loadData();
       
-      // Dynamic refresh every 30 seconds
       this.refreshInterval = setInterval(() => {
         this.loadData(true);
       }, 30000);
     }
   }
 
+  private initCalendarOptions() {
+    this.calendarOptions = {
+      plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev title next',
+        center: '',
+        right: ''
+      },
+      themeSystem: 'standard',
+      editable: false,
+      selectable: true,
+      dayMaxEvents: false,
+      locale: 'fr',
+      events: [],
+      eventClick: this.handleEventClick.bind(this),
+      eventContent: this.renderEventContent.bind(this),
+      datesSet: this.handleDatesSet.bind(this),
+      height: 'auto',
+      aspectRatio: 2.2,
+      dayHeaderFormat: { weekday: 'short' },
+      dayCellContent: (arg) => {
+        return { html: `<div class="day-cell-inner">${arg.dayNumberText}</div>` };
+      }
+    };
+  }
+
   ngOnDestroy() {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
+  }
+
+  handleDatesSet(arg: any) {
+    this.currentViewInfo = arg;
+    this.filterSideBarData();
   }
 
   loadData(isRefresh = false) {
@@ -89,37 +114,34 @@ export class CalendarComponent implements OnInit, OnDestroy {
       meetings: this.api.getMeetings ? this.api.getMeetings() : forkJoin([])
     }).subscribe({
       next: (data: any) => {
+        this.allProjects = data.projects || [];
+        this.allTasks = Array.isArray(data.tasks) ? data.tasks : (data.tasks.results || []);
+        this.allMeetings = Array.isArray(data.meetings) ? data.meetings : (data.meetings.results || []);
+
         const events: any[] = [];
 
-        // 1. Projects (Blue/Indigo)
-        if (data.projects) {
-          data.projects.forEach((p: any) => {
-            events.push({
-              id: `project-${p.id}`,
-              title: p.name,
-              start: p.start_date || p.created_at,
-              end: p.deadline || p.end_date || new Date(p.start_date || p.created_at).getTime() + 3600000,
-              backgroundColor: '#3B82F6',
-              borderColor: '#3B82F6',
-              extendedProps: {
-                category: 'project',
-                rawData: p
-              }
-            });
+        // 1. Projects
+        this.allProjects.forEach((p: any) => {
+          events.push({
+            id: `project-${p.id}`,
+            title: p.name,
+            start: p.start_date || p.created_at,
+            end: p.deadline || p.end_date,
+            backgroundColor: 'transparent',
+            extendedProps: {
+              category: 'project',
+              rawData: p
+            }
           });
-        }
+        });
 
-        // 2. Tasks (Emerald/Green)
-        const tasksList = Array.isArray(data.tasks) ? data.tasks : (data.tasks.results || []);
-        tasksList.forEach((t: any) => {
-          const taskDate = new Date(t.deadline || t.due_date || t.created_at);
+        // 2. Tasks
+        this.allTasks.forEach((t: any) => {
           events.push({
             id: `task-${t.id}`,
             title: t.title,
-            start: taskDate,
+            start: t.deadline || t.due_date,
             allDay: true,
-            backgroundColor: '#10B981',
-            borderColor: '#10B981',
             extendedProps: {
               category: 'task',
               rawData: t
@@ -127,16 +149,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
           });
         });
 
-        // 3. Meetings (Rose/Red)
-        const meetingsList = Array.isArray(data.meetings) ? data.meetings : (data.meetings.results || []);
-        meetingsList.forEach((m: any) => {
+        // 3. Meetings
+        this.allMeetings.forEach((m: any) => {
           events.push({
             id: `meeting-${m.id}`,
             title: m.title,
             start: m.date_time || m.start_time,
-            end: m.end_time || new Date(new Date(m.date_time || m.start_time).getTime() + 3600000),
-            backgroundColor: '#F43F5E',
-            borderColor: '#F43F5E',
             extendedProps: {
               category: 'meeting',
               rawData: m
@@ -145,9 +163,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
         });
 
         this.calendarOptions.events = events;
-        
-        // Update Sidebar/Stats
-        this.computeStats(data.projects, tasksList);
+        this.filterSideBarData();
         this.cdr.markForCheck();
       },
       error: (err) => {
@@ -156,66 +172,91 @@ export class CalendarComponent implements OnInit, OnDestroy {
     });
   }
 
-  computeStats(projects: any[], tasks: any[]) {
-    if (tasks.length > 0) {
-      const done = tasks.filter(t => t.status === 'completed' || t.status === 'done').length;
-      this.weeklyProgress = Math.round((done / tasks.length) * 100);
-    }
+  filterSideBarData() {
+    if (!this.currentViewInfo) return;
 
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    
-    this.upcomingDeadlines = (projects || [])
-      .filter(p => {
-        const d = new Date(p.deadline || p.end_date);
-        return d >= today;
-      })
-      .map(p => {
-        const d = new Date(p.deadline || p.end_date);
-        const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        return {
-          ...p,
-          _diff: diffDays,
-          _dateLabel: d.toLocaleDateString('fr-FR', { month: 'short', day: '2-digit' })
-        };
-      })
-      .sort((a, b) => a._diff - b._diff)
-      .slice(0, 3);
+    const start = this.currentViewInfo.view.activeStart;
+    const end = this.currentViewInfo.view.activeEnd;
+
+    // Filter projects/tasks/meetings for the sidebar within the current month
+    const list: any[] = [];
+
+    // Combine all to show in "Upcoming Deadlines"
+    this.allProjects.forEach(p => {
+      const d = new Date(p.deadline || p.end_date);
+      if (d >= start && d <= end) {
+        list.push({
+          title: p.name,
+          date: d,
+          type: 'PROJECT',
+          time: '11:00 AM' // Mock time if not in API
+        });
+      }
+    });
+
+    this.allTasks.forEach(t => {
+      const d = new Date(t.deadline || t.due_date);
+      if (d >= start && d <= end) {
+        list.push({
+          title: t.title,
+          date: d,
+          type: 'CRITICAL',
+          time: '04:00 PM'
+        });
+      }
+    });
+
+    this.allMeetings.forEach(m => {
+      const d = new Date(m.date_time || m.start_time);
+      if (d >= start && d <= end) {
+        list.push({
+          title: m.title,
+          date: d,
+          type: 'MEETING',
+          time: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        });
+      }
+    });
+
+    this.currentMonthDeadlines = list.sort((a, b) => a.date.getTime() - b.date.getTime()).slice(0, 3);
   }
 
   renderEventContent(eventInfo: EventContentArg) {
     const category = eventInfo.event.extendedProps['category'];
     const title = eventInfo.event.title;
     
-    let iconHtml = '';
-    if (category === 'task') {
-      iconHtml = `<svg class="fc-event-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:14px; height:14px;">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>`;
-    } else if (category === 'meeting') {
-      iconHtml = `<svg class="fc-event-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px;">
-                    <path d="M23 7l-7 5 7 5V7z"></path>
-                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-                  </svg>`;
+    if (category === 'project') {
+      return {
+        html: `<div class="event-project-row">
+                 <div class="project-name">${title}</div>
+                 <div class="project-line"></div>
+               </div>`
+      };
     }
 
+    // Pill for Tasks/Meetings with Title
+    const pillClass = category === 'task' ? 'pill-task' : 'pill-meeting';
+    const tag = category === 'task' ? 'TASK' : 'MEETING';
+
     return {
-      html: `
-        <div class="event-template-wrap ${category}">
-          ${iconHtml}
-          <div class="event-subject">${title}</div>
-        </div>
-      `
+      html: `<div class="event-pill ${pillClass}">
+               <span class="pill-tag">${tag}</span>
+               <span class="pill-title">${title}</span>
+             </div>`
     };
   }
 
   handleEventClick(arg: any): void {
-    const event = arg.event;
-    console.log('Event Clicked:', event.title, event.extendedProps.category);
+    console.log('Event Clicked:', arg.event.title);
   }
 
   toggleReminder(r: any) {
     r.done = !r.done;
   }
+
+  formatDate(date: Date): string {
+    return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+  }
 }
-
+
+

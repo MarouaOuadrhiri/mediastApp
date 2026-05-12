@@ -1,7 +1,7 @@
 "# BrandShift" 
 <!-- Calendrier page don't match with project page -->
 <!-- color tag card tasks  -->
-settings page 
+<!-- settings page  -->
 profile page 
 <!-- dashboard kanban board design tasks  -->
 all emails should be end with @brandshift.ma

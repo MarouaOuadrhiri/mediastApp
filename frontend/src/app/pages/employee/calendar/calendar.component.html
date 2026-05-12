@@ -1,81 +1,49 @@
 <div class="calendar-container animate-fade-up">
-
-  <!-- Main Content Wrapper -->
   <div class="calendar-content">
-    
-    <!-- LEFT: The FullCalendar Scheduler -->
+
     <div class="calendar-main-card">
       <full-calendar [options]="calendarOptions"></full-calendar>
     </div>
 
-    <!-- RIGHT: Side Stats Panel -->
-    <div class="calendar-sidebar">
-      
-      <!-- Stats Summary Card -->
-      <p-card styleClass="stats-card">
-        <div class="stats-header">
-          <p class="stats-tag">Productivité</p>
-          <h3 class="stats-title">Résumé Hebdo</h3>
-        </div>
-        
-        <div class="progress-container">
-          <div class="progress-ring">
-            <svg viewBox="0 0 36 36" class="circular-chart">
-              <path class="circle-bg"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <path class="circle"
-                [attr.stroke-dasharray]="weeklyProgress + ', 100'"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-            </svg>
-            <div class="percentage">{{weeklyProgress}}%</div>
+    <aside class="calendar-sidebar">
+
+      <p-card styleClass="sidebar-card">
+        <h3 class="sidebar-title">Upcoming deadlines</h3>
+        <div class="deadline-list">
+          <div class="deadline-card" *ngFor="let item of currentMonthDeadlines">
+            <div class="deadline-header">
+              <span class="deadline-title">{{item.title}}</span>
+              <span class="badge" [ngClass]="'badge-' + item.type.toLowerCase()">{{item.type}}</span>
+            </div>
+            <div class="deadline-meta">{{formatDate(item.date)}} &bull; {{item.time}}</div>
           </div>
-          <div class="progress-info">
-            <p class="info-val">{{weeklyProgress}}%</p>
-            <p class="info-label">Tâches Complétées</p>
-          </div>
+          <div *ngIf="currentMonthDeadlines.length === 0" class="empty-state">No deadlines this month.</div>
         </div>
       </p-card>
 
-      <!-- Quick Reminders -->
-      <p-card styleClass="reminders-card">
-        <h4 class="card-subtitle">Rappels Rapides</h4>
+      <p-card styleClass="sidebar-card">
+        <h3 class="sidebar-title">Quick reminders</h3>
         <div class="reminder-list">
           <div class="reminder-item" *ngFor="let r of reminders" (click)="toggleReminder(r)">
-            <div class="check-box" [class.checked]="r.done">
-              <svg *ngIf="r.done" width="10" height="8" viewBox="0 0 10 8" fill="none">
-                <path d="M1 4L4 7L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <div class="check-circle" [class.done]="r.done">
+              <svg *ngIf="r.done" width="9" height="7" viewBox="0 0 9 7" fill="none">
+                <path d="M1 3.5L3.5 6L8 1" stroke="#FE0707" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <span class="reminder-text" [class.strikethrough]="r.done">{{r.text}}</span>
+            <span class="reminder-text" [class.done]="r.done">{{r.text}}</span>
+          </div>
+        </div>
+        <div class="progress-footer">
+          <div class="progress-header">
+            <span class="progress-label">Weekly progress</span>
+            <span class="progress-val">{{weeklyProgress}}%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" [style.width.%]="weeklyProgress"></div>
           </div>
         </div>
       </p-card>
 
-      <!-- Upcoming Deadlines -->
-      <p-card styleClass="deadlines-card">
-        <h4 class="card-subtitle">Échéances à Venir</h4>
-        <div class="deadline-list">
-          <div class="deadline-item" *ngFor="let item of upcomingDeadlines">
-            <div class="deadline-date">
-              <span class="day">{{item._dateLabel.split(' ')[1]}}</span>
-              <span class="month">{{item._dateLabel.split(' ')[0]}}</span>
-            </div>
-            <div class="deadline-info">
-              <p class="deadline-title">{{item.name || item.title}}</p>
-              <p class="deadline-meta" [class.urgent]="item._diff <= 3">
-                {{ item._diff === 0 ? "Aujourd'hui" : item._diff + ' jours restants' }}
-              </p>
-            </div>
-          </div>
-          <div *ngIf="upcomingDeadlines.length === 0" class="empty-state">
-            Aucune échéance proche.
-          </div>
-        </div>
-      </p-card>
-
-    </div>
+    </aside>
   </div>
-
-</div>
+</div>

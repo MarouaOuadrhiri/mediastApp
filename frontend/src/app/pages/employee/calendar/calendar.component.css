@@ -8,27 +8,25 @@
   width: 100%;
   font-family: 'DM Sans', sans-serif;
   color: #fff;
+  min-height: 100vh;
 }
 
 .calendar-content {
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 24px;
+  grid-template-columns: 1.15fr 360px;
+  gap: 32px;
+  padding: 0 32px 32px 32px;
   align-items: start;
 }
 
 /* ---- Calendar Card ---- */
 .calendar-main-card {
-  background: rgba(25, 25, 26, 0.6);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1A1A1C;
   border-radius: 32px;
-  padding: 24px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
+  padding: 20px 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
-/* FullCalendar Overrides for Premium Feel */
 .fc {
   background-color: transparent !important;
   font-family: 'DM Sans', sans-serif !important;
@@ -36,262 +34,300 @@
   color: #fff !important;
 }
 
+/* Toolbar Styling */
 .fc .fc-toolbar {
-  margin-bottom: 24px !important;
+  margin-bottom: 16px !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.fc .fc-toolbar-chunk:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fc .fc-toolbar-title {
+    font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  order: 2;
 }
 
-.fc .fc-toolbar-title {
-  font-size: 1.5rem !important;
-  font-weight: 800 !important;
+.fc .fc-prev-button { order: 1; }
+.fc .fc-next-button { order: 3; }
+
+.fc .fc-prev-button,
+.fc .fc-next-button {
+  background: rgba(255,255,255,0.06) !important;
+  border: none !important;
+  color: rgba(255,255,255,0.5) !important;
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  transition: all 0.2s;
+}
+
+.fc .fc-prev-button:hover,
+.fc .fc-next-button:hover {
+  background: rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+}
+.fc .fc-button-group {
+  background: rgba(255,255,255,0.05);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
 }
 
 .fc .fc-button {
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  background: transparent !important;
   border: none !important;
-  border-radius: 12px !important;
-  color: #fff !important;
-  padding: 8px 16px !important;
-  font-weight: 600 !important;
-  transition: all 0.2s ease !important;
-  text-transform: capitalize !important;
+  color: rgba(255,255,255,0.4) !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  padding: 6px 16px !important;
+  border-radius: 999px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  box-shadow: none !important;
 }
-
-.fc .fc-button:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-}
-
 .fc .fc-button-active {
-  background-color: #FE0707 !important;
-  box-shadow: 0 8px 16px rgba(254, 7, 7, 0.2) !important;
+  background: rgba(255,255,255,0.1) !important;
+  color: #fff !important;
+}
+/* Reminder done state */
+.reminder-text.done {
+  text-decoration: line-through;
+  color: rgba(255,255,255,0.2);
 }
 
-.fc .fc-button:disabled {
-  opacity: 0.3 !important;
+.check-circle.done {
+  border-color: #FE0707;
+  background: rgba(254,7,7,0.08);
 }
-
+/* Grid Headers */
 .fc th {
   border: none !important;
-  padding: 12px 0 !important;
-  color: rgba(255, 255, 255, 0.4) !important;
-  font-weight: 800 !important;
-  text-transform: uppercase !important;
+  padding: 8px 0 !important;
+  color: #71717A !important;
+  font-weight: 700 !important;
   font-size: 11px !important;
-  letter-spacing: 1px !important;
+  text-transform: uppercase;
+  background: transparent !important;
+  letter-spacing: 1px;
+}
+
+.fc-col-header-cell {
+  background: transparent !important;
 }
 
 .fc td {
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
-.fc-theme-standard td, .fc-theme-standard th {
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+.fc-day-today {
+  background: rgba(254, 7, 7, 0.03) !important;
 }
 
-.fc .fc-day-today {
-  background-color: rgba(255, 255, 255, 0.03) !important;
-}
-
-/* Event Template Wrapper */
-.event-template-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  height: 100%;
-  padding: 4px 10px;
-  box-sizing: border-box;
-  border-radius: 8px;
-  transition: transform 0.2s ease;
-}
-
-.event-template-wrap:hover {
-  transform: scale(1.02);
-}
-
-.fc-event {
-  background: transparent !important;
-  border: none !important;
-  cursor: pointer !important;
-}
-
-/* Specific styling for Project Category */
-.event-template-wrap.project {
-  padding-bottom: 8px; /* Extra padding as requested */
-  background: rgba(59, 130, 246, 0.25);
-  border-left: 4px solid #3B82F6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-.event-template-wrap.project .event-subject {
-  font-weight: 800 !important;
+.fc-daygrid-day-number {
+  color: #71717A !important;
+  font-weight: 700 !important;
+  padding: 12px !important;
   font-size: 13px !important;
 }
 
-.event-template-wrap.task {
-  background: rgba(16, 185, 129, 0.2);
-  border-left: 4px solid #10B981;
+.fc-day-today {
+  background: #151515 !important;
 }
 
-.event-template-wrap.meeting {
-  background: rgba(244, 63, 94, 0.2);
-  border-left: 4px solid #F43F5E;
+.fc-day-today .fc-daygrid-day-number {
+  color: #FD0000 !important;
+  background: transparent !important;
+  margin: 4px;
 }
 
-.fc-event-icon {
-  flex-shrink: 0;
-  width: 14px;
-  height: 14px;
-  color: #fff;
+.day-cell-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
 }
 
-.event-subject {
-  font-weight: 700 !important;
-  font-size: 12px !important;
-  color: #fff;
+/* Events Styling */
+.fc-event {
+  background: transparent !important;
+  border: none !important;
+  padding: 2px 4px !important;
+}
+
+.event-project-row {
+  margin-top: 4px;
+  width: 100%;
+}
+
+.project-name {
+  font-weight: 800;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #E4E4E7;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.project-line {
+  height: 3px;
+  background: #FE0707;
+  border-radius: 2px;
+  width: 100%;
+}
+
+.event-pill {
+  font-weight: 800;
+  font-size: 9px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  backdrop-filter: blur(4px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.2;
-}
-
-/* Agenda / List View Adjustments */
-.fc-list-event {
-  background-color: transparent !important;
-}
-
-.fc-list-day-cushion {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-.fc-list-event:hover td {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* ---- Sidebar Styling ---- */
-.calendar-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.stats-card, .reminders-card, .deadlines-card {
-  background: rgba(25, 25, 26, 0.6) !important;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 28px !important;
-  padding: 0px !important; /* PrimeNG p-card has its own padding or we override */
-}
-
-/* Override PrimeNG Card inner padding */
-:host ::ng-deep .p-card .p-card-body {
-  padding: 24px !important;
-}
-
-.stats-tag {
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  color: #FE0707;
-  letter-spacing: 1.5px;
-  margin-bottom: 4px;
-}
-
-.stats-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.progress-container {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.progress-ring {
-  width: 60px;
-  height: 60px;
-  position: relative;
-}
-
-.circular-chart {
-  display: block;
-  margin: 0 auto;
   max-width: 100%;
 }
 
-.circle-bg {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.05);
-  stroke-width: 3.8;
+.pill-tag {
+  opacity: 0.6;
+  font-size: 8px;
+  padding-right: 8px;
+  border-right: 1px solid currentColor;
 }
 
-.circle {
-  fill: none;
-  stroke: #FE0707;
-  stroke-width: 3.8;
-  stroke-linecap: round;
-  transition: stroke-dasharray 1s ease;
-}
-
-.percentage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 12px;
-  font-weight: 900;
+.pill-title {
+  font-weight: 700;
   color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.info-val {
-  font-size: 20px;
-  font-weight: 900;
-  color: #fff;
+.pill-task {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3B82F6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
-.info-label {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
-  font-weight: 600;
+.pill-meeting {
+  background: rgba(244, 63, 94, 0.15);
+  color: #F43F5E;
+  border: 1px solid rgba(244, 63, 94, 0.3);
 }
 
-.card-subtitle {
-  font-size: 14px;
+/* ---- SIDEBAR ---- */
+.calendar-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.sidebar-card {
+  background: #1A1A1C !important;
+  border-radius: 32px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+:host ::ng-deep .sidebar-card .p-card-body {
+  padding: 32px !important;
+}
+
+.sidebar-title {
+  font-size: 11px;
   font-weight: 800;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 24px;
+}
+
+/* Deadline List */
+.deadline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deadline-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.deadline-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.deadline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deadline-title {
+  font-weight: 800;
+  font-size: 14px;
   color: #fff;
-  margin-bottom: 20px;
+}
+
+.badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.badge-critical { background: rgba(254, 7, 7, 0.1); color: #FE0707; }
+.badge-project { background: rgba(234, 179, 8, 0.1); color: #EAB308; }
+.badge-meeting { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+
+.deadline-meta {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 /* Reminders */
 .reminder-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .reminder-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   cursor: pointer;
 }
 
-.check-box {
+.check-circle {
   width: 20px;
   height: 20px;
-  border-radius: 6px;
+  border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
-}
-
-.check-box.checked {
-  background: #FE0707;
-  border-color: #FE0707;
 }
 
 .reminder-text {
@@ -300,91 +336,64 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-.reminder-text.strikethrough {
-  text-decoration: line-through;
-  opacity: 0.4;
+/* Progress Footer */
+.progress-footer {
+  margin-top: 24px;
 }
 
-/* Deadlines */
-.deadline-list {
+.progress-header {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
-.deadline-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.deadline-date {
-  width: 48px;
-  height: 48px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.deadline-date .day {
-  font-size: 16px;
-  font-weight: 900;
-  color: #fff;
-}
-
-.deadline-date .month {
-  font-size: 9px;
+.progress-label {
+  font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.deadline-title {
+.progress-val {
   font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 4px;
+  font-weight: 900;
 }
 
-.deadline-meta {
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.4);
+.progress-bar-bg {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-.deadline-meta.urgent {
-  color: #FE0707;
+.progress-bar-fill {
+  height: 100%;
+  background: #FE0707;
+  border-radius: 3px;
+  transition: width 1s ease;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 20px 0;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.2);
-  font-style: italic;
+/* Navigation Overrides */
+.fc .fc-prev-button, .fc .fc-next-button {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  padding: 4px !important;
 }
 
-/* Responsive */
-@media (max-width: 1100px) {
-  .calendar-content {
-    grid-template-columns: 1fr;
-  }
-  .calendar-sidebar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
+.fc .fc-prev-button:hover, .fc .fc-next-button:hover {
+  color: #fff !important;
 }
 
-@media (max-width: 768px) {
-  .calendar-sidebar {
-    grid-template-columns: 1fr;
-  }
-  .fc .fc-toolbar {
-    flex-direction: column;
-    gap: 12px;
-  }
-}
+/* Hide some default borders */
+.fc-theme-standard td, .fc-theme-standard th {
+  border: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  border: none !important;
+}
+
+.fc-theme-standard .fc-scrollgrid-section-header > th {
+  border: none !important;
+}
+
