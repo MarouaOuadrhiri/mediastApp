@@ -3,7 +3,6 @@ import os
 import django
 import datetime
 import random
-import bson
 
 # Add backend_new to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'backend_new'))
@@ -15,7 +14,6 @@ from django.contrib.auth.hashers import make_password
 
 from departments.models import Department
 from users.models import User, AttendanceRecord, UserSession
-from tasks.models import Task
 from projects.models import Project, ProjectTask
 from meetings.models import Meeting
 from discussions.models import DiscussionMessage
@@ -25,7 +23,6 @@ from discussions.models import DiscussionMessage
 # ─────────────────────────────────────────────
 print("Cleaning up old records...")
 AttendanceRecord.objects.delete()
-Task.objects.delete()
 Project.objects.delete()
 Meeting.objects.delete()
 DiscussionMessage.objects.delete()
@@ -98,8 +95,13 @@ emp_names = [
 
 hashed_pw = make_password("password123")
 
+all_skills = ['Visual Architecture', 'Design Systems', 'Creative Strategy', '3D Motion', 'UX Research', 'Prototyping', 'Frontend', 'Backend', 'DevOps', 'Management']
+
 for i, (fn, ln) in enumerate(emp_names):
     dept = departments[i % len(departments)]
+    # Random creation date for tenure testing (last 2 years)
+    creation_date = datetime.datetime.utcnow() - datetime.timedelta(days=random.randint(30, 730))
+    
     user = User(
         email=f"{fn.lower()}@brandshift.com",
         password=hashed_pw,
@@ -109,7 +111,9 @@ for i, (fn, ln) in enumerate(emp_names):
         department=dept,
         profile_photo=f"https://i.pravatar.cc/150?u={fn}",
         bio=f"Dedicated member of the {dept.name} team at BrandShift.",
-        preferences={"theme": "dark", "notifications": True}
+        skills=random.sample(all_skills, 4),
+        preferences={"theme": "dark", "notifications": True},
+        created_at=creation_date
     )
     user.save()
     employees.append(user)
@@ -117,32 +121,7 @@ for i, (fn, ln) in enumerate(emp_names):
 print(f"[OK] {len(employees)} employees ready (Password: password123)")
 
 # ─────────────────────────────────────────────
-# 3. STANDALONE TASKS
-# ─────────────────────────────────────────────
-print("Seeding standalone tasks...")
-task_titles = [
-    "Review Q3 Analytics", "Update Team Documentation", "Fix Header CSS",
-    "Prepare Presentation", "Interview Candidate", "Database Migration",
-    "Client Call", "Security Audit", "API Documentation", "Bug Triaging"
-]
-
-for i, title in enumerate(task_titles):
-    assignee = employees[i % len(employees)]
-    task = Task(
-        title=title,
-        description=f"Automated task for {title}. Please ensure all requirements are met.",
-        status=random.choice(['BLOCKED', 'IN_PROGRESS', 'REVIEW', 'DONE']),
-        deadline=datetime.datetime.utcnow() + datetime.timedelta(days=random.randint(1, 14)),
-        employees=[assignee],
-        department=assignee.department,
-        is_archived=False
-    )
-    task.save()
-
-print("[OK] Standalone tasks ready")
-
-# ─────────────────────────────────────────────
-# 4. PROJECTS & PROJECT TASKS
+# 3. PROJECTS & PROJECT TASKS
 # ─────────────────────────────────────────────
 print("Seeding projects...")
 project_data = [

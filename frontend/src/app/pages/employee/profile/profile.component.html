@@ -1,223 +1,287 @@
 <div class="profile-container animate-in fade-in duration-700">
-  <!-- Top Row: Identity & Performance -->
-  <div class="grid lg:grid-cols-12 gap-6 mb-6">
-    <!-- Profile Header Card -->
-    <div class="lg:col-span-8 profile-card relative overflow-hidden group">
-      <div class="absolute top-0 right-0 w-64 h-64 bg-red-500/5 blur-[80px] rounded-full pointer-events-none transition-all group-hover:bg-red-500/10"></div>
+  <div class="grid lg:grid-cols-12 gap-8">
+    
+    <!-- LEFT COLUMN -->
+    <div class="lg:col-span-8 space-y-8">
       
-      <div class="flex flex-col h-full">
-        <div class="flex items-start gap-8 mb-10">
-          <!-- Avatar Section -->
-          <div class="relative">
-            <div class="w-28 h-28 rounded-full border-2 border-white/5 p-1 bg-gradient-to-br from-white/10 to-transparent">
-              <div class="w-full h-full rounded-full overflow-hidden shadow-2xl relative">
-                <img [src]="profilePhoto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200'" class="w-full h-full object-cover">
+      <!-- Identity Header Card -->
+      <div class="profile-card identity-card relative overflow-hidden group">
+        <div class="glow-overlay"></div>
+        
+        <div class="flex flex-col gap-10">
+          <div class="flex items-center gap-10">
+            <!-- Avatar Section -->
+            <div class="relative">
+              <div class="avatar-ring">
+                <div class="avatar-inner">
+                  <img [src]="profilePhoto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200'" class="w-full h-full object-cover">
+                </div>
+              </div>
+              <div class="verification-badge">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><path d="M20 6L9 17L4 12"/></svg>
               </div>
             </div>
-            <!-- Verification Badge -->
-            <div class="absolute bottom-1 right-1 w-6 h-6 bg-red-600 rounded-full border-2 border-[#121214] flex items-center justify-center shadow-lg">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17L4 12"/></svg>
+
+            <!-- Identity Section -->
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-1">
+                <h1 class="name-text">{{firstName}} {{lastName}}</h1>
+                <span class="employee-id">ID: {{getEmployeeID()}}</span>
+              </div>
+              <div class="flex items-center gap-3 mb-8">
+                <span class="role-text">Senior Designer</span>
+                <span class="dot-separator"></span>
+                <span class="dept-text">Creative Studio</span>
+              </div>
+              
+              <div class="flex items-center gap-4">
+                <button (click)="updateProfile()" class="btn-action">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Edit Profile
+                </button>
+                <button (click)="openPasswordModal()" class="btn-action">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  Change Password
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Identity Section -->
-          <div class="flex-1 pt-2">
-            <div class="flex items-center justify-between mb-2">
-              <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{firstName}} {{lastName}}</h1>
-              <span class="text-[10px] font-black text-white/20 bg-white/5 px-2 py-1 rounded-md border border-white/5 uppercase tracking-widest">ID: {{getEmployeeID()}}</span>
+          <!-- Bottom Metrics Bar -->
+          <div class="grid grid-cols-4 gap-4 pt-8 border-t border-white/[0.05]">
+            <div class="metric-item">
+              <span class="metric-label">Status</span>
+              <div class="flex items-center gap-2">
+                <span class="status-indicator"></span>
+                <span class="metric-value">Active Now</span>
+              </div>
             </div>
-            <div class="flex items-center gap-2 mb-6">
-              <span class="text-[10px] font-black text-red-500 uppercase tracking-[0.2em]">Senior Designer</span>
-              <span class="w-1 h-1 bg-white/20 rounded-full"></span>
-              <span class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Creative Studio</span>
+            <div class="metric-item">
+              <span class="metric-label">Projects</span>
+              <span class="metric-value">{{stats.ongoing_projects_count}} Ongoing</span>
             </div>
-            
-            <div class="flex items-center gap-3">
-              <button (click)="updateProfile()" class="btn-profile-action">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Edit Profile
-              </button>
-              <button (click)="openPasswordModal()" class="btn-profile-action">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Change Password
-              </button>
+            <div class="metric-item">
+              <span class="metric-label">Tenure</span>
+              <span class="metric-value">{{stats.tenure}}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Local Time</span>
+              <span class="metric-value">{{getLocalTime()}}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Quick Stats Row -->
-        <div class="grid grid-cols-4 gap-4 mt-auto pt-6 border-t border-white/5">
-          <div class="space-y-1">
-            <p class="stat-mini-label">Status</p>
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span>
-              <span class="text-xs font-bold text-white uppercase">Active Now</span>
+      <!-- Professional Synthesis Card -->
+      <div class="profile-card relative">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="icon-box red">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          </div>
+          <h3 class="card-title">Professional Synthesis</h3>
+        </div>
+
+        <p class="synthesis-text">
+          {{bio || 'Your professional synthesis highlights your key strengths and expertise in your field.'}}
+        </p>
+
+        <div class="flex flex-wrap gap-2 mt-10">
+          <span *ngFor="let skill of skills" class="skill-pill">
+            {{skill}}
+          </span>
+        </div>
+      </div>
+
+      <!-- Bandwidth Engine Card -->
+      <div class="profile-card">
+        <div class="flex items-center justify-between mb-10">
+          <div class="flex items-center gap-3">
+            <div class="icon-box red">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <h3 class="card-title">Bandwidth Engine</h3>
+          </div>
+          <span class="load-badge">Optimum Load</span>
+        </div>
+
+        <div class="space-y-3 mb-10">
+          <div class="flex justify-between items-end">
+            <span class="bar-label">Active Sprint Load</span>
+            <span class="bar-value">{{stats.sprint_load}}% Capacity</span>
+          </div>
+          <div class="load-bar-container">
+            <div class="load-bar-fill" [style.width.%]="stats.sprint_load"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="sub-stat-card">
+            <span class="sub-stat-label">Weekly Hours</span>
+            <div class="flex items-baseline gap-1">
+              <span class="sub-stat-valueLarge">{{stats.weekly_hours}}</span>
+              <span class="sub-stat-valueSmall">/ 40</span>
             </div>
           </div>
-          <div class="space-y-1">
-            <p class="stat-mini-label">Projects</p>
-            <p class="text-xs font-bold text-white uppercase">12 Ongoing</p>
-          </div>
-          <div class="space-y-1">
-            <p class="stat-mini-label">Tenure</p>
-            <p class="text-xs font-bold text-white uppercase">{{getTenure()}}</p>
-          </div>
-          <div class="space-y-1">
-            <p class="stat-mini-label">Local Time</p>
-            <p class="text-xs font-bold text-white uppercase">{{getLocalTime()}}</p>
+          <div class="sub-stat-card">
+            <span class="sub-stat-label">Lead Time</span>
+            <div class="flex items-baseline gap-1">
+              <span class="sub-stat-valueLarge">{{stats.lead_time}}</span>
+              <span class="sub-stat-valueSmall">Days Avg</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Performance Velocity Card -->
-    <div class="lg:col-span-4 profile-card flex flex-col items-center">
-      <h3 class="w-full text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-8 px-2">Performance Velocity</h3>
+    <!-- RIGHT COLUMN -->
+    <div class="lg:col-span-4 space-y-8">
       
-      <!-- Circle Gauge -->
-      <div class="relative w-40 h-40 flex items-center justify-center mb-8">
-        <svg class="w-full h-full -rotate-90">
-          <circle cx="80" cy="80" r="70" stroke="rgba(255,255,255,0.03)" stroke-width="8" fill="none" />
-          <circle cx="80" cy="80" r="70" stroke="url(#redGradient)" stroke-width="8" fill="none" 
-                  [attr.stroke-dasharray]="440" [attr.stroke-dashoffset]="440 - (440 * getGlobalPoints() / 100)"
-                  stroke-linecap="round" class="transition-all duration-1000" />
-          <defs>
-            <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#FD0000" />
-              <stop offset="100%" stop-color="#FF5F5F" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div class="absolute inset-0 flex flex-col items-center justify-center">
-          <span class="text-5xl font-black text-white tracking-tighter">{{getGlobalPoints()}}</span>
-          <span class="text-[9px] font-black text-white/30 uppercase tracking-widest">Global Pts</span>
-        </div>
-      </div>
-
-      <!-- Detail Bars -->
-      <div class="w-full space-y-4 px-4">
-        <div class="space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="text-[9px] font-black uppercase tracking-[0.15em] text-white/20">Efficiency</span>
-            <span class="text-[10px] font-bold text-white">{{getEfficiency()}}%</span>
-          </div>
-          <div class="h-1 bg-white/5 rounded-full overflow-hidden">
-            <div class="h-full bg-red-600 rounded-full" [style.width.%]="getEfficiency()"></div>
-          </div>
-        </div>
-        <div class="space-y-2 pt-2 border-t border-white/5">
-          <div class="flex justify-between items-center">
-            <span class="text-[9px] font-black uppercase tracking-[0.15em] text-white/20">Feedback</span>
-            <span class="text-[10px] font-bold text-white">{{getFeedbackScore()}}/5.0</span>
-          </div>
-          <div class="h-1 bg-white/5 rounded-full overflow-hidden">
-            <div class="h-full bg-white/40 rounded-full" [style.width.%]="(getFeedbackScore()/5)*100"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Middle Row: Synthesis & Milestones -->
-  <div class="grid lg:grid-cols-12 gap-6 mb-6">
-    <!-- Professional Synthesis Card -->
-    <div class="lg:col-span-8 profile-card relative">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <h3 class="text-sm font-black uppercase tracking-[0.15em] text-white">Professional Synthesis</h3>
-      </div>
-
-      <p class="text-sm text-white/50 leading-relaxed mb-8 max-w-2xl font-medium">
-        {{bio || 'Senior creative lead specializing in high-fidelity design systems and cinematic UI/UX. Passionate about merging technical precision with editorial elegance. Currently driving the BrandShift 2.0 design architecture while mentoring the junior studio collective.'}}
-      </p>
-
-      <div class="flex flex-wrap gap-2">
-        <span *ngFor="let skill of skills" class="skill-tag">
-          {{skill}}
-        </span>
-      </div>
-    </div>
-
-    <!-- Upcoming Milestones Card -->
-    <div class="lg:col-span-4 profile-card">
-      <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-8 px-2">Upcoming Milestones</h3>
-      
-      <div class="space-y-6 relative ml-2">
-        <div class="absolute left-[5px] top-2 bottom-2 w-px bg-white/5"></div>
+      <!-- Performance Velocity Card -->
+      <div class="profile-card flex flex-col items-center py-10">
+        <h3 class="w-full card-title-small mb-10 px-4">Performance Velocity</h3>
         
-        <div *ngFor="let m of milestones" class="relative pl-8">
-          <div class="absolute left-0 top-1.5 w-[11px] h-[11px] rounded-full border-2 border-[#121214]"
-               [ngClass]="m.current ? 'bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.5)]' : 'bg-white/10'"></div>
-          <div class="space-y-1">
-            <span class="text-[9px] font-black uppercase tracking-[0.2em]" [ngClass]="m.current ? 'text-red-500' : 'text-white/20'">{{m.date}}</span>
-            <p class="text-xs font-black text-white uppercase tracking-tight">{{m.title}}</p>
-            <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest">{{m.project}}</p>
+        <div class="relative w-48 h-48 flex items-center justify-center mb-10">
+          <svg class="w-full h-full -rotate-90">
+            <circle cx="96" cy="96" r="84" stroke="rgba(255,255,255,0.03)" stroke-width="12" fill="none" />
+            <circle cx="96" cy="96" r="84" stroke="url(#velocityGradient)" stroke-width="12" fill="none" 
+                    [attr.stroke-dasharray]="528" [attr.stroke-dashoffset]="528 - (528 * stats.global_points / 100)"
+                    stroke-linecap="round" class="transition-all duration-1000" />
+            <defs>
+              <linearGradient id="velocityGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#FD0000" />
+                <stop offset="100%" stop-color="#FF5F5F" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="velocity-number">{{stats.global_points}}</span>
+            <span class="velocity-label">Global Pts</span>
           </div>
         </div>
+
+        <div class="w-full space-y-6 px-6">
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="mini-bar-label">Efficiency</span>
+              <span class="mini-bar-value">{{stats.efficiency}}%</span>
+            </div>
+            <div class="mini-bar-bg">
+              <div class="mini-bar-fill red" [style.width.%]="stats.efficiency"></div>
+            </div>
+          </div>
+          <div class="space-y-3 pt-6 border-t border-white/[0.05]">
+            <div class="flex justify-between items-center">
+              <span class="mini-bar-label">Feedback</span>
+              <span class="mini-bar-value">{{stats.feedback}}/5.0</span>
+            </div>
+            <div class="mini-bar-bg">
+              <div class="mini-bar-fill white" [style.width.%]="(stats.feedback/5)*100"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Milestones Card -->
+      <div class="profile-card">
+        <h3 class="card-title-small mb-10">Upcoming Milestones</h3>
+        
+        <div class="milestone-timeline">
+          <div class="timeline-line"></div>
+          
+          <div *ngFor="let m of milestones" class="milestone-item">
+            <div class="milestone-dot" [class.active]="m.current"></div>
+            <div class="milestone-content">
+              <span class="milestone-date" [class.active]="m.current">{{m.date}}</span>
+              <p class="milestone-title">{{m.title}}</p>
+              <p class="milestone-project">{{m.project}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Work Card -->
+      <div class="profile-card">
+        <h3 class="card-title-small mb-10">Latest Work</h3>
+        
+        <div class="grid grid-cols-2 gap-4 mb-10">
+          <div *ngFor="let item of portfolioItems" class="portfolio-item group">
+            <img [src]="item.image" class="portfolio-img">
+            <div class="portfolio-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-portfolio">
+          View Portfolio
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Bottom Row: Engine & Portfolio -->
-  <div class="grid lg:grid-cols-12 gap-6">
-    <!-- Bandwidth Engine Card -->
-    <div class="lg:col-span-8 profile-card">
-      <div class="flex items-center justify-between mb-8">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          </div>
-          <h3 class="text-sm font-black uppercase tracking-[0.15em] text-white">Bandwidth Engine</h3>
+  <!-- Profile Update Modals (Stay same functional behavior) -->
+  <div *ngIf="isPasswordModalOpen" class="modal-overlay" (click)="isPasswordModalOpen = false">
+    <div class="modal-content animate-in zoom-in duration-300" (click)="$event.stopPropagation()">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
         </div>
-        <span class="text-[9px] font-black text-red-500 uppercase tracking-[0.2em] bg-red-500/5 px-3 py-1 rounded-full border border-red-500/10">Optimum Load</span>
+        <h3 class="text-lg font-black text-white uppercase tracking-tight">Security Protocol</h3>
       </div>
-
-      <div class="space-y-2 mb-10">
-        <div class="flex justify-between items-end mb-1">
-          <span class="text-[10px] font-black uppercase tracking-[0.15em] text-white/30">Active Sprint Load</span>
-          <span class="text-[10px] font-black text-white/40">{{getSprintLoad()}}% Capacity</span>
+      
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">Current Signature</label>
+          <input type="password" [(ngModel)]="currentPassword" placeholder="••••••••" class="modal-input">
         </div>
-        <div class="h-6 bg-white/5 rounded-2xl p-1 overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-red-600 to-red-400 rounded-xl transition-all duration-1000 shadow-[0_0_20px_rgba(220,38,38,0.2)]" [style.width.%]="getSprintLoad()"></div>
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">New Identity Code</label>
+          <input type="password" [(ngModel)]="newPassword" placeholder="••••••••" class="modal-input">
         </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div class="bg-white/[0.02] border border-white/5 p-4 rounded-2xl flex flex-col">
-          <span class="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 mb-2">Weekly Hours</span>
-          <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-black text-white tracking-tighter">{{getWeeklyHours()}}</span>
-            <span class="text-[10px] font-black text-white/10 uppercase">/ 40</span>
-          </div>
-        </div>
-        <div class="bg-white/[0.02] border border-white/5 p-4 rounded-2xl flex flex-col">
-          <span class="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 mb-2">Lead Time</span>
-          <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-black text-white tracking-tighter">{{getLeadTime()}}</span>
-            <span class="text-[10px] font-black text-white/10 uppercase">Days Avg</span>
-          </div>
-        </div>
+        
+        <button (click)="confirmPasswordUpdate()" [disabled]="!currentPassword || !newPassword" class="btn-modal-primary w-full mt-4">
+          Authorize Update
+        </button>
       </div>
     </div>
+  </div>
 
-    <!-- Latest Work Card -->
-    <div class="lg:col-span-4 profile-card flex flex-col">
-      <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-8 px-2">Latest Work</h3>
+  <!-- Identity Update Modal -->
+  <div *ngIf="isVerificationModalOpen" class="modal-overlay" (click)="isVerificationModalOpen = false">
+    <div class="modal-content animate-in zoom-in duration-300" (click)="$event.stopPropagation()">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h3 class="text-lg font-black text-white uppercase tracking-tight">Identity Update</h3>
+      </div>
       
-      <div class="grid grid-cols-2 gap-3 mb-8">
-        <div *ngFor="let item of portfolioItems" class="aspect-square rounded-2xl overflow-hidden border border-white/5 group relative cursor-pointer">
-          <img [src]="item.image" class="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-110">
-          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">First Name</label>
+            <input type="text" [(ngModel)]="firstName" class="modal-input">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">Last Name</label>
+            <input type="text" [(ngModel)]="lastName" class="modal-input">
           </div>
         </div>
-      </div>
+        
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">Professional Bio</label>
+          <textarea [(ngModel)]="bio" rows="4" class="modal-input resize-none" placeholder="Write your professional synthesis..."></textarea>
+        </div>
 
-      <button class="mt-auto w-full py-4 rounded-2xl border border-white/5 text-[10px] font-black text-white/30 uppercase tracking-[0.3em] hover:bg-white/5 hover:text-white transition-all">
-        View Portfolio
-      </button>
+        <div class="space-y-2 pt-4">
+          <label class="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">Authorize with Password</label>
+          <input type="password" [(ngModel)]="currentPassword" placeholder="••••••••" class="modal-input">
+        </div>
+        
+        <button (click)="confirmProfileUpdate()" [disabled]="!currentPassword || isSubmitting" class="btn-modal-primary w-full mt-4">
+          {{ isSubmitting ? 'Processing...' : 'Sync Identity' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

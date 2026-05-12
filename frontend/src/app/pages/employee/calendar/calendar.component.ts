@@ -36,6 +36,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
     locale: 'fr',
+    height: 'auto',
+    aspectRatio: 2
   };
 
   /** Statistics and Side Panel Data */
@@ -98,12 +100,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
       selectable: true,
       dayMaxEvents: false,
       locale: 'fr',
+      height: 'auto',
+      aspectRatio: 2,
       events: [],
       eventClick: this.handleEventClick.bind(this),
       eventContent: this.renderEventContent.bind(this),
       datesSet: this.handleDatesSet.bind(this),
-      height: 'auto',
-      aspectRatio: 2.2,
       dayHeaderFormat: { weekday: 'short' },
       dayCellContent: (arg) => {
         return { html: `<div class="day-cell-inner">${arg.dayNumberText}</div>` };
@@ -150,26 +152,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
           });
         });
 
-        // 2. Tasks (Independent tasks + Project tasks assigned to me)
-        const allFilteredTasks: any[] = [];
-        
-        // Add independent tasks
-        this.allTasks.forEach((t: any) => allFilteredTasks.push(t));
-
-        // Add project-specific tasks assigned to the current user
-        this.allProjects.forEach((p: any) => {
-          if (p.tasks) {
-            p.tasks.forEach((pt: any) => {
-              if (pt.assigned_to === this.currentUserId) {
-                allFilteredTasks.push({
-                  ...pt,
-                  project_name: p.name,
-                  is_project_task: true
-                });
-              }
-            });
-          }
-        });
+        // 2. Tasks (Project tasks assigned to me)
+        const allFilteredTasks: any[] = [...this.allTasks];
 
         allFilteredTasks.forEach((t: any) => {
           events.push({

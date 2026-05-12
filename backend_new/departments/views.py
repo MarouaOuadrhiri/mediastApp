@@ -12,7 +12,6 @@ from mongoengine.errors import DoesNotExist, NotUniqueError
 def department_list_create(request):
     from users.models import User
     from projects.models import Project
-    from tasks.models import Task
 
     if request.method == 'GET':
         deps = Department.objects.all()
@@ -20,7 +19,6 @@ def department_list_create(request):
         for d in deps:
             # Metrics calculation
             employees = User.objects(department=d)
-            emp_ids = [e.id for e in employees]
             
             # Tasks from projects
             projects = Project.objects(department=d)
@@ -28,10 +26,7 @@ def department_list_create(request):
             for p in projects:
                 project_tasks.extend(p.tasks)
             
-            # Standalone tasks for employees in this department
-            standalone_tasks = Task.objects(employees__in=emp_ids)
-            
-            all_tasks = project_tasks + list(standalone_tasks)
+            all_tasks = project_tasks
             total_tasks = len(all_tasks)
             done_tasks = len([t for t in all_tasks if t.status == 'DONE'])
             active_tasks = total_tasks - done_tasks
@@ -136,7 +131,6 @@ def department_detail(request, pk):
             'projects': project_data
         })
 
-    # PUT and DELETE require ADMIN
     if request.user.role != 'ADMIN':
         return Response({'error': 'Unauthorized'}, status=403)
 

@@ -3,7 +3,7 @@ import datetime
 
 # Create your models here.
 # users/models.py
-from mongoengine import Document, StringField, EmailField, ReferenceField, DateTimeField, DictField, BooleanField
+from mongoengine import Document, StringField, EmailField, ReferenceField, DateTimeField, DictField, BooleanField, ListField
 from departments.models import Department
 
 class User(Document):
@@ -15,7 +15,9 @@ class User(Document):
     department = ReferenceField(Department, null=True)
     profile_photo = StringField()
     bio = StringField()
+    skills = ListField(StringField(), default=[])
     preferences = DictField()
+    created_at = DateTimeField(default=datetime.datetime.utcnow)
     
     meta = {
         'strict': False,

@@ -312,23 +312,14 @@
             </div>
           </div>
 
-          <!-- Row 3: Project & Department -->
-          <div class="form-row split">
-            <div class="form-group flex flex-col gap-3">
+          <!-- Row 3: Project Selection (Mandatory) -->
+          <div class="form-row">
+            <div class="form-group full flex flex-col gap-3">
               <label class="label">Project</label>
               <div class="select-wrapper">
-                <select [(ngModel)]="taskProjectId" name="taskProjectId" (change)="taskDepartmentId = ''">
-                  <option value="">None (Optional)</option>
+                <select [(ngModel)]="taskProjectId" name="taskProjectId" required>
+                  <option value="" disabled selected>Select a project</option>
                   <option *ngFor="let p of projects" [value]="p.id">{{ p.name }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group flex flex-col gap-3">
-              <label class="label">Department</label>
-              <div class="select-wrapper">
-                <select [(ngModel)]="taskDepartmentId" name="taskDepartmentId" (change)="taskProjectId = ''">
-                  <option value="">None (Optional)</option>
-                  <option *ngFor="let d of departments" [value]="d.id">{{ d.name }}</option>
                 </select>
               </div>
             </div>

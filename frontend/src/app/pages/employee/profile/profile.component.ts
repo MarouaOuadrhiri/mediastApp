@@ -19,31 +19,26 @@ export class ProfileComponent implements OnInit {
   profilePhoto = '';
   bio = '';
   isSubmitting = false;
-  isVerificationModalOpen = false;
   isPasswordModalOpen = false;
+  isVerificationModalOpen = false;
   currentPassword = '';
   newPassword = '';
-  confirmNewPassword = '';
 
-  skills = [
-    'Visual Architecture',
-    'Design Systems',
-    'Creative Strategy',
-    '3D Motion',
-    'UX Research',
-    'Prototyping'
-  ];
-
-  milestones = [
-    { date: 'Tomorrow', title: 'Nexus UI Audit', project: 'Project: Quantum Shift', current: true },
-    { date: 'Aug 18', title: 'Design System V2.1', project: 'Core Assets Library', current: false },
-    { date: 'Aug 22', title: 'Mentorship Session', project: 'Internal Studio', current: false }
-  ];
-
-  portfolioItems = [
-    { image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&h=300' },
-    { image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=400&h=300' }
-  ];
+  // Data that will be populated from stats
+  skills: string[] = [];
+  milestones: any[] = [];
+  portfolioItems: any[] = [];
+  
+  stats = {
+    tenure: '0 Months',
+    ongoing_projects_count: 0,
+    global_points: 0,
+    efficiency: 0,
+    feedback: 0,
+    sprint_load: 0,
+    weekly_hours: 0,
+    lead_time: 0
+  };
 
   constructor(
     private api: ApiService,
@@ -57,13 +52,20 @@ export class ProfileComponent implements OnInit {
 
   loadProfile() {
     this.api.getMe().subscribe({
-      next: (u) => {
+      next: (u: any) => {
         this.user = u;
         this.firstName = u.first_name || '';
         this.lastName = u.last_name || '';
         this.email = u.email;
         this.profilePhoto = u.profile_photo || '';
         this.bio = u.bio || '';
+        this.skills = u.skills && u.skills.length > 0 ? u.skills : ['Visual Architecture', 'Design Systems', 'Creative Strategy'];
+        
+        if (u.stats) {
+          this.stats = { ...this.stats, ...u.stats };
+          this.milestones = u.stats.milestones || [];
+          this.portfolioItems = u.stats.portfolio || [];
+        }
       }
     });
   }
@@ -86,6 +88,7 @@ export class ProfileComponent implements OnInit {
         this.ui.notify('Profile updated successfully', 'success');
         this.isVerificationModalOpen = false;
         this.isSubmitting = false;
+        this.loadProfile();
       },
       error: () => {
         this.ui.notify('Update failed', 'warn');
@@ -99,13 +102,14 @@ export class ProfileComponent implements OnInit {
   }
 
   confirmPasswordUpdate() {
-    if (this.newPassword !== this.confirmNewPassword) return;
     this.isSubmitting = true;
     this.api.updateMe({ current_password: this.currentPassword, password: this.newPassword }).subscribe({
       next: () => {
         this.ui.notify('Password updated', 'success');
         this.isPasswordModalOpen = false;
         this.isSubmitting = false;
+        this.currentPassword = '';
+        this.newPassword = '';
       },
       error: () => {
         this.ui.notify('Password update failed', 'warn');
@@ -114,14 +118,13 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  getEmployeeID() { return 'BS-9920'; }
-  getGlobalPoints() { return 92; }
-  getEfficiency() { return 98; }
-  getFeedbackScore() { return 4.9; }
-  getSprintLoad() { return 74; }
-  getWeeklyHours() { return 32; }
-  getLeadTime() { return 1.4; }
-  getTenure() { return '4.2 Years'; }
+  getEmployeeID() { 
+    if (this.user && (this.user.id || this.user._id)) {
+      const id = this.user.id || this.user._id;
+      return 'BS-' + id.substring(id.length - 4).toUpperCase();
+    }
+    return 'BS-9920'; 
+  }
   getLocalTime() {
     const now = new Date();
     return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0') + ' GMT+1';

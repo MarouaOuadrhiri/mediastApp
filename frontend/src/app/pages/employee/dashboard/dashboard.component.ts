@@ -15,7 +15,7 @@ import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from 
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   projects: any[] = [];
-  standaloneTasks: any[] = [];
+  myTasks: any[] = [];
   todoTasks: any[] = [];
   inProgressTasks: any[] = [];
   reviewTasks: any[] = [];
@@ -32,8 +32,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private lastSeenMeetingIds: Set<string> = new Set();
   private meetingSeenStorageKey = 'employeeMeetingSeenIds';
 
-  newTaskTitle = '';
-  isAddingTask = false;
   errorMsg = '';
   user: any = null;
   attendanceSession: any = null;
@@ -186,7 +184,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.api.getTasks().subscribe({
       next: (r: any) => {
         if (this.isDragging || this.isUpdating) return;
-        this.runInZone(() => { this.standaloneTasks = r || []; this.updateTaskLists(); this.cdr.detectChanges(); });
+        this.runInZone(() => { this.myTasks = r || []; this.updateTaskLists(); this.cdr.detectChanges(); });
       },
       error: () => { if (!isRefresh) this.errorMsg = 'Failed to load tasks.'; }
     });
@@ -558,58 +556,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  createStandaloneTask(title?: string, sourceId?: string) {
-    const taskTitle = title || this.newTaskTitle;
-    if (!taskTitle.trim()) return;
-
-    const payload = {
-      title: taskTitle,
-      employee_id: this.user.id,
-      source_project_task_id: sourceId
-    };
-
-    this.api.createTask(payload).subscribe({
-      next: () => {
-        this.runInZone(() => {
-          this.newTaskTitle = '';
-          this.isAddingTask = false;
-          this.loadData();
-        });
-      },
-      error: (err: any) => {
-        this.runInZone(() => {
-          this.errorMsg = err.error?.error || 'Failed to create task.';
-          this.cdr.detectChanges();
-        });
-      }
-    });
-  }
-
-  createTaskFromNote(pt: any) {
-    const title = prompt('Enter a title for this individual task:', pt.title);
-    if (title) this.createStandaloneTask(title, pt.id);
-  }
-
-  hasStandaloneTask(ptId: string): boolean {
-    return this.standaloneTasks.some(t => t.source_project_task_id === ptId);
-  }
-
-  updateStandaloneTaskStatus(taskId: string, status: string) {
-    this.api.updateTaskStatus(taskId, status).subscribe({
-      next: () => {
-        this.runInZone(() => { this.cdr.detectChanges(); });
-      },
-      error: () => {
-        this.runInZone(() => {
-          this.errorMsg = 'Failed to update task status.';
-          this.isUpdating = false;
-          this.loadData(); // Revert UI on error
-          this.cdr.detectChanges();
-        });
-      }
-    });
-  }
-
   trackById(index: number, item: any): string {
     return item.id || index.toString();
   }
@@ -690,20 +636,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getAllTasks(): any[] {
-    const all: any[] = [];
-
-    // Add standalone tasks with project context
-    this.standaloneTasks.forEach(t => {
-      let projectName = t.project_name || 'General';
-      const tProjId = this.parseId(t.project_id);
-      if (tProjId) {
-        const p = this.projects.find(proj => this.parseId(proj.id) === tProjId);
-        if (p) projectName = p.name;
-      }
-      all.push({ ...t, project_name: projectName, is_project_task: false });
-    });
-
-    return all;
+    return this.myTasks.map(t => ({ ...t, is_project_task: true }));
   }
 
   getTasksByStatus(status: string): any[] {
@@ -719,8 +652,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Filter by selected project if one is active
     if (this.selectedProject) {
       if (this.selectedProject.id === 'general') {
-        // "MY TASKS" tab shows all standalone tasks
-        all = this.standaloneTasks.map(t => ({ ...t, is_project_task: false }));
+        // "MY TASKS" tab shows all project tasks assigned to me
+        all = this.myTasks.map(t => ({ ...t, is_project_task: true }));
       } else {
         // Project tabs show tasks from the Project model (embedded tasks)
         if (this.selectedProject.tasks) {

@@ -133,6 +133,34 @@ def serialize_project(p, user_map=None, dept_map=None):
         'tasks': serialized_tasks
     }
 
+def serialize_project_task(pt, project):
+    """Serialize a ProjectTask embedded document to look like a Task."""
+    assigned_to_data = []
+    if pt.assigned_to:
+        # Assuming we want a list for consistency with frontend expectation of 'employees'
+        assigned_to_data.append({
+            'id': str(pt.assigned_to.id),
+            'name': f"{pt.assigned_to.first_name} {pt.assigned_to.last_name}".strip(),
+            'photo': getattr(pt.assigned_to, 'profile_photo', '')
+        })
+
+    deadline = pt.deadline.strftime('%Y-%m-%d') if pt.deadline else None
+
+    return {
+        'id': f"{project.id}:{pt.id}",  # Compound ID for easy lookup
+        'title': pt.title,
+        'description': pt.description or '',
+        'status': pt.status,
+        'employees': assigned_to_data,
+        'project_id': str(project.id),
+        'project_name': project.name,
+        'is_project_task': True,
+        'deadline': deadline,
+        'rejection_reason': getattr(pt, 'rejection_reason', ''),
+        'refusal_pending': getattr(pt, 'refusal_pending', False),
+        'refused_by': str(pt.refused_by.id) if getattr(pt, 'refused_by', None) else None,
+    }
+
 @api_view(['GET', 'POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -476,3 +504,158 @@ def update_project_task_status(request, pk, task_id):
 
     project.save()
     return Response(serialize_project(project))
+
+# --- Unified Task Management (formerly in tasks app) ---
+
+@api_view(['GET', 'POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def unified_task_list_create(request):
+    if request.method == 'GET':
+        if request.user.role == 'ADMIN':
+            projects = Project.objects()
+        else:
+            user = request.user
+            projects = Project.objects(
+                Q(employees=user) | 
+                (Q(employees__size=0) & Q(department=user.department))
+            )
+
+        results = []
+        for p in projects:
+            if p.tasks:
+                for pt in p.tasks:
+                    if request.user.role == 'ADMIN':
+                        results.append(serialize_project_task(pt, p))
+                    elif (pt.assigned_to and str(pt.assigned_to.id) == str(request.user.id)):
+                        if not getattr(pt, 'is_archived', False):
+                            results.append(serialize_project_task(pt, p))
+        
+        return Response(results)
+
+    if request.method == 'POST':
+        if request.user.role != 'ADMIN':
+            return Response({'error': 'Only admins can create tasks for now.'}, status=403)
+
+        title = request.data.get('title')
+        description = request.data.get('description', '')
+        employee_ids = request.data.get('employee_ids', [])
+        project_id = request.data.get('project_id')
+
+        if not title or not project_id:
+            return Response({'error': 'title and project_id are required'}, status=400)
+
+        try:
+            project = Project.objects.get(id=project_id)
+            
+            assigned_to = None
+            if employee_ids:
+                assigned_to = User.objects.filter(id=employee_ids[0]).first()
+
+            pt = ProjectTask(
+                title=title,
+                description=description,
+                status=request.data.get('status', 'TODO'),
+                assigned_to=assigned_to
+            )
+            
+            if not project.tasks:
+                project.tasks = []
+            project.tasks.append(pt)
+            
+            if assigned_to and assigned_to not in project.employees:
+                project.employees.append(assigned_to)
+            
+            project.save()
+            return Response(serialize_project_task(pt, project), status=201)
+        except DoesNotExist:
+            return Response({'error': 'Project not found'}, status=404)
+
+@api_view(['PATCH'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def unified_task_status_update(request, pk):
+    # This pk might be task_id or project_id:task_id
+    project_id = None
+    task_id = pk
+
+    if ':' in pk:
+        project_id, task_id = pk.split(':')
+    
+    try:
+        if project_id:
+            project = Project.objects.get(id=project_id)
+        else:
+            # Fallback: search for project containing this task
+            project = Project.objects.get(tasks__id=bson.ObjectId(task_id))
+        
+        task = next((t for t in project.tasks if str(t.id) == task_id), None)
+        if not task:
+            return Response({'error': 'Task not found in project'}, status=404)
+        
+        # Permission check
+        if request.user.role == 'EMPLOYEE' and (not task.assigned_to or str(task.assigned_to.id) != str(request.user.id)):
+            return Response({'error': 'Unauthorized'}, status=403)
+
+        status = request.data.get('status')
+        if status:
+            task.status = status
+            if status == 'DONE':
+                task.completed_at = datetime.utcnow()
+                task.completed_by = request.user
+            else:
+                task.completed_at = None
+                task.completed_by = None
+        
+        if 'refusal_pending' in request.data:
+            task.refusal_pending = request.data['refusal_pending']
+            if task.refusal_pending:
+                task.refused_by = request.user
+                task.rejection_reason = request.data.get('rejection_reason', '')
+            else:
+                task.refused_by = None
+                task.rejection_reason = ''
+        
+        if 'is_archived' in request.data:
+            task.is_archived = request.data['is_archived']
+
+        project.save()
+        return Response(serialize_project_task(task, project))
+    except (DoesNotExist, bson.errors.InvalidId):
+        return Response({'error': 'Task or Project not found'}, status=404)
+
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdmin])
+def unified_task_detail_update(request, pk):
+    project_id = None
+    task_id = pk
+    if ':' in pk:
+        project_id, task_id = pk.split(':')
+
+    try:
+        if project_id:
+            project = Project.objects.get(id=project_id)
+        else:
+            project = Project.objects.get(tasks__id=bson.ObjectId(task_id))
+        
+        task = next((t for t in project.tasks if str(t.id) == task_id), None)
+        if not task:
+            return Response({'error': 'Task not found'}, status=404)
+
+        task.title = request.data.get('title', task.title)
+        task.description = request.data.get('description', task.description)
+        task.status = request.data.get('status', task.status)
+        
+        employee_ids = request.data.get('employee_ids', [])
+        if employee_ids:
+            new_assignee = User.objects.filter(id=employee_ids[0]).first()
+            if new_assignee:
+                task.assigned_to = new_assignee
+                if new_assignee not in project.employees:
+                    project.employees.append(new_assignee)
+
+        project.save()
+        return Response(serialize_project_task(task, project))
+    except (DoesNotExist, bson.errors.InvalidId):
+        return Response({'error': 'Task or Project not found'}, status=404)

@@ -307,8 +307,12 @@ export class TasksComponent implements OnInit {
 
   createTask() {
     if (!this.taskTitle) { this.errorMsg = 'Please provide a title.'; return; }
-    if (this.taskEmployeeIds.length === 0 && !this.taskProjectId) {
-       this.errorMsg = 'Please assign at least one member or a project.';
+    if (!this.taskProjectId) {
+       this.errorMsg = 'Please select a project. Independent tasks are no longer supported.';
+       return;
+    }
+    if (this.taskEmployeeIds.length === 0) {
+       this.errorMsg = 'Please assign at least one member.';
        return;
     }
     
@@ -350,8 +354,7 @@ export class TasksComponent implements OnInit {
       employee_ids: this.taskEmployeeIds,
       status: this.taskStatus.replace(' ', '_'), 
       priority: this.taskPriority,
-      project_id: this.taskProjectId || undefined, 
-      department_id: this.taskDepartmentId || undefined,
+      project_id: this.taskProjectId, 
       deadline: this.taskDeadline, 
       progress: this.taskProgress
     };
