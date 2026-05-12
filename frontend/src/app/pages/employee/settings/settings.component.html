@@ -1,5 +1,6 @@
 <div class="settings-root">
   <!-- Page Sub-header -->
+  <h4>System Configuration</h4>
   <p class="settings-subtitle">Manage your workspace environment and account protocols</p>
 
   <div class="settings-layout">
@@ -7,45 +8,73 @@
     <aside class="settings-sidebar">
       <!-- Profile Card -->
       <div class="profile-mini-card">
-        <div class="profile-mini-avatar-wrap">
-          <img [src]="profilePhoto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&h=80'"
-               class="profile-mini-avatar" alt="avatar">
+        <div class="profile-card-top">
+          <div class="avatar-wrap">
+            <img [src]="profilePhoto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&h=80'"
+                 class="profile-avatar" alt="avatar">
+          </div>
+          <div class="profile-info">
+            <h3 class="profile-name">{{firstName}} {{lastName}}</h3>
+            <span class="profile-role">SENIOR DESIGNER</span>
+          </div>
         </div>
-        <div class="profile-mini-info">
-          <h3 class="profile-mini-name">{{firstName}} {{lastName}}</h3>
-          <span class="profile-mini-role">Senior Designer</span>
-        </div>
-        <div class="profile-mini-status">
-          <span class="status-label">Account Security</span>
-          <span class="status-badge-verified">Verified</span>
+        
+        <div class="profile-card-divider"></div>
+
+        <div class="profile-card-footer">
+          <span class="footer-label">ACCOUNT SECURITY</span>
+          <span class="footer-status">VERIFIED</span>
         </div>
       </div>
 
       <!-- Navigation -->
       <nav class="settings-nav">
+        <!-- <button class="nav-item" [class.nav-item-active]="activeSection === 'appearance'" (click)="scrollTo('appearance')">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a10 10 0 0 0-10 10 10 10 0 0 0 10 10 10 10 0 0 0 10-10 10 10 0 0 0-10-10zm-6.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm4-5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm5 3a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm1 5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0z"/>
+            </svg>
+          </span>
+          APPEARANCE
+        </button> -->
 
         <button class="nav-item" [class.nav-item-active]="activeSection === 'notifications'" (click)="scrollTo('notifications')">
           <span class="nav-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+            <svg width="20" height="21" viewBox="0 0 20 21" fill="currentColor" stroke="currentColor">
+              <path d="M0 8.05C0 6.38333 0.370833 4.85417 1.1125 3.4625C1.85417 2.07083 2.85 0.916667 4.1 0L5.275 1.6C4.275 2.33333 3.47917 3.25833 2.8875 4.375C2.29583 5.49167 2 6.71667 2 8.05H0ZM18 8.05C18 6.71667 17.7042 5.49167 17.1125 4.375C16.5208 3.25833 15.725 2.33333 14.725 1.6L15.9 0C17.15 0.916667 18.1458 2.07083 18.8875 3.4625C19.6292 4.85417 20 6.38333 20 8.05H18ZM2 17.05V15.05H4V8.05C4 6.66667 4.41667 5.4375 5.25 4.3625C6.08333 3.2875 7.16667 2.58333 8.5 2.25V1.55C8.5 1.13333 8.64583 0.779167 8.9375 0.4875C9.22917 0.195833 9.58333 0.05 10 0.05C10.4167 0.05 10.7708 0.195833 11.0625 0.4875C11.3542 0.779167 11.5 1.13333 11.5 1.55V2.25C12.8333 2.58333 13.9167 3.2875 14.75 4.3625C15.5833 5.4375 16 6.66667 16 8.05V15.05H18V17.05H2ZM10 20.05C9.45 20.05 8.97917 19.8542 8.5875 19.4625C8.19583 19.0708 8 18.6 8 18.05H12C12 18.6 11.8042 19.0708 11.4125 19.4625C11.0208 19.8542 10.55 20.05 10 20.05ZM6 15.05H14V8.05C14 6.95 13.6083 6.00833 12.825 5.225C12.0417 4.44167 11.1 4.05 10 4.05C8.9 4.05 7.95833 4.44167 7.175 5.225C6.39167 6.00833 6 6.95 6 8.05V15.05Z" fill="currentColor"/>
             </svg>
           </span>
-          Notifications
+          NOTIFICATIONS
         </button>
+
         <button class="nav-item" [class.nav-item-active]="activeSection === 'language'" (click)="scrollTo('language')">
           <span class="nav-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/>
             </svg>
           </span>
-          Language
+          LANGUAGE
         </button>
 
+        <!-- <button class="nav-item" [class.nav-item-active]="activeSection === 'privacy'" (click)="scrollTo('privacy')">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </span>
+          PRIVACY
+        </button> -->
       </nav>
     </aside>
 
     <!-- MAIN CONTENT -->
     <main class="settings-main">
+
+      <!-- Appearance -->
+      <!-- <section id="appearance" class="settings-section scroll-mt-8">
+        <h2 class="section-title">Appearance</h2>
+        <p class="text-sm text-white/40 italic">Interface customization protocols coming soon in next system update.</p>
+      </section> -->
 
 
       <!-- Localization -->
@@ -67,7 +96,12 @@
               <select [(ngModel)]="timeZone" class="settings-select">
                 <option *ngFor="let tz of timeZones" [value]="tz">{{tz}}</option>
               </select>
-              <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <svg class="select-arrow" width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.3 14.7L14.7 13.3L11 9.6V5H9V10.4L13.3 14.7ZM10 20C8.61667 20 7.31667 19.7375 6.1 19.2125C4.88333 18.6875 3.825 17.975 2.925 17.075C2.025 16.175 1.3125 15.1167 0.7875 13.9C0.2625 12.6833 0 11.3833 0 10C0 8.61667 0.2625 7.31667 0.7875 6.1C1.3125 4.88333 2.025 3.825 2.925 2.925C3.825 2.025 4.88333 1.3125 6.1 0.7875C7.31667 0.2625 8.61667 0 10 0C11.3833 0 12.6833 0.2625 13.9 0.7875C15.1167 1.3125 16.175 2.025 17.075 2.925C17.975 3.825 18.6875 4.88333 19.2125 6.1C19.7375 7.31667 20 8.61667 20 10C20 11.3833 19.7375 12.6833 19.2125 13.9C18.6875 15.1167 17.975 16.175 17.075 17.075C16.175 17.975 15.1167 18.6875 13.9 19.2125C12.6833 19.7375 11.3833 20 10 20ZM10 18C12.2167 18 14.1042 17.2208 15.6625 15.6625C17.2208 14.1042 18 12.2167 18 10C18 7.78333 17.2208 5.89583 15.6625 4.3375C14.1042 2.77917 12.2167 2 10 2C7.78333 2 5.89583 2.77917 4.3375 4.3375C2.77917 5.89583 2 7.78333 2 10C2 12.2167 2.77917 14.1042 4.3375 15.6625C5.89583 17.2208 7.78333 18 10 18Z" fill="#71717A"/>
+</svg>
+
+
+              <!-- <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> -->
             </div>
           </div>
         </div>

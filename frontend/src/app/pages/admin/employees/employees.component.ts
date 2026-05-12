@@ -266,4 +266,59 @@ export class EmployeesComponent implements OnInit {
     if (!name) return '??';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   }
+
+  get groupedAttendance() {
+    if (!this.selectedHistory?.attendance) return [];
+    
+    const groups: { [key: string]: any } = {};
+    
+    this.selectedHistory.attendance.forEach((log: any) => {
+      const dateKey = new Date(log.start_time).toDateString();
+      if (!groups[dateKey]) {
+        groups[dateKey] = {
+          date: dateKey,
+          totalSeconds: 0,
+          sessions: 0,
+          rawDate: new Date(log.start_time)
+        };
+      }
+      
+      groups[dateKey].sessions++;
+      if (log.duration && log.duration !== 'Ongoing') {
+        groups[dateKey].totalSeconds += this.parseDurationToSeconds(log.duration);
+      }
+    });
+
+    return Object.values(groups).sort((a, b) => b.rawDate.getTime() - a.rawDate.getTime());
+  }
+
+  get weeklyTotal() {
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    let totalSeconds = 0;
+    
+    this.groupedAttendance.forEach(group => {
+      if (group.rawDate >= oneWeekAgo) {
+        totalSeconds += group.totalSeconds;
+      }
+    });
+    
+    return this.formatSecondsToDuration(totalSeconds);
+  }
+
+  parseDurationToSeconds(duration: string): number {
+    if (!duration) return 0;
+    const parts = duration.split(':').map(Number);
+    if (parts.length === 3) {
+      return (parts[0] * 3600) + (parts[1] * 60) + parts[2];
+    }
+    return 0;
+  }
+
+  formatSecondsToDuration(seconds: number): string {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
 }

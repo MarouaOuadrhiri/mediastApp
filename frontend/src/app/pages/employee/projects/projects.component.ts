@@ -54,13 +54,17 @@ export class ProjectsComponent implements OnInit {
 
           this.projects = mapped;
           
-          // Layout distribution
-          this.topProjects = mapped.slice(0, 3);
-          this.sideProject = mapped.length > 3 ? mapped[3] : null;
-          this.featuredProject = mapped.length > 4 ? mapped[4] : (mapped.length > 3 ? null : mapped[0]); // Fallback
+          // Identify Hero Project (Priority One or first)
+          const hero = mapped.find((p: any) => p.is_high_priority) || mapped[0];
+          this.featuredProject = hero;
           if (this.featuredProject) this.featuredProject.efficiency = '98.5%';
+
+          // Others (excluding hero)
+          const others = mapped.filter((p: any) => p.id !== hero.id);
           
-          this.remainingProjects = mapped.length > 5 ? mapped.slice(5) : [];
+          this.topProjects = others.slice(0, 3);
+          this.sideProject = others.length >= 4 ? others[3] : null;
+          this.remainingProjects = others.length >= 5 ? others.slice(4) : [];
         } else {
           this.setMockProjects();
         }

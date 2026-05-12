@@ -2,6 +2,10 @@
 
 @import "tailwindcss";
 
+/* PrimeIcons */
+@import "primeicons/primeicons.css";
+
+
 /* Global Pagination Styles */
 .pagination-arrow-btn {
   width: 42px;

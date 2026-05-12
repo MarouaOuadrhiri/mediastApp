@@ -18,8 +18,10 @@
   </header>
 
   <!-- Top Grid (First 3 Projects) -->
-  <div class="projects-grid" *ngIf="topProjects.length > 0">
-    <div *ngFor="let p of topProjects" class="project-card">
+  <div class="projects-grid" 
+       *ngIf="topProjects.length > 0"
+       [ngClass]="projects.length <= 3 ? 'grid-cols-dynamic-2' : 'grid-cols-dynamic-3'">
+    <div *ngFor="let p of topProjects.slice(0, projects.length <= 3 ? 2 : 3)" class="project-card">
       <div class="card-top">
         <div class="category-tag" [style.color]="p?.projectCategory === 'PRIORITY ONE' ? '#FD0000' : '#71717A'">
           {{p?.projectCategory}}</div>
@@ -66,7 +68,9 @@
   </div>
 
   <!-- Featured Row (Row 2: Side + Featured) -->
-  <div class="feature-row" *ngIf="featuredProject">
+  <div class="feature-row" 
+       *ngIf="featuredProject"
+       [ngClass]="projects.length <= 3 ? 'grid-cols-dynamic-2' : 'grid-cols-dynamic-3'">
     <!-- Side Project -->
     <div class="project-card" *ngIf="sideProject">
       <div class="card-top">
@@ -111,12 +115,11 @@
     </div>
 
     <!-- Main Featured Card -->
-    <div class="feature-main">
+    <div class="feature-main" [class.span-full]="!sideProject">
       <div class="feature-content">
         <div class="category-tag" style="color: #FD0000">FLAGSHIP PROJECT</div>
         <h2 class="feature-title py-5">{{featuredProject?.name}}</h2>
-        <p class="feature-desc">{{featuredProject?.description || 'Next-generation content delivery system for global
-          media conglomerates. Currently in high-load testing phase.'}}</p>
+        <p class="feature-desc">{{featuredProject?.description || 'Strategic project execution with real-time performance tracking and resource optimization.'}}</p>
 
         <div class="feature-footer">
           <div class="avatars">

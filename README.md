@@ -6,7 +6,7 @@ profile page
 <!-- dashboard kanban board design tasks  -->
 all emails should be end with @brandshift.ma
 project name f tasks list & tasks card 
-UI project page 
-Logs admin /day
+<!-- UI project page 
+Logs admin /day  -->
 kol task f project affected to one employee only
 <!-- search filter admin  -->
