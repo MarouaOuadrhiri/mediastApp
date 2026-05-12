@@ -14,7 +14,7 @@ from mongoengine import connect
 from django.contrib.auth.hashers import make_password
 
 from departments.models import Department
-from users.models import User, AttendanceRecord
+from users.models import User, AttendanceRecord, UserSession
 from tasks.models import Task
 from projects.models import Project, ProjectTask
 from meetings.models import Meeting
@@ -30,6 +30,7 @@ Project.objects.delete()
 Meeting.objects.delete()
 DiscussionMessage.objects.delete()
 User.objects.delete()
+UserSession.objects.delete()
 Department.objects.delete()
 print("[OK] Cleanup finished\n")
 
@@ -81,274 +82,188 @@ for d in dept_data:
     dept.save()
     departments.append(dept)
 
-# Add some extra departments for volume
-for i in range(10):
-    d = Department(
-        name=f"Operations Unit {i+1}",
-        subtitle=f"Unit {i+1} Management",
-        description=f"Specialized operations for unit {i+1}.",
-        icon=random.choice(["layers", "cpu", "database", "shield"]),
-        image="https://images.unsplash.com/photo-1454165833767-027ffeb99cbe?auto=format&fit=crop&w=800"
-    )
-    d.save()
-    departments.append(d)
-
 print(f"[OK] {len(departments)} departments ready")
 
 # ─────────────────────────────────────────────
-# 2. USERS
+# 2. USERS (EMPLOYEES ONLY)
 # ─────────────────────────────────────────────
-print("Seeding users...")
-FAKE_PASSWORD = make_password("password123")
-
-user_configs = [
-    {"email": "admin@company.com", "role": "ADMIN", "first_name": "Hamza", "last_name": "Admin"},
-    {"email": "alice@company.com", "role": "EMPLOYEE", "first_name": "Alice", "last_name": "Engineer", "dept_idx": 0},
-    {"email": "bob@company.com", "role": "EMPLOYEE", "first_name": "Bob", "last_name": "Developer", "dept_idx": 0},
-    {"email": "carol@company.com", "role": "EMPLOYEE", "first_name": "Carol", "last_name": "Marketer", "dept_idx": 1},
-    {"email": "dave@company.com", "role": "EMPLOYEE", "first_name": "Dave", "last_name": "Strategist", "dept_idx": 1},
-    {"email": "irene@company.com", "role": "EMPLOYEE", "first_name": "Irene", "last_name": "Designer", "dept_idx": 2},
-    {"email": "james@company.com", "role": "EMPLOYEE", "first_name": "James", "last_name": "Creative", "dept_idx": 2},
-    {"email": "eve@company.com", "role": "EMPLOYEE", "first_name": "Eve", "last_name": "Recruiter", "dept_idx": 3},
-    {"email": "grace@company.com", "role": "EMPLOYEE", "first_name": "Grace", "last_name": "Analyst", "dept_idx": 4},
+print("Seeding employees...")
+employees = []
+emp_names = [
+    ("Alice", "Vance"), ("Bob", "Ross"), ("Charlie", "Sheen"), 
+    ("Diana", "Prince"), ("Edward", "Norton"), ("Fiona", "Apple"),
+    ("George", "Clooney"), ("Hannah", "Baker"), ("Ian", "Somerhalder"),
+    ("Julia", "Roberts")
 ]
 
-users = []
-for uc in user_configs:
-    u = User(
-        email=uc["email"],
-        password=FAKE_PASSWORD,
-        first_name=uc["first_name"],
-        last_name=uc["last_name"],
-        role=uc["role"],
-        department=departments[uc["dept_idx"]] if "dept_idx" in uc else None,
-        profile_photo=f"https://i.pravatar.cc/150?u={uc['email']}",
-        bio=f"Hello, I am {uc['first_name']}, working as {uc['role']} at BrandShift."
-    )
-    u.save()
-    users.append(u)
+hashed_pw = make_password("password123")
 
-# Add 40 more employees
-for i in range(40):
-    email = f"employee{i+10}@company.com"
-    u = User(
-        email=email,
-        password=FAKE_PASSWORD,
-        first_name=f"User_{i+10}",
-        last_name=f"Lastname_{i+10}",
-        role="EMPLOYEE",
-        department=random.choice(departments),
-        profile_photo=f"https://i.pravatar.cc/150?u={email}",
-        bio="Regular employee at BrandShift."
+for i, (fn, ln) in enumerate(emp_names):
+    dept = departments[i % len(departments)]
+    user = User(
+        email=f"{fn.lower()}@brandshift.com",
+        password=hashed_pw,
+        first_name=fn,
+        last_name=ln,
+        role='EMPLOYEE',
+        department=dept,
+        profile_photo=f"https://i.pravatar.cc/150?u={fn}",
+        bio=f"Dedicated member of the {dept.name} team at BrandShift.",
+        preferences={"theme": "dark", "notifications": True}
     )
-    u.save()
-    users.append(u)
+    user.save()
+    employees.append(user)
 
-print(f"[OK] {len(users)} users ready")
+print(f"[OK] {len(employees)} employees ready (Password: password123)")
 
 # ─────────────────────────────────────────────
-# 3. PROJECTS
-# ─────────────────────────────────────────────
-print("Seeding projects...")
-now = datetime.datetime.utcnow()
-def future(days): return now + datetime.timedelta(days=days)
-def past(days): return now - datetime.timedelta(days=days)
-
-projects_data = [
-    {
-        "name": "BrandShift Mobile App",
-        "client": "Internal",
-        "description": "Revolutionizing project management on the go.",
-        "status": "In Progress",
-        "priority": "HIGH",
-        "budget": "$150,000",
-        "duration": "8 months",
-        "dept_idx": 0,
-        "is_high_priority": True
-    },
-    {
-        "name": "Design System 2026",
-        "client": "BrandShift",
-        "description": "A unified UI library for all platforms.",
-        "status": "In Progress",
-        "priority": "MEDIUM",
-        "budget": "$40,000",
-        "duration": "4 months",
-        "dept_idx": 2,
-        "is_high_priority": False
-    },
-    {
-        "name": "Q3 Revenue Campaign",
-        "client": "Marketing Team",
-        "description": "Boosting Q3 revenue through targeted outreach.",
-        "status": "Pending",
-        "priority": "URGENT",
-        "budget": "$25,000",
-        "duration": "2 months",
-        "dept_idx": 1,
-        "is_high_priority": True
-    }
-]
-
-projects = []
-for pd in projects_data:
-    p_users = random.sample(users[1:], random.randint(3, 6))
-    
-    # Create embedded tasks for project
-    tasks = []
-    for i in range(5):
-        status = random.choice(['TODO', 'IN_PROGRESS', 'DONE'])
-        # Add some refusal data for testing
-        is_refused = (i == 4 and pd['name'] == "BrandShift Mobile App")
-        
-        t = ProjectTask(
-            id=bson.ObjectId(),
-            title=f"{pd['name']} Task {i+1}",
-            description=f"Detailed description for task {i+1} of {pd['name']}.",
-            status='BLOCKED' if is_refused else status,
-            deadline=future(random.randint(10, 50)),
-            refusal_pending=is_refused,
-            refused_by=p_users[0] if is_refused else None,
-            rejection_reason="I have too many tasks right now, cannot take this one." if is_refused else ""
-        )
-        tasks.append(t)
-        
-    proj = Project(
-        name=pd["name"],
-        client=pd["client"],
-        description=pd["description"],
-        status=pd["status"],
-        priority=pd["priority"],
-        is_high_priority=pd["is_high_priority"],
-        budget=pd["budget"],
-        duration=pd["duration"],
-        employees=p_users,
-        department=departments[pd["dept_idx"]],
-        deadline=future(random.randint(60, 120)),
-        tasks=tasks
-    )
-    proj.save()
-    projects.append(proj)
-
-print(f"[OK] {len(projects)} projects ready")
-
-# ─────────────────────────────────────────────
-# 4. STANDALONE TASKS
+# 3. STANDALONE TASKS
 # ─────────────────────────────────────────────
 print("Seeding standalone tasks...")
 task_titles = [
-    "Fix CSS alignment in header",
-    "Update API documentation for meetings",
-    "Prepare monthly financial report",
-    "Conduct user interview with Alice",
-    "Refactor authentication interceptor",
-    "Design new icons for departments",
-    "Deploy staging environment for v2.1",
-    "Fix bug in task refusal flow",
-    "Update employee profiles",
-    "Schedule all-hands meeting"
+    "Review Q3 Analytics", "Update Team Documentation", "Fix Header CSS",
+    "Prepare Presentation", "Interview Candidate", "Database Migration",
+    "Client Call", "Security Audit", "API Documentation", "Bug Triaging"
 ]
 
-tasks = []
 for i, title in enumerate(task_titles):
-    # Add a refused task for testing
-    is_refused = (i == 7)
-    
-    t = Task(
+    assignee = employees[i % len(employees)]
+    task = Task(
         title=title,
-        description=f"Automated description for: {title}.",
-        status='BLOCKED' if is_refused else random.choice(['IN_PROGRESS', 'REVIEW', 'DONE']),
-        deadline=future(random.randint(2, 20)),
-        employees=random.sample(users[1:], random.randint(1, 2)),
-        department=random.choice(departments),
-        project=random.choice(projects),
-        refusal_pending=is_refused,
-        refused_by=users[1] if is_refused else None,
-        rejection_reason="I don't have the necessary permissions to fix this bug." if is_refused else ""
+        description=f"Automated task for {title}. Please ensure all requirements are met.",
+        status=random.choice(['BLOCKED', 'IN_PROGRESS', 'REVIEW', 'DONE']),
+        deadline=datetime.datetime.utcnow() + datetime.timedelta(days=random.randint(1, 14)),
+        employees=[assignee],
+        department=assignee.department,
+        is_archived=False
     )
-    t.save()
-    tasks.append(t)
+    task.save()
 
-# Add 50 more tasks for volume
-for i in range(50):
-    t = Task(
-        title=f"General Task {i+11}",
-        description="Ongoing maintenance task.",
-        status=random.choice(['IN_PROGRESS', 'REVIEW', 'DONE']),
-        deadline=future(random.randint(5, 40)),
-        employees=random.sample(users[1:], random.randint(1, 2)),
-        department=random.choice(departments),
-        project=random.choice(projects)
+print("[OK] Standalone tasks ready")
+
+# ─────────────────────────────────────────────
+# 4. PROJECTS & PROJECT TASKS
+# ─────────────────────────────────────────────
+print("Seeding projects...")
+project_data = [
+    {
+        "name": "Chronos Glass UI",
+        "client": "Internal",
+        "description": "Modernizing the entire BrandShift interface with glassmorphism and high-fidelity animations.",
+        "owner": "Maroua Ouadrhiri",
+        "status": "In Progress",
+        "priority": "URGENT",
+        "is_high_priority": True,
+        "budget": "$50,000",
+        "duration": "3 months",
+        "tags": ["UI/UX", "Frontend", "Design System"],
+        "start_date": datetime.datetime.utcnow() - datetime.timedelta(days=10)
+    },
+    {
+        "name": "Global Expansion Strategy",
+        "client": "Strategy Group",
+        "description": "Planning and executing the market entry for the APAC region.",
+        "owner": "John Smith",
+        "status": "Pending",
+        "priority": "HIGH",
+        "is_high_priority": True,
+        "budget": "$120,000",
+        "duration": "6 months",
+        "tags": ["Marketing", "Strategy", "Global"],
+        "start_date": datetime.datetime.utcnow()
+    },
+    {
+        "name": "Alpha Engine Refactor",
+        "client": "Engineering",
+        "description": "Backend optimization and migration to a high-concurrency architecture.",
+        "owner": "Alice Vance",
+        "status": "In Progress",
+        "priority": "MEDIUM",
+        "is_high_priority": False,
+        "budget": "$30,000",
+        "duration": "2 months",
+        "tags": ["Backend", "Performance", "Cloud"],
+        "start_date": datetime.datetime.utcnow() - datetime.timedelta(days=5)
+    }
+]
+
+for p_info in project_data:
+    dept = departments[random.randint(0, len(departments)-1)]
+    # Assign some employees to the project
+    proj_employees = random.sample(employees, 4)
+    
+    project = Project(
+        **p_info,
+        department=dept,
+        employees=proj_employees,
+        deadline=datetime.datetime.utcnow() + datetime.timedelta(days=random.randint(30, 90))
     )
-    t.save()
-    tasks.append(t)
+    
+    # Create embedded tasks for the project
+    project.tasks = []
+    task_templates = [
+        "Research phase", "Wireframe design", "Core development", "Unit testing", "UAT", "Final Deployment"
+    ]
+    
+    for i, t_title in enumerate(task_templates):
+        pt = ProjectTask(
+            id=bson.ObjectId(),
+            title=t_title,
+            description=f"Project-specific task for {p_info['name']}.",
+            status=random.choice(['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'BLOCKED']),
+            deadline=project.deadline - datetime.timedelta(days=random.randint(1, 15)),
+            assigned_to=random.choice(proj_employees),
+            is_archived=False
+        )
+        project.tasks.append(pt)
+    
+    project.save()
 
-print(f"[OK] {len(tasks)} tasks ready")
+print("[OK] Projects and Project Tasks ready")
 
 # ─────────────────────────────────────────────
 # 5. MEETINGS
 # ─────────────────────────────────────────────
 print("Seeding meetings...")
 meeting_titles = [
-    "Weekly Sync", "Sprint Planning", "Marketing Brainstorm", 
-    "HR Policy Update", "Financial Audit", "Design Review", "All-Hands"
+    "Sprint Planning", "Client Feedback", "Team Sync", "Design Critique", "Post-Mortem Analysis"
 ]
 
-for title in meeting_titles:
-    m = Meeting(
-        title=title,
-        description=f"Discussing matters related to {title}.",
-        date_time=future(random.randint(1, 7)),
-        departments=random.sample(departments, random.randint(1, 3)),
-        employees=random.sample(users[1:], random.randint(5, 10)),
-        created_by=users[0]
+for i, m_title in enumerate(meeting_titles):
+    creator = random.choice(employees)
+    meeting = Meeting(
+        title=m_title,
+        description=f"Weekly sync regarding {m_title}.",
+        date_time=datetime.datetime.utcnow() + datetime.timedelta(days=random.randint(1, 5), hours=random.randint(9, 17)),
+        departments=[creator.department],
+        employees=random.sample(employees, 3),
+        created_by=creator,
+        status='TODO'
     )
-    m.save()
+    meeting.save()
 
 print("[OK] Meetings ready")
 
 # ─────────────────────────────────────────────
-# 6. DISCUSSIONS
+# 6. MESSAGES
 # ─────────────────────────────────────────────
-print("Seeding messages...")
-chat_samples = [
-    "Hey, have you finished the task?",
-    "Not yet, still working on the CSS.",
-    "No problem, take your time.",
-    "Can we meet at 2 PM?",
-    "Yes, see you there!",
-    "The new design looks amazing!",
-    "Thanks! I worked hard on the colors."
+print("Seeding discussion messages...")
+sample_texts = [
+    "Hey, did you finish the design?", "Yes, just uploaded it.", "Great work!",
+    "Can you check the API docs?", "Sure, will do it in 5 mins.", "Thanks!",
+    "Are we still on for the meeting?", "Yes, see you there.", "Awesome."
 ]
 
-for _ in range(50):
-    u1, u2 = random.sample(users, 2)
+for _ in range(20):
+    s, r = random.sample(employees, 2)
     msg = DiscussionMessage(
-        sender=u1,
-        receiver=u2,
-        text=random.choice(chat_samples),
-        timestamp=past(random.randint(0, 10))
+        sender=s,
+        receiver=r,
+        text=random.choice(sample_texts),
+        timestamp=datetime.datetime.utcnow() - datetime.timedelta(minutes=random.randint(1, 1000)),
+        is_read=random.choice([True, False])
     )
     msg.save()
 
-print("[OK] Discussions ready")
-
-# ─────────────────────────────────────────────
-# 7. ATTENDANCE
-# ─────────────────────────────────────────────
-print("Seeding attendance...")
-for user in users[1:]:
-    # Last 10 days of attendance
-    for day in range(10):
-        start = past(day).replace(hour=random.randint(8, 10), minute=random.randint(0, 59))
-        end = start + datetime.timedelta(hours=random.randint(7, 9))
-        
-        AttendanceRecord(
-            user=user,
-            start_time=start,
-            end_time=end,
-            status='COMPLETED'
-        ).save()
-
-print("[OK] Attendance ready")
-print("\n[OK] Database seeded successfully!")
+print("[OK] Messages ready")
+print("\n[FINISH] Seeding complete. No admin user created.")

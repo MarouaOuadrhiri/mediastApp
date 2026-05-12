@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 /* =============================================
    FULLCALENDAR — Premium Dark Adjustments
@@ -170,16 +170,17 @@
 }
 
 .project-name {
-  font-weight: 800;
+  font-weight: 900;
   font-size: 10px;
   text-transform: uppercase;
-  color: #E4E4E7;
-  margin-bottom: 6px;
-  letter-spacing: 0.5px;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+  letter-spacing: 0.8px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .project-line {
-  height: 3px;
+  height: 6px;
   background: #FE0707;
   border-radius: 2px;
   width: 100%;
@@ -199,6 +200,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   max-width: 100%;
 }
 
@@ -214,18 +216,91 @@
   color: #fff;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
+}
+
+.event-pill {
+  margin: 0 auto;
+}
+
+/* Ensure FullCalendar event container allows centering */
+:host ::ng-deep .fc-daygrid-event-harness {
+  display: flex;
+  justify-content: center;
+}
+
+/* View Switcher Styles */
+.view-switcher {
+  background: #1A1A1C;
+  border-radius: 999px;
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+  width: 100%;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.view-switcher button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 10px 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.view-switcher button.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .pill-task {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3B82F6;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  width: 77px;
+  height: 20px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: #2563EB1A;
+  border: 1px solid #2563EB33;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  font-size: 9px;
+  line-height: 13.5px;
+  letter-spacing: 0.25px;
+  text-transform: uppercase;
+  color: #2563EB;
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pill-meeting {
-  background: rgba(244, 63, 94, 0.15);
-  color: #F43F5E;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  width: 77px;
+  height: 20px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: #22C55E1A;
+  border: 1px solid #22C55E33;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  font-size: 9px;
+  line-height: 13.5px;
+  letter-spacing: 0.25px;
+  text-transform: uppercase;
+  color: #22C55E;
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ---- SIDEBAR ---- */

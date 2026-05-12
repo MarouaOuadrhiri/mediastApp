@@ -180,10 +180,16 @@
               <p class="text-[11px] text-white/30 leading-normal line-clamp-3">{{t.description}}</p>
               
               <div class="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.03]">
-                <div class="flex items-center gap-2">
-                   <div class="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center text-[9px] font-bold text-white/40 border border-white/10 overflow-hidden">
-                     <span *ngIf="!t.employees?.[0]?.avatar">{{(t.employees?.[0]?.name || 'U').charAt(0)}}</span>
-                   </div>
+                <div class="flex items-center gap-2" *ngIf="t.employees?.[0]">
+                   <!-- Me: Show Photo -->
+                   <ng-container *ngIf="t.employees[0].id === user?.id">
+                     <img [src]="user?.photo || ('https://ui-avatars.com/api/?name=' + user?.name)" 
+                          class="w-5 h-5 rounded-full border border-white/20 object-cover" [title]="user?.name">
+                   </ng-container>
+                   <!-- Others: Show Name -->
+                   <ng-container *ngIf="t.employees[0].id !== user?.id">
+                     <span class="text-[9px] font-bold text-white/40 uppercase tracking-widest">{{t.employees[0].name}}</span>
+                   </ng-container>
                 </div>
                 <span class="text-[9px] font-bold text-white/20 uppercase tracking-widest">{{getDaysLeftText(t.deadline)}}</span>
               </div>
@@ -211,10 +217,16 @@
               </div>
 
               <div class="flex items-center justify-between mt-1 pt-2 border-t border-white/[0.03]">
-                <div class="flex items-center gap-2">
-                   <div class="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center text-[9px] font-bold text-white/40 border border-white/10 overflow-hidden">
-                     <span *ngIf="!t.employees?.[0]?.avatar">{{(t.employees?.[0]?.name || 'U').charAt(0)}}</span>
-                   </div>
+                <div class="flex items-center gap-2" *ngIf="t.employees?.[0]">
+                   <!-- Me: Show Photo -->
+                   <ng-container *ngIf="t.employees[0].id === user?.id">
+                     <img [src]="user?.photo || ('https://ui-avatars.com/api/?name=' + user?.name)" 
+                          class="w-5 h-5 rounded-full border border-white/20 object-cover" [title]="user?.name">
+                   </ng-container>
+                   <!-- Others: Show Name -->
+                   <ng-container *ngIf="t.employees[0].id !== user?.id">
+                     <span class="text-[9px] font-bold text-white/40 uppercase tracking-widest">{{t.employees[0].name}}</span>
+                   </ng-container>
                 </div>
                 <span class="text-[9px] font-bold text-white/20 uppercase tracking-widest">{{getDaysLeftText(t.deadline)}}</span>
               </div>
@@ -237,10 +249,16 @@
               <p class="text-[11px] text-white/30 leading-normal line-clamp-3">{{t.description}}</p>
               
               <div class="flex items-center justify-between mt-auto pt-2 border-t border-white/[0.03]">
-                <div class="flex items-center gap-2">
-                   <div class="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center text-[9px] font-bold text-white/40 border border-white/10 overflow-hidden">
-                     <span *ngIf="!t.employees?.[0]?.avatar">{{(t.employees?.[0]?.name || 'U').charAt(0)}}</span>
-                   </div>
+                <div class="flex items-center gap-2" *ngIf="t.employees?.[0]">
+                   <!-- Me: Show Photo -->
+                   <ng-container *ngIf="t.employees[0].id === user?.id">
+                     <img [src]="user?.photo || ('https://ui-avatars.com/api/?name=' + user?.name)" 
+                          class="w-5 h-5 rounded-full border border-white/20 object-cover" [title]="user?.name">
+                   </ng-container>
+                   <!-- Others: Show Name -->
+                   <ng-container *ngIf="t.employees[0].id !== user?.id">
+                     <span class="text-[9px] font-bold text-white/40 uppercase tracking-widest">{{t.employees[0].name}}</span>
+                   </ng-container>
                 </div>
                 <span class="text-[9px] font-bold text-white/20 uppercase tracking-widest">{{getDaysLeftText(t.deadline)}}</span>
               </div>
@@ -263,10 +281,16 @@
               <p class="text-[11px] text-white/10 leading-normal line-clamp-2 line-through">{{t.description}}</p>
               
               <div class="flex items-center justify-between mt-auto pt-2 border-t border-white/[0.03]">
-                <div class="flex items-center gap-2">
-                   <div class="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center text-[9px] font-bold text-white/40 border border-white/10 overflow-hidden">
-                     <span *ngIf="!t.employees?.[0]?.avatar">{{(t.employees?.[0]?.name || 'U').charAt(0)}}</span>
-                   </div>
+                <div class="flex items-center gap-2" *ngIf="t.employees?.[0]">
+                   <!-- Me: Show Photo -->
+                   <ng-container *ngIf="t.employees[0].id === user?.id">
+                     <img [src]="user?.photo || ('https://ui-avatars.com/api/?name=' + user?.name)" 
+                          class="w-5 h-5 rounded-full border border-white/20 object-cover" [title]="user?.name">
+                   </ng-container>
+                   <!-- Others: Show Name -->
+                   <ng-container *ngIf="t.employees[0].id !== user?.id">
+                     <span class="text-[9px] font-bold text-white/40 uppercase tracking-widest">{{t.employees[0].name}}</span>
+                   </ng-container>
                 </div>
                 <div class="flex items-center gap-1">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" class="opacity-40">

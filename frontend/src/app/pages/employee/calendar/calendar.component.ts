@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef, ViewEncapsulation, ViewChild } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { FullCalendarModule } from '@fullcalendar/angular';
+import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
 import { CalendarOptions, EventContentArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -31,6 +31,8 @@ import { FormsModule } from '@angular/forms';
   encapsulation: ViewEncapsulation.None
 })
 export class CalendarComponent implements OnInit, OnDestroy {
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+
   public calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
     locale: 'fr',
@@ -49,6 +51,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   ];
   weeklyProgress = 74;
   currentUserId: string = '';
+  currentView: string = 'dayGridMonth';
 
   private refreshInterval: any;
   private currentViewInfo: any;
@@ -258,21 +261,20 @@ export class CalendarComponent implements OnInit, OnDestroy {
     const title = eventInfo.event.title;
     
     if (category === 'project') {
+      const showName = eventInfo.isStart;
       return {
         html: `<div class="event-project-row">
-                 <div class="project-name">${title}</div>
+                 <div class="project-name" style="display: ${showName ? 'block' : 'none'}">${title}</div>
                  <div class="project-line"></div>
                </div>`
       };
     }
 
-    // Pill for Tasks/Meetings with Title
+    // Pill for Tasks/Meetings
     const pillClass = category === 'task' ? 'pill-task' : 'pill-meeting';
-    const tag = category === 'task' ? 'TASK' : 'MEETING';
 
     return {
       html: `<div class="event-pill ${pillClass}">
-               <span class="pill-tag">${tag}</span>
                <span class="pill-title">${title}</span>
              </div>`
     };
@@ -280,6 +282,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   handleEventClick(arg: any): void {
     console.log('Event Clicked:', arg.event.title);
+  }
+
+  changeView(viewName: string) {
+    this.currentView = viewName;
+    if (this.calendarComponent) {
+      const calendarApi = this.calendarComponent.getApi();
+      calendarApi.changeView(viewName);
+    }
   }
 
   toggleReminder(r: any) {

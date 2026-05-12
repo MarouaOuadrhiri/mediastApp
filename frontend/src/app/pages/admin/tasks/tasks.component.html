@@ -71,6 +71,10 @@
             </div>
           </div>
 
+          <div class="project-tag" *ngIf="t.project_id || t.project_name">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+            <span>{{ t.project_name || getProjectName(t.project_id) }}</span>
+          </div>
           <h3 class="task-title">{{t.title}}</h3>
           
           <!-- Rejection Reason Alert -->
@@ -147,7 +151,7 @@
   </div>
 
   <!-- List View — Flat list of all tasks with expandable details -->
-  <div class="list-view" *ngIf="viewMode === 'list'" cdkDropListGroup>
+  <div class="list-view custom-scrollbar" *ngIf="viewMode === 'list'" cdkDropListGroup>
 
     <div *ngIf="tasks.length === 0" class="list-empty">
       <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,7 +205,7 @@
               <div class="flex flex-col overflow-hidden">
                 <span class="font-bold text-[15px] font-['Space_Grotesk'] text-white truncate w-full" [title]="t.title">{{ t.title }}</span>
                 <span class="text-[11px] text-[#A3A3A3] font-medium tracking-wide truncate w-full">
-                  {{ t.project_id ? getProjectName(t.project_id) : (t.department_id ? getDepartmentName(t.department_id) : 'Standalone Task') }}
+                  {{ t.project_name || (t.project_id ? getProjectName(t.project_id) : (t.department_id ? getDepartmentName(t.department_id) : 'Standalone Task')) }}
                 </span>
               </div>
             </div>

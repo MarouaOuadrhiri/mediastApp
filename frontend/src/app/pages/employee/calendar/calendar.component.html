@@ -2,10 +2,17 @@
   <div class="calendar-content">
 
     <div class="calendar-main-card">
-      <full-calendar [options]="calendarOptions"></full-calendar>
+      <full-calendar #calendar [options]="calendarOptions"></full-calendar>
     </div>
 
     <aside class="calendar-sidebar">
+      
+      <!-- View Switcher -->
+      <div class="view-switcher">
+        <button (click)="changeView('dayGridMonth')" [class.active]="currentView === 'dayGridMonth'">Month</button>
+        <button (click)="changeView('timeGridWeek')" [class.active]="currentView === 'timeGridWeek'">Week</button>
+        <button (click)="changeView('timeGridDay')" [class.active]="currentView === 'timeGridDay'">Day</button>
+      </div>
 
       <p-card styleClass="sidebar-card">
         <h3 class="sidebar-title">Upcoming deadlines</h3>
