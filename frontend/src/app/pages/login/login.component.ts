@@ -16,12 +16,20 @@ export class LoginComponent {
   password = '';
   isLoading = false;
   errorMsg = '';
+  viewMode: 'selection' | 'agent' | 'admin' = 'selection';
 
   constructor(
     private api: ApiService,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
+
+  setMode(mode: 'agent' | 'admin' | 'selection') {
+    this.viewMode = mode;
+    this.errorMsg = '';
+    this.email = '';
+    this.password = '';
+  }
 
   login() {
     if (!this.email || !this.password) {
@@ -37,12 +45,12 @@ export class LoginComponent {
           localStorage.setItem('role', res.role);
         }
         this.isLoading = false;
+        
         if (res.role === 'ADMIN') {
           this.router.navigate(['/admin/dashboard']);
         } else if (res.role === 'EMPLOYEE') {
           this.router.navigate(['/employee/dashboard']);
         } else {
-          // Fallback or generic dashboard
           this.router.navigate(['/login']);
         }
       },

@@ -35,11 +35,11 @@
               </div>
               
               <div class="flex items-center gap-4">
-                <button (click)="updateProfile()" class="btn-action">
+                <button (click)="updateProfile()" class="btn-action inline-flex items-center gap-2">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   Edit Profile
                 </button>
-                <button (click)="openPasswordModal()" class="btn-action">
+                <button (click)="openPasswordModal()" class="btn-action update-btn inline-flex items-center gap-2">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                   Change Password
                 </button>
@@ -48,7 +48,7 @@
           </div>
 
           <!-- Bottom Metrics Bar -->
-          <div class="grid grid-cols-4 gap-4 pt-8 border-t border-white/[0.05]">
+          <div class="grid grid-cols-4 gap-4 pt-8">
             <div class="metric-item">
               <span class="metric-label">Status</span>
               <div class="flex items-center gap-2">
@@ -75,8 +75,10 @@
       <!-- Professional Synthesis Card -->
       <div class="profile-card relative">
         <div class="flex items-center gap-3 mb-8">
-          <div class="icon-box red">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          <div class="icon-box">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 20V15.7C2.05 14.8333 1.3125 13.8208 0.7875 12.6625C0.2625 11.5042 0 10.2833 0 9C0 6.5 0.875 4.375 2.625 2.625C4.375 0.875 6.5 0 9 0C11.0833 0 12.9292 0.6125 14.5375 1.8375C16.1458 3.0625 17.1917 4.65833 17.675 6.625L18.975 11.75C19.0583 12.0667 19 12.3542 18.8 12.6125C18.6 12.8708 18.3333 13 18 13H16V16C16 16.55 15.8042 17.0208 15.4125 17.4125C15.0208 17.8042 14.55 18 14 18H12V20H10V16H14V11H16.7L15.75 7.125C15.3667 5.60833 14.55 4.375 13.3 3.425C12.05 2.475 10.6167 2 9 2C7.06667 2 5.41667 2.675 4.05 4.025C2.68333 5.375 2 7.01667 2 8.95C2 9.95 2.20417 10.9 2.6125 11.8C3.02083 12.7 3.6 13.5 4.35 14.2L5 14.8V20H3ZM8 13H10L10.15 11.75C10.2833 11.7 10.4042 11.6417 10.5125 11.575C10.6208 11.5083 10.7167 11.4333 10.8 11.35L11.95 11.85L12.95 10.15L11.95 9.4C11.9833 9.26667 12 9.13333 12 9C12 8.86667 11.9833 8.73333 11.95 8.6L12.95 7.85L11.95 6.15L10.8 6.65C10.7167 6.56667 10.6208 6.49167 10.5125 6.425C10.4042 6.35833 10.2833 6.3 10.15 6.25L10 5H8L7.85 6.25C7.71667 6.3 7.59583 6.35833 7.4875 6.425C7.37917 6.49167 7.28333 6.56667 7.2 6.65L6.05 6.15L5.05 7.85L6.05 8.6C6.01667 8.73333 6 8.86667 6 9C6 9.13333 6.01667 9.26667 6.05 9.4L5.05 10.15L6.05 11.85L7.2 11.35C7.28333 11.4333 7.37917 11.5083 7.4875 11.575C7.59583 11.6417 7.71667 11.7 7.85 11.75L8 13ZM9 10.5C8.58333 10.5 8.22917 10.3542 7.9375 10.0625C7.64583 9.77083 7.5 9.41667 7.5 9C7.5 8.58333 7.64583 8.22917 7.9375 7.9375C8.22917 7.64583 8.58333 7.5 9 7.5C9.41667 7.5 9.77083 7.64583 10.0625 7.9375C10.3542 8.22917 10.5 8.58333 10.5 9C10.5 9.41667 10.3542 9.77083 10.0625 10.0625C9.77083 10.3542 9.41667 10.5 9 10.5Z" fill="#FD0000"/>
+            </svg>
           </div>
           <h3 class="card-title">Professional Synthesis</h3>
         </div>
@@ -94,10 +96,12 @@
 
       <!-- Bandwidth Engine Card -->
       <div class="profile-card">
-        <div class="flex items-center justify-between mb-10">
+        <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-3">
-            <div class="icon-box red">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <div class="icon-box">
+             <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+               <path d="M8.45 11.5C8.85 11.9 9.36667 12.0958 10 12.0875C10.6333 12.0792 11.1 11.85 11.4 11.4L17 3L8.6 8.6C8.15 8.9 7.9125 9.35833 7.8875 9.975C7.8625 10.5917 8.05 11.1 8.45 11.5ZM10 0C10.9833 0 11.9292 0.1375 12.8375 0.4125C13.7458 0.6875 14.6 1.1 15.4 1.65L13.5 2.85C12.95 2.56667 12.3792 2.35417 11.7875 2.2125C11.1958 2.07083 10.6 2 10 2C7.78333 2 5.89583 2.77917 4.3375 4.3375C2.77917 5.89583 2 7.78333 2 10C2 10.7 2.09583 11.3917 2.2875 12.075C2.47917 12.7583 2.75 13.4 3.1 14H16.9C17.2833 13.3667 17.5625 12.7083 17.7375 12.025C17.9125 11.3417 18 10.6333 18 9.9C18 9.3 17.9292 8.71667 17.7875 8.15C17.6458 7.58333 17.4333 7.03333 17.15 6.5L18.35 4.6C18.85 5.38333 19.2458 6.21667 19.5375 7.1C19.8292 7.98333 19.9833 8.9 20 9.85C20.0167 10.8 19.9083 11.7083 19.675 12.575C19.4417 13.4417 19.1 14.2667 18.65 15.05C18.4667 15.35 18.2167 15.5833 17.9 15.75C17.5833 15.9167 17.25 16 16.9 16H3.1C2.75 16 2.41667 15.9167 2.1 15.75C1.78333 15.5833 1.53333 15.35 1.35 15.05C0.916667 14.3 0.583333 13.5042 0.35 12.6625C0.116667 11.8208 0 10.9333 0 10C0 8.61667 0.2625 7.32083 0.7875 6.1125C1.3125 4.90417 2.02917 3.84583 2.9375 2.9375C3.84583 2.02917 4.90833 1.3125 6.125 0.7875C7.34167 0.2625 8.63333 0 10 0Z" fill="#FD0000"/>
+              </svg>
             </div>
             <h3 class="card-title">Bandwidth Engine</h3>
           </div>
@@ -137,13 +141,13 @@
     <div class="lg:col-span-4 space-y-8">
       
       <!-- Performance Velocity Card -->
-      <div class="profile-card flex flex-col items-center py-10">
-        <h3 class="w-full card-title-small mb-10 px-4">Performance Velocity</h3>
+      <div class="profile-card performance flex flex-col items-center py-6 pb-8">
+        <h3 class="w-full card-title-small mb-6 px-4">Performance Velocity</h3>
         
-        <div class="relative w-48 h-48 flex items-center justify-center mb-10">
-          <svg class="w-full h-full -rotate-90">
-            <circle cx="96" cy="96" r="84" stroke="rgba(255,255,255,0.03)" stroke-width="12" fill="none" />
-            <circle cx="96" cy="96" r="84" stroke="url(#velocityGradient)" stroke-width="12" fill="none" 
+        <div class="relative w-36 h-36 flex items-center justify-center mb-6">
+          <svg class="w-full h-full -rotate-90" viewBox="0 0 192 192">
+            <circle cx="96" cy="96" r="84" stroke="rgba(255,255,255,0.06)" stroke-width="10" fill="none" />
+            <circle cx="96" cy="96" r="84" stroke="url(#velocityGradient)" stroke-width="10" fill="none" 
                     [attr.stroke-dasharray]="528" [attr.stroke-dashoffset]="528 - (528 * stats.global_points / 100)"
                     stroke-linecap="round" class="transition-all duration-1000" />
             <defs>
@@ -159,7 +163,7 @@
           </div>
         </div>
 
-        <div class="w-full space-y-6 px-6">
+        <div class="w-full space-y-4 px-4">
           <div class="space-y-3">
             <div class="flex justify-between items-center">
               <span class="mini-bar-label">Efficiency</span>
@@ -169,13 +173,13 @@
               <div class="mini-bar-fill red" [style.width.%]="stats.efficiency"></div>
             </div>
           </div>
-          <div class="space-y-3 pt-6 border-t border-white/[0.05]">
+          <div class="space-y-3 pt-4 border-t border-white/[0.05]">
             <div class="flex justify-between items-center">
               <span class="mini-bar-label">Feedback</span>
               <span class="mini-bar-value">{{stats.feedback}}/5.0</span>
             </div>
             <div class="mini-bar-bg">
-              <div class="mini-bar-fill white" [style.width.%]="(stats.feedback/5)*100"></div>
+              <div class="mini-bar-fill red" [style.width.%]="(stats.feedback/5)*100"></div>
             </div>
           </div>
         </div>
