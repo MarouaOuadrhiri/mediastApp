@@ -275,7 +275,6 @@ color: white;
 /* Header Styling */
 .header {
   text-align: center;
-  margin-bottom: 48px;
 }
 
 .header h1 {
@@ -708,13 +707,27 @@ color: white;
 }
 
 /* Right Side Form Glassmorphism */
-.admin-form-container {
-width: 500px;
+.admin-form-container1 {
+  width: 500px;
   height: 706px;
-border-radius: 24px;
-padding: 40px;
-backdrop-filter: blur(12px);
-
+  border-radius: 24px;
+  padding: 40px;
+  backdrop-filter: blur(12px);
+  max-width: 440px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid #2A2A2FB2;
+  border-radius: 32px;
+  background: #121214CC;
+}
+.admin-form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 500px;
+  height: 706px;
+  border-radius: 24px;
+  padding: 40px;
+  backdrop-filter: blur(12px);
   max-width: 440px;
   background: rgba(255, 255, 255, 0.01);
   border: 1px solid #2A2A2FB2;
@@ -881,12 +894,12 @@ text-transform: uppercase;
   position: absolute;
 
   /* Make image smaller */
-  width: 145%;
+  width: 160%;
   max-width: none;
   height: auto;
 
   /* Push image more to the LEFT */
-  left: 62.5%;
+  left: 58.5%;
   top: 52%;
 
   /* Fine positioning */
